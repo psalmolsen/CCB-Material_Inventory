@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+
+<HBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.ccb.MainController"
+      styleClass="root-container"
+      prefWidth="1200" prefHeight="750">
+
+    <!-- ═══════════════════════════════════════ SIDEBAR ═══════════════════════════════════════ -->
+    <VBox styleClass="sidebar" prefWidth="220">
+
+        <!-- Logo Area -->
+        <VBox styleClass="logo-area" alignment="CENTER">
+            <ImageView fitWidth="70" fitHeight="70" preserveRatio="true">
+                <image>
+                    <Image url="file:///C:/Users/USER/Desktop/CCB System/CCBInventory/src/imgs/CCBLogo.png"/>
+                </image>
+            </ImageView>
+            <Label text="CCB Inventory" styleClass="logo-title"/>
+            <Label text="Management System" styleClass="logo-subtitle"/>
+        </VBox>
+
+        <!-- Navigation -->
+        <VBox styleClass="nav-section" VBox.vgrow="ALWAYS">
+            <Label text="MAIN MENU" styleClass="nav-section-label"/>
+
+            <Button fx:id="btnMaterial" text="🧱   Material Monitoring" styleClass="nav-btn, nav-btn-active" maxWidth="Infinity" onAction="#showMaterial"/>
+            <Button fx:id="btnCnf"     text="🔩   CNF Monitoring"      styleClass="nav-btn"                 maxWidth="Infinity" onAction="#showCnf"/>
+            <Button fx:id="btnOring"   text="⭕   O-Ring Monitoring"   styleClass="nav-btn"                 maxWidth="Infinity" onAction="#showOring"/>
+            <Button fx:id="btnSales"   text="📊   Pellets L-Sales"     styleClass="nav-btn"                 maxWidth="Infinity" onAction="#showSales"/>
+        </VBox>
+
+
+    </VBox>
+
+    <!-- ═══════════════════════════════════════ MAIN CONTENT ═══════════════════════════════════ -->
+    <VBox styleClass="main-content" HBox.hgrow="ALWAYS">
+
+        <!-- Top Bar -->
+        <HBox styleClass="topbar" alignment="CENTER_LEFT">
+            <Label fx:id="pageTitle" text="Material Monitoring" styleClass="page-title" HBox.hgrow="ALWAYS"/>
+        </HBox>
+        <HBox styleClass="topbar-accent"/>
+
+        <!-- ─── MATERIAL MONITORING SECTION ─── -->
+        <VBox fx:id="materialSection" styleClass="section-content" VBox.vgrow="ALWAYS">
+
+            <!-- Red Overview Panel wrapping stat cards -->
+            <VBox style="-fx-background-color: #B71C1C; -fx-background-radius: 16; -fx-padding: 16 18; -fx-spacing: 12; -fx-effect: dropshadow(gaussian, rgba(183,28,28,0.38), 20, 0, 0, 8);">
+                <Label text="MATERIAL OVERVIEW" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.85); -fx-letter-spacing: 1.2px; -fx-padding: 0 0 8 0; -fx-border-color: transparent transparent rgba(255,255,255,0.2) transparent; -fx-border-width: 0 0 1 0;"/>
+                <HBox spacing="14">
+                    <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
+                        <Label fx:id="materialTotalCount" text="0" styleClass="stat-number"/>
+                        <Label text="Qty" styleClass="stat-qty"/>
+                        <Label text="INITIAL STOCK" styleClass="stat-label"/>
+                    </VBox>
+                    <VBox styleClass="stat-card stat-yellow" HBox.hgrow="ALWAYS">
+                        <Label fx:id="materialLowCount" text="0" styleClass="stat-number"/>
+                        <Label text="Qty" styleClass="stat-qty"/>
+                        <Label text="RECEIVED" styleClass="stat-label"/>
+                    </VBox>
+                    <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
+                        <Label fx:id="materialInCount" text="0" styleClass="stat-number"/>
+                        <Label text="Qty" styleClass="stat-qty"/>
+                        <Label text="CURRENT BALANCE" styleClass="stat-label"/>
+                    </VBox>
+                    <VBox styleClass="stat-card stat-dark" HBox.hgrow="ALWAYS">
+                        <Label fx:id="materialOutCount" text="0" styleClass="stat-number"/>
+                        <Label text="Qty" styleClass="stat-qty"/>
+                        <Label text="ISSUED" styleClass="stat-label"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Add Material Button -->
+            <HBox alignment="CENTER_RIGHT">
+                <Button fx:id="btnAddMaterial" text="＋  Add Material" styleClass="btn-add-material" onAction="#openAddMaterial"/>
+            </HBox>
+
+            <!-- Material Records Panel -->
+            <VBox styleClass="panel" VBox.vgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0; -fx-border-color: transparent transparent #eaedf5 transparent; -fx-border-width: 0 0 1 0;">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="List of Materials" styleClass="panel-title" style="-fx-border-width: 0; -fx-padding: 0;" HBox.hgrow="ALWAYS"/>
+                        <Label text="Card view with code, description, status, and pricing" styleClass="placeholder-text" style="-fx-padding: 0; -fx-font-size: 11px;"/>
+                    </VBox>
+                    <Label text="Auto-loaded from Google Sheets" style="-fx-text-fill: #7b86aa; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                </HBox>
+
+                <VBox styleClass="materials-list-shell" VBox.vgrow="ALWAYS">
+                    <ListView fx:id="materialsList" VBox.vgrow="ALWAYS" styleClass="materials-list">
+                        <placeholder>
+                            <Label text="No materials yet. Click + Add Material to get started." styleClass="placeholder-text"/>
+                        </placeholder>
+                    </ListView>
+                </VBox>
+            </VBox>
+
+        </VBox>
+
+        <!-- ─── CNF MONITORING SECTION ─── -->
+        <VBox fx:id="cnfSection" styleClass="section-content" VBox.vgrow="ALWAYS" visible="false" managed="false">
+            <Label text="CNF Overview  (Collar · Nameplate · Footring)" styleClass="section-title"/>
+            <HBox styleClass="stat-cards" spacing="14">
+                <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
+                    <Label fx:id="collarCount" text="0" styleClass="stat-number"/>
+                    <Label text="Qty" styleClass="stat-qty"/>
+                    <Label text="COLLAR" styleClass="stat-label"/>
+                </VBox>
+                <VBox styleClass="stat-card stat-red" HBox.hgrow="ALWAYS">
+                    <Label fx:id="nameplateCount" text="0" styleClass="stat-number"/>
+                    <Label text="Qty" styleClass="stat-qty"/>
+                    <Label text="NAMEPLATE" styleClass="stat-label"/>
+                </VBox>
+                <VBox styleClass="stat-card stat-yellow" HBox.hgrow="ALWAYS">
+                    <Label fx:id="footringCount" text="0" styleClass="stat-number"/>
+                    <Label text="Qty" styleClass="stat-qty"/>
+                    <Label text="FOOTRING" styleClass="stat-label"/>
+                </VBox>
+            </HBox>
+            <HBox spacing="16" VBox.vgrow="ALWAYS">
+                <VBox styleClass="panel" HBox.hgrow="ALWAYS">
+                    <Label text="Collar Stock" styleClass="panel-title"/>
+                    <Label text="Collar records will appear here." styleClass="placeholder-text"/>
+                </VBox>
+                <VBox styleClass="panel" HBox.hgrow="ALWAYS">
+                    <Label text="Nameplate Stock" styleClass="panel-title"/>
+                    <Label text="Nameplate records will appear here." styleClass="placeholder-text"/>
+                </VBox>
+                <VBox styleClass="panel" HBox.hgrow="ALWAYS">
+                    <Label text="Footring Stock" styleClass="panel-title"/>
+                    <Label text="Footring records will appear here." styleClass="placeholder-text"/>
+                </VBox>
+            </HBox>
+        </VBox>
+
+        <!-- ─── O-RING MONITORING SECTION ─── -->
+        <VBox fx:id="oringSection" styleClass="section-content" VBox.vgrow="ALWAYS" visible="false" managed="false">
+            <Label text="O-Ring Overview" styleClass="section-title"/>
+            <HBox styleClass="stat-cards" spacing="14">
+                <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
+                    <Label fx:id="oringTotalCount" text="0" styleClass="stat-number"/>
+                    <Label text="Qty" styleClass="stat-qty"/>
+                    <Label text="TOTAL O-RINGS" styleClass="stat-label"/>
+                </VBox>
+                <VBox styleClass="stat-card stat-red" HBox.hgrow="ALWAYS">
+                    <Label fx:id="oringLowCount" text="0" styleClass="stat-number"/>
+                    <Label text="Qty" styleClass="stat-qty"/>
+                    <Label text="LOW STOCK" styleClass="stat-label"/>
+                </VBox>
+                <VBox styleClass="stat-card stat-yellow" HBox.hgrow="ALWAYS">
+                    <Label fx:id="oringIssuedCount" text="0" styleClass="stat-number"/>
+                    <Label text="Qty" styleClass="stat-qty"/>
+                    <Label text="ISSUED TODAY" styleClass="stat-label"/>
+                </VBox>
+            </HBox>
+            <VBox styleClass="panel" VBox.vgrow="ALWAYS">
+                <Label text="O-Ring Records" styleClass="panel-title"/>
+                <Label text="O-ring monitoring table will appear here." styleClass="placeholder-text"/>
+            </VBox>
+        </VBox>
+
+        <!-- ─── PELLETS L-SALES REPORT SECTION ─── -->
+        <VBox fx:id="salesSection" styleClass="section-content" VBox.vgrow="ALWAYS" visible="false" managed="false">
+            <Label text="Pellets L-Sales Report" styleClass="section-title"/>
+            <HBox styleClass="stat-cards" spacing="14">
+                <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
+                    <Label fx:id="salesTotalCount" text="0" styleClass="stat-number"/>
+                    <Label text="Qty" styleClass="stat-qty"/>
+                    <Label text="TOTAL SOLD" styleClass="stat-label"/>
+                </VBox>
+                <VBox styleClass="stat-card stat-red" HBox.hgrow="ALWAYS">
+                    <Label fx:id="salesMonthCount" text="0" styleClass="stat-number"/>
+                    <Label text="Qty" styleClass="stat-qty"/>
+                    <Label text="THIS MONTH" styleClass="stat-label"/>
+                </VBox>
+                <VBox styleClass="stat-card stat-yellow" HBox.hgrow="ALWAYS">
+                    <Label fx:id="salesTodayCount" text="0" styleClass="stat-number"/>
+                    <Label text="Qty" styleClass="stat-qty"/>
+                    <Label text="TODAY" styleClass="stat-label"/>
+                </VBox>
+            </HBox>
+            <VBox styleClass="panel" VBox.vgrow="ALWAYS">
+                <Label text="Sales Records" styleClass="panel-title"/>
+                <Label text="Pellets L-sales report will appear here." styleClass="placeholder-text"/>
+            </VBox>
+        </VBox>
+
+    </VBox>
+</HBox>
