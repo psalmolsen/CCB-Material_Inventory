@@ -25,7 +25,7 @@ public class AddMaterialController implements Initializable {
     @FXML private TextField imagePathField;
     @FXML private Label errorLabel;
 
-    private static final String IMAGE_DIR = "src/imgs/Material_Icon/";
+    private static final String IMAGE_DIR = System.getProperty("user.dir") + "/src/imgs/Material_Icon/";
     private static final String TAB_NAME  = "MAY";
 
     private File selectedImageFile;
@@ -72,8 +72,7 @@ public class AddMaterialController implements Initializable {
             return;
         }
 
-        // Copy image to Material_Icon folder — rename to code # for easy lookup
-        String imageFileName = "";
+        // Copy image to Material_Icon folder and rename it to the material code.
         if (selectedImageFile != null) {
             try {
                 File destDir = new File(IMAGE_DIR);
@@ -81,7 +80,6 @@ public class AddMaterialController implements Initializable {
                 String ext = selectedImageFile.getName().substring(selectedImageFile.getName().lastIndexOf('.'));
                 File dest = new File(destDir, code + ext);
                 Files.copy(selectedImageFile.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                imageFileName = dest.getName();
             } catch (Exception e) {
                 showError("Failed to save image: " + e.getMessage());
                 return;
@@ -91,10 +89,10 @@ public class AddMaterialController implements Initializable {
         try {
             GoogleSheetsService service = new GoogleSheetsService();
 
-            // col: 0=empty,1=code,2=desc,3=uom,4=price,5=stockIn,6=date,7=balance,8=out,9=empty,10-40=days,41=totalIssued
+            // col: 0=empty/date,1=code,2=desc,3=uom,4=price,5=initial stock,6=received,7=empty,8=balance,9=out qty,10=empty,11-41=days,42=total issued
             List<Object> row = Arrays.asList(
-                "", code, description, uom, price, 0, "", 0, 0,
-                "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                "", code, description, uom, price, 0, 0, "", 0, 0, "",
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0

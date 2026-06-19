@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.ccb.MaterialMonthOutController"
+      prefWidth="560" prefHeight="720"
+      styleClass="dialog-shell">
+
+    <VBox styleClass="dialog-header">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="MONTHLY DAILY OUT" styleClass="dialog-eyebrow"/>
+                <Label fx:id="materialLabel" text="Material" styleClass="dialog-title"/>
+                <Label text="Browse how each day contributed to the monthly total." styleClass="dialog-subtitle"/>
+            </VBox>
+            <Button text="Close" onAction="#closeDialog" styleClass="btn-secondary"/>
+        </HBox>
+    </VBox>
+
+    <VBox styleClass="dialog-body" VBox.vgrow="ALWAYS" spacing="14">
+        <VBox styleClass="hero-panel" spacing="4">
+            <Label text="MONTHLY BREAKDOWN" styleClass="hero-tag"/>
+            <Label text="Daily out by month" styleClass="hero-headline"/>
+            <Label text="Use this panel to inspect how each day adds up to the selected month’s total." styleClass="hero-copy"/>
+        </VBox>
+
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="toolbar-strip toolbar-card">
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Month" styleClass="field-caption"/>
+                <ComboBox fx:id="monthComboBox" prefWidth="140" styleClass="month-picker"/>
+            </VBox>
+            <VBox alignment="CENTER_RIGHT" spacing="4" styleClass="summary-pill">
+                <Label text="TOTAL ISSUED" styleClass="summary-label"/>
+                <Label fx:id="totalIssuedLabel" text="0000" styleClass="summary-value"/>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="12" styleClass="month-summary-row">
+            <VBox styleClass="month-summary-card" HBox.hgrow="ALWAYS">
+                <Label text="PEAK DAY" styleClass="month-summary-label"/>
+                <Label fx:id="peakDayLabel" text="--" styleClass="month-summary-value"/>
+            </VBox>
+            <VBox styleClass="month-summary-card" HBox.hgrow="ALWAYS">
+                <Label text="ACTIVE DAYS" styleClass="month-summary-label"/>
+                <Label fx:id="activeDaysLabel" text="0" styleClass="month-summary-value"/>
+            </VBox>
+            <VBox styleClass="month-summary-card" HBox.hgrow="ALWAYS">
+                <Label text="AVERAGE / ACTIVE DAY" styleClass="month-summary-label"/>
+                <Label fx:id="averageDayLabel" text="0" styleClass="month-summary-value"/>
+            </VBox>
+        </HBox>
+
+        <Label fx:id="errorLabel" visible="false" managed="false" styleClass="inline-error"/>
+
+        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS"
+                    styleClass="glass-scroll" hbarPolicy="NEVER">
+            <content>
+                <VBox styleClass="day-list-shell" style="-fx-padding: 0 30 0 0;">
+                    <VBox fx:id="daysBox" spacing="10" styleClass="day-list-stack"/>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </VBox>
+</VBox>

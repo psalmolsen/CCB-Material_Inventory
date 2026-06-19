@@ -10,8 +10,13 @@ public class InventoryItem {
     private String description;
     private String uom;
     private double unitPrice;
-    private double stockIn;
+    private double initialStock;
+    private double receivedQuantity;
+    private double currentBalance;
     private double outQuantity;
+    private double issuedQuantity;
+    private int sheetRowNumber;
+    private String sheetTabName;
 
     // Day 1–31 stock out values
     private Map<Integer, Double> dailyOut = new HashMap<>();
@@ -24,7 +29,7 @@ public class InventoryItem {
     }
 
     public double getBalanceQuantity() {
-        return stockIn - getTotalIssued();
+        return currentBalance;
     }
 
     public double getDayValue(int day) {
@@ -37,8 +42,20 @@ public class InventoryItem {
 
     // Getters and Setters
     public double getTotalPrice() {
-        return unitPrice * getTotalIssued();
+        return unitPrice * getIssuedQuantity();
     }
+
+    public double getIssuedQuantity()               { return issuedQuantity; }
+    public void setIssuedQuantity(double issued)    { this.issuedQuantity = issued; }
+
+    public double getInitialStock()                 { return initialStock; }
+    public void setInitialStock(double initial)     { this.initialStock = initial; }
+
+    public double getReceivedQuantity()             { return receivedQuantity; }
+    public void setReceivedQuantity(double received){ this.receivedQuantity = received; }
+
+    public double getCurrentBalance()               { return currentBalance; }
+    public void setCurrentBalance(double balance)   { this.currentBalance = balance; }
 
     public double getUnitPrice()               { return unitPrice; }
     public void setUnitPrice(double unitPrice)  { this.unitPrice = unitPrice; }
@@ -55,12 +72,18 @@ public class InventoryItem {
     public String getUom()                      { return uom; }
     public void setUom(String uom)              { this.uom = uom; }
 
-    public double getStockIn()                  { return stockIn; }
-    public void setStockIn(double stockIn)      { this.stockIn = stockIn; }
+    public double getStockIn()                  { return initialStock; }
+    public void setStockIn(double stockIn)      { this.initialStock = stockIn; }
 
     public double getOutQuantity()              { return outQuantity; }
     public void setOutQuantity(double out)      { this.outQuantity = out; }
 
     public Map<Integer, Double> getDailyOut()   { return dailyOut; }
     public void setDailyOut(Map<Integer, Double> d) { this.dailyOut = d; }
+
+    public int getSheetRowNumber()              { return sheetRowNumber; }
+    public void setSheetRowNumber(int rowNumber){ this.sheetRowNumber = rowNumber; }
+
+    public String getSheetTabName()             { return sheetTabName; }
+    public void setSheetTabName(String tabName) { this.sheetTabName = tabName; }
 }

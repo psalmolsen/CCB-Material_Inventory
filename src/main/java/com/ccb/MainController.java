@@ -9,7 +9,10 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Button;
+import javafx.scene.control.CustomMenuItem;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -22,6 +25,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.paint.Color;
 
 import java.io.File;
 import java.net.URL;
@@ -44,9 +49,13 @@ public class MainController implements Initializable {
     @FXML private Label pageTitle;
 
     @FXML private Label materialTotalCount;
+    @FXML private Label materialInitialUnit;
     @FXML private Label materialLowCount;
+    @FXML private Label materialReceivedUnit;
     @FXML private Label materialInCount;
+    @FXML private Label materialBalanceUnit;
     @FXML private Label materialOutCount;
+    @FXML private Label materialIssuedUnit;
 
     @FXML private Label collarCount;
     @FXML private Label nameplateCount;
@@ -62,7 +71,7 @@ public class MainController implements Initializable {
 
     @FXML private ListView<InventoryItem> materialsList;
 
-    private static final String IMAGE_DIR = "src/imgs/Material_Icon/";
+    private static final String IMAGE_DIR = System.getProperty("user.dir") + "/src/imgs/Material_Icon/";
     private static final String TAB_NAME = "MAY";
 
     private List<Button> navButtons;
@@ -77,8 +86,12 @@ public class MainController implements Initializable {
         materialsList.setFixedCellSize(126);
         materialsList.setCellFactory(list -> new MaterialCardCell());
         materialsList.setItems(FXCollections.observableArrayList());
+        materialsList.getSelectionModel().selectedItemProperty().addListener((obs, oldItem, selectedItem) ->
+            updateMaterialOverview(selectedItem)
+        );
 
         showSection(0, "Material Monitoring");
+        updateMaterialOverview(null);
         loadMaterials();
     }
 
@@ -92,13 +105,19 @@ public class MainController implements Initializable {
                 for (int i = GoogleSheetsService.DATA_START_ROW; i < rows.size(); i++) {
                     List<Object> row = rows.get(i);
                     if (row.size() > 1 && !row.get(1).toString().isBlank()) {
-                        items.add(SheetMapper.fromRow(row));
+                        InventoryItem item = SheetMapper.fromRow(row, i + 1);
+                        item.setSheetTabName(TAB_NAME);
+                        items.add(item);
                     }
                 }
                 return items;
             }
         };
-        task.setOnSucceeded(e -> materialsList.setItems(task.getValue()));
+        task.setOnSucceeded(e -> {
+            materialsList.setItems(task.getValue());
+            materialsList.getSelectionModel().clearSelection();
+            updateMaterialOverview(null);
+        });
         task.setOnFailed(e -> System.err.println("Failed to load: " + task.getException().getMessage()));
         Thread loader = new Thread(task);
         loader.setDaemon(true);
@@ -119,7 +138,7 @@ public class MainController implements Initializable {
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.initStyle(StageStyle.TRANSPARENT);
             Scene scene = new Scene(root);
-            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            applyDialogStyles(scene);
             dialog.setScene(scene);
             dialog.showAndWait();
             loadMaterials();
@@ -142,6 +161,76 @@ public class MainController implements Initializable {
         }
     }
 
+    private void updateMaterialOverview(InventoryItem item) {
+        if (item == null) {
+            materialTotalCount.setText("0000");
+            materialInitialUnit.setText("");
+            materialLowCount.setText("0000");
+            materialReceivedUnit.setText("");
+            materialInCount.setText("0000");
+            materialBalanceUnit.setText("");
+            materialOutCount.setText("0000");
+            materialIssuedUnit.setText("");
+            return;
+        }
+
+        String uom = item.getUom() == null || item.getUom().isBlank() ? "UOM" : item.getUom().trim();
+        materialTotalCount.setText(formatQuantity(item.getInitialStock()));
+        materialInitialUnit.setText(uom);
+        materialLowCount.setText(formatQuantity(item.getReceivedQuantity()));
+        materialReceivedUnit.setText(uom);
+        materialInCount.setText(formatQuantity(item.getCurrentBalance()));
+        materialBalanceUnit.setText(uom);
+        materialOutCount.setText(formatQuantity(item.getIssuedQuantity()));
+        materialIssuedUnit.setText(uom);
+    }
+
+    private void openMonthlyOutDialog(InventoryItem item) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/material_month_out.fxml"));
+            Parent root = loader.load();
+            MaterialMonthOutController controller = loader.getController();
+            controller.setMaterial(item);
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.TRANSPARENT);
+            Scene scene = new Scene(root);
+            applyDialogStyles(scene);
+            stage.setScene(scene);
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openEditMaterialDialog(InventoryItem item) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/edit_material.fxml"));
+            Parent root = loader.load();
+            EditMaterialController controller = loader.getController();
+            controller.setMaterial(item);
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.TRANSPARENT);
+            Scene scene = new Scene(root);
+            applyDialogStyles(scene);
+            stage.setScene(scene);
+            stage.showAndWait();
+            loadMaterials();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void applyDialogStyles(Scene scene) {
+        scene.setFill(Color.TRANSPARENT);
+        scene.getStylesheets().add(getClass().getResource("/com/ccb/css/style.css").toExternalForm());
+    }
+
+    private String formatQuantity(double value) {
+        return String.format("%.0f", value);
+    }
+
     private File resolveImageFile(String code) {
         File png = new File(IMAGE_DIR + code + ".png");
         if (png.exists()) return png;
@@ -155,37 +244,23 @@ public class MainController implements Initializable {
         return null;
     }
 
-    private String statusText(InventoryItem item) {
-        double balance = item.getBalanceQuantity();
-        if (balance <= 0) return "OUT OF STOCK";
-        if (balance <= 10) return "LOW STOCK";
-        return "AVAILABLE";
-    }
-
-    private String stockText(InventoryItem item) {
-        return String.format("In %.0f  |  Issued %.0f  |  Balance %.0f",
-            item.getStockIn(),
-            item.getTotalIssued(),
-            item.getBalanceQuantity());
-    }
-
     private final class MaterialCardCell extends ListCell<InventoryItem> {
         private final HBox root = new HBox(16);
         private final StackPane thumbFrame = new StackPane();
         private final ImageView thumb = new ImageView();
         private final Label thumbFallback = new Label();
         private final VBox center = new VBox(7);
+        private final HBox titleRow = new HBox(8);
         private final Label codeLabel = new Label();
+        private final Button moreButton = new Button("\u22EF");
         private final Label descLabel = new Label();
-        private final HBox chipsRow = new HBox(8);
-        private final Label uomChip = new Label();
-        private final Label stockChip = new Label();
-        private final Label stockLine = new Label();
         private final VBox pricePanel = new VBox(8);
         private final Label unitPriceLabel = new Label();
         private final Label unitPriceValue = new Label();
         private final Label totalPriceLabel = new Label();
         private final Label totalPriceValue = new Label();
+        private final ContextMenu moreMenu = new ContextMenu();
+        private InventoryItem currentItem;
 
         private MaterialCardCell() {
             getStyleClass().add("material-list-cell");
@@ -201,16 +276,53 @@ public class MainController implements Initializable {
             thumbFrame.getChildren().addAll(thumbFallback, thumb);
 
             codeLabel.getStyleClass().add("material-code");
+            HBox.setHgrow(codeLabel, Priority.ALWAYS);
+            moreButton.getStyleClass().add("material-more-button");
+            moreButton.setTextFill(javafx.scene.paint.Color.web("#7b86aa"));
+            moreButton.setFocusTraversable(false);
+            moreButton.setOnAction(e -> {
+                if (!moreMenu.isShowing()) {
+                    moreMenu.show(moreButton, javafx.geometry.Side.BOTTOM, 0, 4);
+                } else {
+                    moreMenu.hide();
+                }
+            });
+
+            VBox actionPanel = new VBox(8);
+            actionPanel.getStyleClass().add("material-action-panel");
+            Label actionTitle = new Label("Quick Actions");
+            actionTitle.getStyleClass().add("material-action-title");
+            Label actionHint = new Label("Choose what to inspect or edit");
+            actionHint.getStyleClass().add("material-action-hint");
+
+            Button monthOutButton = buildActionButton("View Monthly Daily Out", "Inspect each day for the selected month");
+            monthOutButton.setOnAction(e -> {
+                moreMenu.hide();
+                if (currentItem != null) {
+                    openMonthlyOutDialog(currentItem);
+                }
+            });
+
+            Button editButton = buildActionButton("Edit A-J Data", "Update the sheet row fields");
+            editButton.setOnAction(e -> {
+                moreMenu.hide();
+                if (currentItem != null) {
+                    openEditMaterialDialog(currentItem);
+                }
+            });
+
+            actionPanel.getChildren().addAll(actionTitle, actionHint, monthOutButton, editButton);
+            CustomMenuItem actionItem = new CustomMenuItem(actionPanel, false);
+            actionItem.setHideOnClick(false);
+            moreMenu.getItems().add(actionItem);
+
+            titleRow.getStyleClass().add("material-title-row");
+            titleRow.getChildren().addAll(codeLabel, moreButton);
             descLabel.getStyleClass().add("material-desc");
             descLabel.setWrapText(true);
 
-            chipsRow.getStyleClass().add("material-chips-row");
-            uomChip.getStyleClass().addAll("material-chip", "material-chip-blue");
-            stockChip.getStyleClass().addAll("material-chip", "material-chip-yellow");
-            stockLine.getStyleClass().add("material-stock-line");
-
             center.getStyleClass().add("material-content");
-            center.getChildren().addAll(codeLabel, descLabel, chipsRow, stockLine);
+            center.getChildren().addAll(titleRow, descLabel);
             HBox.setHgrow(center, Priority.ALWAYS);
 
             pricePanel.getStyleClass().add("material-price-panel");
@@ -233,32 +345,23 @@ public class MainController implements Initializable {
             if (empty || item == null) {
                 setText(null);
                 setGraphic(null);
+                currentItem = null;
+                moreMenu.hide();
                 return;
             }
+
+            currentItem = item;
 
             String code = item.getCodeNo() == null ? "" : item.getCodeNo().trim();
             String description = item.getDescription() == null ? "" : item.getDescription().trim();
 
-            codeLabel.setText(code.isEmpty() ? "Unnamed material" : code);
+            codeLabel.setText(code.isEmpty() ? "" : code);
             descLabel.setText(description.isEmpty() ? "No description provided" : description);
-            uomChip.setText(item.getUom() == null || item.getUom().isBlank() ? "UOM" : item.getUom());
-            stockChip.setText(statusText(item));
-            stockChip.getStyleClass().removeAll("material-chip-blue", "material-chip-yellow", "material-chip-red");
-            if (item.getBalanceQuantity() <= 0) {
-                stockChip.getStyleClass().add("material-chip-red");
-            } else if (item.getBalanceQuantity() <= 10) {
-                stockChip.getStyleClass().add("material-chip-yellow");
-            } else {
-                stockChip.getStyleClass().add("material-chip-blue");
-            }
 
             unitPriceLabel.setText("UNIT PRICE");
             unitPriceValue.setText(String.format("\u20B1 %.2f", item.getUnitPrice()));
             totalPriceLabel.setText("TOTAL ISSUED VALUE");
             totalPriceValue.setText(String.format("\u20B1 %.2f", item.getTotalPrice()));
-            stockLine.setText(stockText(item));
-
-            chipsRow.getChildren().setAll(uomChip, stockChip);
 
             thumbFallback.setText(code.isEmpty() ? "M" : code.substring(0, Math.min(2, code.length())).toUpperCase());
             File imageFile = resolveImageFile(code);
@@ -274,6 +377,28 @@ public class MainController implements Initializable {
 
             setText(null);
             setGraphic(root);
+        }
+
+        private Button buildActionButton(String title, String subtitle) {
+            Label titleLabel = new Label(title);
+            titleLabel.getStyleClass().add("material-action-button-title");
+            Label subtitleLabel = new Label(subtitle);
+            subtitleLabel.getStyleClass().add("material-action-button-subtitle");
+
+            VBox textBlock = new VBox(2, titleLabel, subtitleLabel);
+            HBox row = new HBox(10);
+            row.getStyleClass().add("material-action-row");
+            Label icon = new Label("➜");
+            icon.getStyleClass().add("material-action-icon");
+            row.getChildren().addAll(textBlock, icon);
+            HBox.setHgrow(textBlock, Priority.ALWAYS);
+
+            Button button = new Button();
+            button.getStyleClass().add("material-action-button");
+            button.setGraphic(row);
+            button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            button.setMaxWidth(Double.MAX_VALUE);
+            return button;
         }
     }
 }
