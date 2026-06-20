@@ -38,41 +38,69 @@ import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
 
-    @FXML private VBox materialSection;
-    @FXML private VBox cnfSection;
-    @FXML private VBox oringSection;
-    @FXML private VBox salesSection;
+    @FXML
+    private VBox materialSection;
+    @FXML
+    private VBox cnfSection;
+    @FXML
+    private VBox oringSection;
+    @FXML
+    private VBox salesSection;
 
-    @FXML private Button btnMaterial;
-    @FXML private Button btnCnf;
-    @FXML private Button btnOring;
-    @FXML private Button btnSales;
-    @FXML private Button btnAddMaterial;
+    @FXML
+    private Button btnMaterial;
+    @FXML
+    private Button btnCnf;
+    @FXML
+    private Button btnOring;
+    @FXML
+    private Button btnSales;
+    @FXML
+    private Button btnAddMaterial;
 
-    @FXML private Label pageTitle;
+    @FXML
+    private Label pageTitle;
 
-    @FXML private Label materialTotalCount;
-    @FXML private Label materialInitialUnit;
-    @FXML private Label materialLowCount;
-    @FXML private Label materialReceivedUnit;
-    @FXML private Label materialInCount;
-    @FXML private Label materialBalanceUnit;
-    @FXML private Label materialOutCount;
-    @FXML private Label materialIssuedUnit;
+    @FXML
+    private Label materialTotalCount;
+    @FXML
+    private Label materialInitialUnit;
+    @FXML
+    private Label materialLowCount;
+    @FXML
+    private Label materialReceivedUnit;
+    @FXML
+    private Label materialInCount;
+    @FXML
+    private Label materialBalanceUnit;
+    @FXML
+    private Label materialOutCount;
+    @FXML
+    private Label materialIssuedUnit;
 
-    @FXML private Label collarCount;
-    @FXML private Label nameplateCount;
-    @FXML private Label footringCount;
+    @FXML
+    private Label collarCount;
+    @FXML
+    private Label nameplateCount;
+    @FXML
+    private Label footringCount;
 
-    @FXML private Label oringTotalCount;
-    @FXML private Label oringLowCount;
-    @FXML private Label oringIssuedCount;
+    @FXML
+    private Label oringTotalCount;
+    @FXML
+    private Label oringLowCount;
+    @FXML
+    private Label oringIssuedCount;
 
-    @FXML private Label salesTotalCount;
-    @FXML private Label salesMonthCount;
-    @FXML private Label salesTodayCount;
+    @FXML
+    private Label salesTotalCount;
+    @FXML
+    private Label salesMonthCount;
+    @FXML
+    private Label salesTodayCount;
 
-    @FXML private ListView<InventoryItem> materialsList;
+    @FXML
+    private ListView<InventoryItem> materialsList;
 
     private static final String IMAGE_DIR = System.getProperty("user.dir") + "/src/imgs/Material_Icon/";
     private static final String TAB_NAME = "MAY";
@@ -89,9 +117,8 @@ public class MainController implements Initializable {
         materialsList.setFixedCellSize(126);
         materialsList.setCellFactory(list -> new MaterialCardCell());
         materialsList.setItems(FXCollections.observableArrayList());
-        materialsList.getSelectionModel().selectedItemProperty().addListener((obs, oldItem, selectedItem) ->
-            updateMaterialOverview(selectedItem)
-        );
+        materialsList.getSelectionModel().selectedItemProperty()
+                .addListener((obs, oldItem, selectedItem) -> updateMaterialOverview(selectedItem));
 
         showSection(0, "Material Monitoring");
         updateMaterialOverview(null);
@@ -127,10 +154,25 @@ public class MainController implements Initializable {
         loader.start();
     }
 
-    @FXML public void showMaterial() { showSection(0, "Material Monitoring"); }
-    @FXML public void showCnf() { showSection(1, "CNF Monitoring"); }
-    @FXML public void showOring() { showSection(2, "O-Ring Monitoring"); }
-    @FXML public void showSales() { showSection(3, "Pellets L-Sales Report"); }
+    @FXML
+    public void showMaterial() {
+        showSection(0, "Material Monitoring");
+    }
+
+    @FXML
+    public void showCnf() {
+        showSection(1, "CNF Monitoring");
+    }
+
+    @FXML
+    public void showOring() {
+        showSection(2, "O-Ring Monitoring");
+    }
+
+    @FXML
+    public void showSales() {
+        showSection(3, "Pellets L-Sales Report");
+    }
 
     @FXML
     public void openAddMaterial() {
@@ -160,7 +202,8 @@ public class MainController implements Initializable {
             sections.get(i).setManaged(active);
             Button btn = navButtons.get(i);
             btn.getStyleClass().removeAll("nav-btn-active");
-            if (active) btn.getStyleClass().add("nav-btn-active");
+            if (active)
+                btn.getStyleClass().add("nav-btn-active");
         }
     }
 
@@ -236,13 +279,16 @@ public class MainController implements Initializable {
 
     private File resolveImageFile(String code) {
         File png = new File(IMAGE_DIR + code + ".png");
-        if (png.exists()) return png;
+        if (png.exists())
+            return png;
 
         File jpg = new File(IMAGE_DIR + code + ".jpg");
-        if (jpg.exists()) return jpg;
+        if (jpg.exists())
+            return jpg;
 
         File jpeg = new File(IMAGE_DIR + code + ".jpeg");
-        if (jpeg.exists()) return jpeg;
+        if (jpeg.exists())
+            return jpeg;
 
         return null;
     }
@@ -251,125 +297,318 @@ public class MainController implements Initializable {
         StringBuilder sb = new StringBuilder();
         while (col > 0) {
             col--; // 1-based to 0-based
-            sb.insert(0, (char)('A' + (col % 26)));
+            sb.insert(0, (char) ('A' + (col % 26)));
             col /= 26;
         }
         return sb.toString();
     }
 
-            private void showStockInDialog(InventoryItem item) {
-                Stage dialog = new Stage();
-                dialog.initModality(Modality.APPLICATION_MODAL);
-                dialog.initStyle(StageStyle.TRANSPARENT);
+    private void showStockInDialog(InventoryItem item) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
 
-                VBox root = new VBox(10);
-                root.getStyleClass().add("stock-dialog");
+        VBox root = new VBox(0);
+        root.getStyleClass().add("dialog-shell");
+        root.setPrefWidth(420);
 
-                // number picker
-                HBox stepper = new HBox(8);
-                stepper.getStyleClass().add("stock-stepper");
-                Button minus = new Button("-");
-                minus.getStyleClass().add("stock-step-button");
-                TextField qtyField = new TextField("0");
-                qtyField.getStyleClass().add("stock-qty");
-                qtyField.setPrefWidth(80);
-                qtyField.setAlignment(Pos.CENTER);
-                Button plus = new Button("+");
-                plus.getStyleClass().add("stock-step-button");
-                stepper.getChildren().addAll(minus, qtyField, plus);
+        // --- HEADER ---
+        VBox header = new VBox(4);
+        header.getStyleClass().addAll("dialog-header", "dialog-header-alt");
 
-                DatePicker datePicker = new DatePicker(LocalDate.now());
+        HBox headerRow = new HBox(10);
+        headerRow.setAlignment(Pos.CENTER_LEFT);
 
-                HBox buttons = new HBox(8);
-                Button cancel = new Button("Cancel");
-                Button save = new Button("Save");
-                buttons.getChildren().addAll(cancel, save);
+        VBox headerTitles = new VBox(4);
+        HBox.setHgrow(headerTitles, Priority.ALWAYS);
+        Label eyebrow = new Label("TRANSACTION ENTRY");
+        eyebrow.getStyleClass().add("dialog-eyebrow");
+        Label title = new Label("STOCK IN RECORD");
+        title.getStyleClass().add("dialog-title");
+        Label subtitle = new Label("Add item quantity to inventory stock.");
+        subtitle.getStyleClass().add("dialog-subtitle");
+        headerTitles.getChildren().addAll(eyebrow, title, subtitle);
 
-                root.getChildren().addAll(new Label("Stock In (writes to column G)"), stepper, new Label("Date (column H)"), datePicker, buttons);
+        Button closeBtn = new Button("✕");
+        closeBtn.setStyle(
+                "-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 14px; -fx-cursor: hand; -fx-border-width: 0; -fx-padding: 0;");
+        closeBtn.setOnAction(e -> dialog.close());
 
-                minus.setOnAction(e -> {
-                    try { int v = Integer.parseInt(qtyField.getText().trim()); qtyField.setText(String.valueOf(Math.max(0, v-1))); } catch (Exception ex) { qtyField.setText("0"); }
-                });
-                plus.setOnAction(e -> {
-                    try { int v = Integer.parseInt(qtyField.getText().trim()); qtyField.setText(String.valueOf(v+1)); } catch (Exception ex) { qtyField.setText("1"); }
-                });
+        headerRow.getChildren().addAll(headerTitles, closeBtn);
+        header.getChildren().add(headerRow);
 
-                cancel.setOnAction(e -> dialog.close());
-                save.setOnAction(e -> {
-                    try {
-                        String tab = item.getSheetTabName() == null || item.getSheetTabName().isBlank() ? TAB_NAME : item.getSheetTabName();
-                        String qty = qtyField.getText().trim();
-                        LocalDate date = datePicker.getValue();
-                        if (qty.isEmpty() || date == null) return;
+        // --- BODY ---
+        VBox body = new VBox(14);
+        body.getStyleClass().add("dialog-body");
 
-                        Task<Void> task = new Task<>() {
-                            @Override
-                            protected Void call() throws Exception {
-                                GoogleSheetsService service = new GoogleSheetsService();
-                                String gRange = tab + "!G" + item.getSheetRowNumber();
-                                String hRange = tab + "!H" + item.getSheetRowNumber();
-                                service.writeCell(gRange, Double.parseDouble(qty));
-                                service.writeCell(hRange, date.toString());
-                                return null;
-                            }
-                        };
-                        task.setOnSucceeded(ev -> { dialog.close(); loadMaterials(); });
-                        task.setOnFailed(ev -> { dialog.close(); });
-                        new Thread(task).start();
-                    } catch (Exception ex) { dialog.close(); }
-                });
+        // Context Panel (Hero Panel)
+        VBox hero = new VBox(6);
+        hero.getStyleClass().add("hero-panel");
+        Label heroTag = new Label(item.getCodeNo() != null ? item.getCodeNo().toUpperCase() : "MATERIAL");
+        heroTag.getStyleClass().add("hero-tag");
+        Label heroHeadline = new Label(item.getDescription() != null ? item.getDescription() : "No Description");
+        heroHeadline.getStyleClass().add("hero-headline");
+        heroHeadline.setWrapText(true);
 
-                Scene scene = new Scene(root);
-                applyDialogStyles(scene);
-                dialog.setScene(scene);
-                dialog.showAndWait();
+        String balanceStr = String.format("Current Balance: %.0f %s", item.getCurrentBalance(),
+                item.getUom() != null ? item.getUom() : "");
+        Label heroCopy = new Label(balanceStr);
+        heroCopy.getStyleClass().add("hero-copy");
+        hero.getChildren().addAll(heroTag, heroHeadline, heroCopy);
+
+        // Panel Card for Inputs
+        VBox card = new VBox(12);
+        card.getStyleClass().add("panel-card");
+
+        Label qtyLabel = new Label("QUANTITY TO ADD");
+        qtyLabel.getStyleClass().add("field-caption");
+
+        // Stepper Layout
+        HBox stepper = new HBox(8);
+        stepper.setAlignment(Pos.CENTER);
+
+        Button minus = new Button("-");
+        minus.getStyleClass().add("stock-step-button");
+        minus.setStyle("-fx-font-size: 18px; -fx-background-radius: 8; -fx-min-width: 44; -fx-min-height: 38;");
+
+        TextField qtyField = new TextField("1");
+        qtyField.getStyleClass().add("stock-qty");
+        qtyField.setStyle(
+                "-fx-background-color: #f8faff; -fx-text-fill: #1A2560; -fx-font-size: 18px; -fx-font-weight: bold; -fx-alignment: center; -fx-background-radius: 8; -fx-min-height: 38; -fx-pref-width: 100; -fx-border-color: #dfe5fb; -fx-border-radius: 8;");
+
+        Button plus = new Button("+");
+        plus.getStyleClass().add("stock-step-button");
+        plus.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-min-width: 44; -fx-min-height: 38;");
+
+        stepper.getChildren().addAll(minus, qtyField, plus);
+
+        card.getChildren().addAll(qtyLabel, stepper);
+
+        // --- FOOTER BUTTONS ---
+        HBox buttons = new HBox(10);
+        buttons.setAlignment(Pos.CENTER_RIGHT);
+        Button cancel = new Button("Cancel");
+        cancel.getStyleClass().add("btn-secondary");
+        cancel.setStyle("-fx-padding: 8 20; -fx-cursor: hand;");
+
+        Button save = new Button("Save Transaction");
+        save.getStyleClass().add("btn-blue");
+
+        buttons.getChildren().addAll(cancel, save);
+
+        body.getChildren().addAll(hero, card, buttons);
+        root.getChildren().addAll(header, body);
+
+        minus.setOnAction(e -> {
+            try {
+                int v = Integer.parseInt(qtyField.getText().trim());
+                qtyField.setText(String.valueOf(Math.max(0, v - 1)));
+            } catch (Exception ex) {
+                qtyField.setText("0");
             }
-
-            private void showStockOutDialog(InventoryItem item) {
-                Stage dialog = new Stage();
-                dialog.initModality(Modality.APPLICATION_MODAL);
-                dialog.initStyle(StageStyle.TRANSPARENT);
-
-                VBox root = new VBox(10);
-                root.getStyleClass().add("stock-dialog");
-                TextField qtyField = new TextField();
-                DatePicker datePicker = new DatePicker(LocalDate.now());
-                HBox buttons = new HBox(8);
-                Button cancel = new Button("Cancel");
-                Button save = new Button("Save");
-                buttons.getChildren().addAll(cancel, save);
-                root.getChildren().addAll(new Label("Record Daily Out (writes to L-AP based on day)"), qtyField, new Label("Date"), datePicker, buttons);
-                cancel.setOnAction(e -> dialog.close());
-                save.setOnAction(e -> {
-                    try {
-                        String qty = qtyField.getText().trim();
-                        LocalDate date = datePicker.getValue();
-                        if (qty.isEmpty() || date == null) return;
-                        int day = date.getDayOfMonth();
-                        int colNumber = 12 + (day - 1);
-                        String colLetter = colNumberToName(colNumber);
-                        String tab = item.getSheetTabName() == null || item.getSheetTabName().isBlank() ? TAB_NAME : item.getSheetTabName();
-                        String range = tab + "!" + colLetter + item.getSheetRowNumber();
-                        Task<Void> task = new Task<>() {
-                            @Override
-                            protected Void call() throws Exception {
-                                GoogleSheetsService service = new GoogleSheetsService();
-                                service.writeCell(range, Double.parseDouble(qty));
-                                return null;
-                            }
-                        };
-                        task.setOnSucceeded(ev -> { dialog.close(); loadMaterials(); });
-                        task.setOnFailed(ev -> { dialog.close(); });
-                        new Thread(task).start();
-                    } catch (Exception ex) { dialog.close(); }
-                });
-                Scene scene = new Scene(root);
-                applyDialogStyles(scene);
-                dialog.setScene(scene);
-                dialog.showAndWait();
+        });
+        plus.setOnAction(e -> {
+            try {
+                int v = Integer.parseInt(qtyField.getText().trim());
+                qtyField.setText(String.valueOf(v + 1));
+            } catch (Exception ex) {
+                qtyField.setText("1");
             }
+        });
 
-            private final class MaterialCardCell extends ListCell<InventoryItem> {
+        cancel.setOnAction(e -> dialog.close());
+        save.setOnAction(e -> {
+            try {
+                String tab = item.getSheetTabName() == null || item.getSheetTabName().isBlank() ? TAB_NAME
+                        : item.getSheetTabName();
+                String qty = qtyField.getText().trim();
+                LocalDate date = LocalDate.now();
+                if (qty.isEmpty())
+                    return;
+
+                Task<Void> task = new Task<>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        GoogleSheetsService service = new GoogleSheetsService();
+                        String gRange = tab + "!G" + item.getSheetRowNumber();
+                        String hRange = tab + "!H" + item.getSheetRowNumber();
+                        service.writeCell(gRange, Double.parseDouble(qty));
+                        service.writeCell(hRange, date.toString());
+                        return null;
+                    }
+                };
+                task.setOnSucceeded(ev -> {
+                    dialog.close();
+                    loadMaterials();
+                });
+                task.setOnFailed(ev -> {
+                    dialog.close();
+                });
+                new Thread(task).start();
+            } catch (Exception ex) {
+                dialog.close();
+            }
+        });
+
+        Scene scene = new Scene(root);
+        applyDialogStyles(scene);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+    }
+
+    private void showStockOutDialog(InventoryItem item) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
+
+        VBox root = new VBox(0);
+        root.getStyleClass().add("dialog-shell");
+        root.setPrefWidth(420);
+
+        // --- HEADER ---
+        VBox header = new VBox(4);
+        header.getStyleClass().addAll("dialog-header", "dialog-header-alt");
+
+        HBox headerRow = new HBox(10);
+        headerRow.setAlignment(Pos.CENTER_LEFT);
+
+        VBox headerTitles = new VBox(4);
+        HBox.setHgrow(headerTitles, Priority.ALWAYS);
+        Label eyebrow = new Label("TRANSACTION ENTRY");
+        eyebrow.getStyleClass().add("dialog-eyebrow");
+        Label title = new Label("STOCK OUT RECORD");
+        title.getStyleClass().add("dialog-title");
+        Label subtitle = new Label("Record daily items issued to floor.");
+        subtitle.getStyleClass().add("dialog-subtitle");
+        headerTitles.getChildren().addAll(eyebrow, title, subtitle);
+
+        Button closeBtn = new Button("✕");
+        closeBtn.setStyle(
+                "-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 14px; -fx-cursor: hand; -fx-border-width: 0; -fx-padding: 0;");
+        closeBtn.setOnAction(e -> dialog.close());
+
+        headerRow.getChildren().addAll(headerTitles, closeBtn);
+        header.getChildren().add(headerRow);
+
+        // --- BODY ---
+        VBox body = new VBox(14);
+        body.getStyleClass().add("dialog-body");
+
+        // Context Panel (Hero Panel)
+        VBox hero = new VBox(6);
+        hero.getStyleClass().add("hero-panel");
+        Label heroTag = new Label(item.getCodeNo() != null ? item.getCodeNo().toUpperCase() : "MATERIAL");
+        heroTag.getStyleClass().add("hero-tag");
+        Label heroHeadline = new Label(item.getDescription() != null ? item.getDescription() : "No Description");
+        heroHeadline.getStyleClass().add("hero-headline");
+        heroHeadline.setWrapText(true);
+
+        String balanceStr = String.format("Current Balance: %.0f %s", item.getCurrentBalance(),
+                item.getUom() != null ? item.getUom() : "");
+        Label heroCopy = new Label(balanceStr);
+        heroCopy.getStyleClass().add("hero-copy");
+        hero.getChildren().addAll(heroTag, heroHeadline, heroCopy);
+
+        // Panel Card for Inputs
+        VBox card = new VBox(12);
+        card.getStyleClass().add("panel-card");
+
+        Label qtyLabel = new Label("QUANTITY TO DISBURSE");
+        qtyLabel.getStyleClass().add("field-caption");
+
+        // Stepper Layout
+        HBox stepper = new HBox(8);
+        stepper.setAlignment(Pos.CENTER);
+
+        Button minus = new Button("-");
+        minus.getStyleClass().add("stock-step-button");
+        minus.setStyle("-fx-font-size: 18px; -fx-background-radius: 8; -fx-min-width: 44; -fx-min-height: 38;");
+
+        TextField qtyField = new TextField("1");
+        qtyField.getStyleClass().add("stock-qty");
+        qtyField.setStyle(
+                "-fx-background-color: #f8faff; -fx-text-fill: #1A2560; -fx-font-size: 18px; -fx-font-weight: bold; -fx-alignment: center; -fx-background-radius: 8; -fx-min-height: 38; -fx-pref-width: 100; -fx-border-color: #dfe5fb; -fx-border-radius: 8;");
+
+        Button plus = new Button("+");
+        plus.getStyleClass().add("stock-step-button");
+        plus.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-min-width: 44; -fx-min-height: 38;");
+
+        stepper.getChildren().addAll(minus, qtyField, plus);
+
+        card.getChildren().addAll(qtyLabel, stepper);
+
+        // --- FOOTER BUTTONS ---
+        HBox buttons = new HBox(10);
+        buttons.setAlignment(Pos.CENTER_RIGHT);
+        Button cancel = new Button("Cancel");
+        cancel.getStyleClass().add("btn-secondary");
+        cancel.setStyle("-fx-padding: 8 20; -fx-cursor: hand;");
+
+        Button save = new Button("Save Transaction");
+        save.getStyleClass().add("btn-blue");
+
+        buttons.getChildren().addAll(cancel, save);
+
+        body.getChildren().addAll(hero, card, buttons);
+        root.getChildren().addAll(header, body);
+
+        minus.setOnAction(e -> {
+            try {
+                int v = Integer.parseInt(qtyField.getText().trim());
+                qtyField.setText(String.valueOf(Math.max(0, v - 1)));
+            } catch (Exception ex) {
+                qtyField.setText("0");
+            }
+        });
+        plus.setOnAction(e -> {
+            try {
+                int v = Integer.parseInt(qtyField.getText().trim());
+                qtyField.setText(String.valueOf(v + 1));
+            } catch (Exception ex) {
+                qtyField.setText("1");
+            }
+        });
+
+        cancel.setOnAction(e -> dialog.close());
+        save.setOnAction(e -> {
+            try {
+                String qty = qtyField.getText().trim();
+                LocalDate date = LocalDate.now();
+                if (qty.isEmpty())
+                    return;
+                int day = date.getDayOfMonth();
+                int colNumber = 12 + (day - 1);
+                String colLetter = colNumberToName(colNumber);
+                String tab = item.getSheetTabName() == null || item.getSheetTabName().isBlank() ? TAB_NAME
+                        : item.getSheetTabName();
+                String range = tab + "!" + colLetter + item.getSheetRowNumber();
+                Task<Void> task = new Task<>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        GoogleSheetsService service = new GoogleSheetsService();
+                        service.writeCell(range, Double.parseDouble(qty));
+                        return null;
+                    }
+                };
+                task.setOnSucceeded(ev -> {
+                    dialog.close();
+                    loadMaterials();
+                });
+                task.setOnFailed(ev -> {
+                    dialog.close();
+                });
+                new Thread(task).start();
+            } catch (Exception ex) {
+                dialog.close();
+            }
+        });
+        Scene scene = new Scene(root);
+        applyDialogStyles(scene);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+    }
+
+    private final class MaterialCardCell extends ListCell<InventoryItem> {
         private final HBox root = new HBox(16);
         private final StackPane thumbFrame = new StackPane();
         private final ImageView thumb = new ImageView();
@@ -420,7 +659,8 @@ public class MainController implements Initializable {
             Label actionHint = new Label("Choose what to inspect or edit");
             actionHint.getStyleClass().add("material-action-hint");
 
-            Button monthOutButton = buildActionButton("View Monthly Daily Out", "Inspect each day for the selected month");
+            Button monthOutButton = buildActionButton("View Monthly Daily Out",
+                    "Inspect each day for the selected month");
             monthOutButton.setOnAction(e -> {
                 moreMenu.hide();
                 if (currentItem != null) {
@@ -442,15 +682,21 @@ public class MainController implements Initializable {
             moreMenu.getItems().add(actionItem);
 
             titleRow.getStyleClass().add("material-title-row");
-                        Button stockInBtn = new Button("Stock In +");
-                        stockInBtn.getStyleClass().add("stock-btn");
-                        stockInBtn.setOnAction(e -> { if (currentItem != null) showStockInDialog(currentItem); });
-                        Button stockOutBtn = new Button("Stock Out -");
-                        stockOutBtn.getStyleClass().add("stock-btn");
-                        stockOutBtn.setOnAction(e -> { if (currentItem != null) showStockOutDialog(currentItem); });
-                        titleRow.getChildren().addAll(codeLabel, stockInBtn, stockOutBtn, moreButton);
-                        descLabel.getStyleClass().add("material-desc");
-                        descLabel.setWrapText(true);
+            Button stockInBtn = new Button("Stock In +");
+            stockInBtn.getStyleClass().add("stock-btn");
+            stockInBtn.setOnAction(e -> {
+                if (currentItem != null)
+                    showStockInDialog(currentItem);
+            });
+            Button stockOutBtn = new Button("Stock Out -");
+            stockOutBtn.getStyleClass().add("stock-btn");
+            stockOutBtn.setOnAction(e -> {
+                if (currentItem != null)
+                    showStockOutDialog(currentItem);
+            });
+            titleRow.getChildren().addAll(codeLabel, stockInBtn, stockOutBtn, moreButton);
+            descLabel.getStyleClass().add("material-desc");
+            descLabel.setWrapText(true);
 
             center.getStyleClass().add("material-content");
             center.getChildren().addAll(titleRow, descLabel);

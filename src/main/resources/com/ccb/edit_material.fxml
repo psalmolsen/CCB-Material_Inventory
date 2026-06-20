@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.ccb.EditMaterialController"
@@ -72,6 +73,21 @@
                     <Label text="Out Quantity" styleClass="field-caption" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
                     <TextField fx:id="outQuantityField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
                 </GridPane>
+
+                <Separator style="-fx-opacity: 0.15;" />
+                <VBox spacing="8">
+                    <Label text="Material Image" styleClass="field-caption"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <StackPane fx:id="thumbFrame" styleClass="material-thumb-frame" prefWidth="54" prefHeight="54" minWidth="54" minHeight="54" maxWidth="54" maxHeight="54" style="-fx-pref-width: 54; -fx-pref-height: 54; -fx-background-radius: 10; -fx-border-radius: 10;">
+                            <Label fx:id="thumbFallback" styleClass="material-thumb-fallback" text="M" alignment="CENTER" style="-fx-font-size: 12px;"/>
+                            <ImageView fx:id="thumbImageView" fitWidth="48" fitHeight="48" preserveRatio="true" smooth="true"/>
+                        </StackPane>
+                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                            <TextField fx:id="imagePathField" editable="false" promptText="No image selected" style="-fx-font-size: 11px;"/>
+                            <Button text="Browse" onAction="#browseImage" styleClass="btn-secondary" style="-fx-font-size: 11px;"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
             </VBox>
         </HBox>
 

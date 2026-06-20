@@ -580,31 +580,31 @@
 
 .material-action-panel {
     -fx-pref-width: 310;
-    -fx-background-color: linear-gradient(to bottom right, #1a2560, #2f4aa0);
+    -fx-background-color: white;
     -fx-background-radius: 18;
-    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-color: #e2e8fb;
     -fx-border-radius: 18;
     -fx-border-width: 1;
     -fx-padding: 14;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.20), 24, 0, 0, 8);
+    -fx-effect: dropshadow(gaussian, rgba(26,37,96,0.12), 24, 0, 0, 8);
 }
 
 .material-action-title {
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-text-fill: white;
+    -fx-text-fill: #1A2560;
 }
 
 .material-action-hint {
     -fx-font-size: 11px;
-    -fx-text-fill: rgba(255,255,255,0.78);
+    -fx-text-fill: #7b86aa;
     -fx-padding: 0 0 6 0;
 }
 
 .material-action-button {
-    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-color: white;
     -fx-background-radius: 14;
-    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-color: #e2e8fb;
     -fx-border-radius: 14;
     -fx-border-width: 1;
     -fx-padding: 12 12 12 14;
@@ -613,9 +613,9 @@
 }
 
 .material-action-button:hover {
-    -fx-background-color: rgba(255,255,255,0.20);
-    -fx-border-color: rgba(255,255,255,0.30);
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 18, 0, 0, 5);
+    -fx-background-color: #f4f6fb;
+    -fx-border-color: #dfe5fb;
+    -fx-effect: dropshadow(gaussian, rgba(26,37,96,0.04), 14, 0, 0, 4);
 }
 
 .material-action-row {
@@ -625,37 +625,39 @@
 .material-action-button-title {
     -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-text-fill: white;
+    -fx-text-fill: #1A2560;
 }
 
 .material-action-button-subtitle {
     -fx-font-size: 10px;
-    -fx-text-fill: rgba(255,255,255,0.78);
+    -fx-text-fill: #7b86aa;
 }
 
 .material-action-icon {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
-    -fx-text-fill: rgba(255,255,255,0.95);
+    -fx-text-fill: #293A92;
 }
 
 .dialog-shell {
-    -fx-background-color: linear-gradient(to bottom right, #1a2560, #22398a 55%, #0f1d4d);
+    -fx-background-color: linear-gradient(to bottom right, #ffffff, #f7f9fd);
     -fx-background-radius: 20;
     -fx-padding: 0;
-    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-color: #eaedf5;
     -fx-border-radius: 20;
     -fx-border-width: 1;
 }
 
 .dialog-header {
-    -fx-background-color: linear-gradient(to right, #1a2560, #2f4aa0);
+    -fx-background-color: white;
     -fx-background-radius: 20 20 0 0;
     -fx-padding: 18 20 16 20;
+    -fx-border-color: transparent transparent #293A92 transparent;
+    -fx-border-width: 0 0 3 0;
 }
 
 .dialog-header-alt {
-    -fx-background-color: linear-gradient(to right, #243c8f, #1a2560);
+    -fx-border-color: transparent transparent #C0392B transparent;
 }
 
 .dialog-body {
@@ -665,9 +667,9 @@
 }
 
 .hero-panel {
-    -fx-background-color: linear-gradient(to right, rgba(255,255,255,0.14), rgba(255,255,255,0.08));
+    -fx-background-color: #f4f6fb;
     -fx-background-radius: 18;
-    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-color: #eaedf5;
     -fx-border-radius: 18;
     -fx-border-width: 1;
     -fx-padding: 14 16;
@@ -676,37 +678,37 @@
 .hero-tag {
     -fx-font-size: 10px;
     -fx-font-weight: bold;
-    -fx-text-fill: rgba(255,255,255,0.72);
+    -fx-text-fill: #293A92;
     -fx-letter-spacing: 1px;
 }
 
 .hero-headline {
     -fx-font-size: 15px;
     -fx-font-weight: bold;
-    -fx-text-fill: white;
+    -fx-text-fill: #1A2560;
 }
 
 .hero-copy {
     -fx-font-size: 11px;
-    -fx-text-fill: rgba(255,255,255,0.82);
+    -fx-text-fill: #7b86aa;
 }
 
 .dialog-eyebrow {
     -fx-font-size: 10px;
     -fx-font-weight: bold;
-    -fx-text-fill: rgba(255,255,255,0.7);
+    -fx-text-fill: #7b86aa;
     -fx-letter-spacing: 1.2px;
 }
 
 .dialog-title {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
-    -fx-text-fill: white;
+    -fx-text-fill: #1A2560;
 }
 
 .dialog-subtitle {
     -fx-font-size: 11px;
-    -fx-text-fill: rgba(255,255,255,0.8);
+    -fx-text-fill: #7b86aa;
 }
 
 .toolbar-strip {
@@ -714,9 +716,9 @@
 }
 
 .toolbar-card {
-    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-background-color: #f4f6fb;
     -fx-background-radius: 16;
-    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-color: #eaedf5;
     -fx-border-radius: 16;
     -fx-border-width: 1;
     -fx-padding: 12 14;
@@ -725,7 +727,7 @@
 .field-caption {
     -fx-font-size: 11px;
     -fx-font-weight: bold;
-    -fx-text-fill: rgba(255,255,255,0.85);
+    -fx-text-fill: #7b86aa;
 }
 
 .month-picker {
@@ -737,10 +739,10 @@
 }
 
 .summary-pill {
-    -fx-background-color: rgba(255,255,255,0.14);
+    -fx-background-color: #293A92;
     -fx-background-radius: 16;
     -fx-padding: 10 16;
-    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-border-color: #1e2c73;
     -fx-border-radius: 16;
     -fx-border-width: 1;
 }
@@ -763,9 +765,9 @@
 }
 
 .month-summary-card {
-    -fx-background-color: rgba(255,255,255,0.12);
+    -fx-background-color: white;
     -fx-background-radius: 16;
-    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-color: #e2e8fb;
     -fx-border-radius: 16;
     -fx-border-width: 1;
     -fx-padding: 12 14;
@@ -775,21 +777,21 @@
 .month-summary-label {
     -fx-font-size: 9px;
     -fx-font-weight: bold;
-    -fx-text-fill: rgba(255,255,255,0.78);
+    -fx-text-fill: #7b86aa;
     -fx-letter-spacing: 1px;
 }
 
 .month-summary-value {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
-    -fx-text-fill: white;
+    -fx-text-fill: #1A2560;
 }
 
 .inline-error {
-    -fx-background-color: rgba(255,255,255,0.12);
+    -fx-background-color: #fdeaea;
     -fx-background-radius: 12;
     -fx-padding: 10 12;
-    -fx-text-fill: white;
+    -fx-text-fill: #C0392B;
     -fx-font-size: 12px;
     -fx-font-weight: bold;
 }
@@ -801,13 +803,13 @@
 }
 
 .day-list-shell {
-    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-color: #f4f6fb;
     -fx-background-radius: 18;
     -fx-padding: 14;
-    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-color: #eaedf5;
     -fx-border-radius: 18;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 22, 0, 0, 6);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 22, 0, 0, 6);
 }
 
 .day-list-stack {
@@ -815,9 +817,9 @@
 }
 
 .day-row {
-    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-color: white;
     -fx-background-radius: 14;
-    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-color: #e2e8fb;
     -fx-border-radius: 14;
     -fx-border-width: 1;
     -fx-padding: 10 12;
@@ -827,28 +829,30 @@
 .day-badge {
     -fx-min-width: 82;
     -fx-pref-width: 82;
-    -fx-background-color: rgba(255,255,255,0.18);
+    -fx-background-color: #eef1fc;
     -fx-background-radius: 999;
     -fx-padding: 8 12;
     -fx-alignment: center;
+    -fx-text-fill: #293A92;
+    -fx-font-weight: bold;
 }
 
 .day-bar-track {
     -fx-min-height: 10;
     -fx-pref-height: 10;
-    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-background-color: #f0f3fa;
     -fx-background-radius: 999;
     -fx-padding: 0;
     -fx-alignment: center-left;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 0, 2);
 }
 
 .day-bar-fill {
     -fx-min-height: 6;
     -fx-pref-height: 6;
-    -fx-background-color: linear-gradient(to right, #9cc7ff, #2f4aa0 55%, #213a86);
+    -fx-background-color: linear-gradient(to right, #9cc7ff, #293A92 55%, #1a2560);
     -fx-background-radius: 999;
-    -fx-effect: dropshadow(gaussian, rgba(47,74,160,0.18), 8, 0, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(41,58,146,0.12), 8, 0, 0, 3);
 }
 
 .day-bar-gloss {
@@ -867,32 +871,34 @@
     -fx-pref-height: 12;
     -fx-background-color: #ffffff;
     -fx-background-radius: 999;
-    -fx-effect: dropshadow(gaussian, rgba(47,74,160,0.22), 6, 0, 0, 2);
-    -fx-border-color: rgba(47,74,160,0.12);
+    -fx-effect: dropshadow(gaussian, rgba(41,58,146,0.22), 6, 0, 0, 2);
+    -fx-border-color: rgba(41,58,146,0.12);
     -fx-border-width: 1;
 }
 
 .day-value-badge {
     -fx-min-width: 68;
     -fx-pref-width: 68;
-    -fx-background-color: #ffffff;
+    -fx-background-color: #eef1fc;
     -fx-background-radius: 10;
     -fx-padding: 6 10;
     -fx-alignment: center;
-    -fx-border-color: rgba(26,37,96,0.08);
+    -fx-border-color: #c8cff2;
     -fx-border-radius: 10;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(13,30,92,0.06), 8, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(13,30,92,0.04), 8, 0, 0, 2);
+    -fx-text-fill: #1A2560;
+    -fx-font-weight: bold;
 }
 
 .panel-card {
-    -fx-background-color: rgba(255,255,255,0.12);
+    -fx-background-color: white;
     -fx-background-radius: 18;
-    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-color: #e2e8fb;
     -fx-border-radius: 18;
     -fx-border-width: 1;
     -fx-padding: 16;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.16), 18, 0, 0, 5);
+    -fx-effect: dropshadow(gaussian, rgba(26,37,96,0.06), 18, 0, 0, 5);
 }
 
 .editor-panel {
@@ -902,26 +908,27 @@
 .section-kicker {
     -fx-font-size: 11px;
     -fx-font-weight: bold;
-    -fx-text-fill: rgba(255,255,255,0.78);
+    -fx-text-fill: #293A92;
     -fx-letter-spacing: 0.8px;
 }
 
 .note-pill {
-    -fx-background-color: rgba(255,255,255,0.14);
+    -fx-background-color: #eef1fc;
     -fx-background-radius: 999;
     -fx-padding: 7 12;
-    -fx-text-fill: white;
+    -fx-text-fill: #293A92;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
 }
 
 .dialog-shell .text-field,
 .dialog-shell .combo-box-base {
-    -fx-background-color: white;
+    -fx-background-color: #f8faff;
     -fx-background-radius: 12;
-    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-color: #dfe5fb;
     -fx-border-radius: 12;
     -fx-border-width: 1;
+    -fx-text-fill: #1A2560;
 }
 
 .month-summary-row .month-summary-card,
@@ -929,7 +936,7 @@
 .hero-panel,
 .day-row,
 .panel-card {
-    -fx-effect: dropshadow(gaussian, rgba(13,30,92,0.12), 16, 0, 0, 5);
+    -fx-effect: dropshadow(gaussian, rgba(26,37,96,0.05), 16, 0, 0, 5);
 }
 
 .text-field {
@@ -954,16 +961,18 @@
 }
 
 .btn-secondary {
-    -fx-background-color: rgba(255,255,255,0.12);
-    -fx-text-fill: white;
+    -fx-background-color: white;
+    -fx-text-fill: #7b86aa;
     -fx-background-radius: 999;
     -fx-border-radius: 999;
-    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-border-color: #dfe5fb;
     -fx-font-weight: bold;
 }
 
 .btn-secondary:hover {
-    -fx-background-color: rgba(255,255,255,0.20);
+    -fx-background-color: #f4f6fb;
+    -fx-text-fill: #1A2560;
+    -fx-border-color: #c4cbe0;
 }
 
 .month-day-label {
@@ -1035,12 +1044,19 @@
 
 /* Stock in dialog and stepper styles */
 .stock-btn {
-    -fx-background-color: #1E40AF;
-    -fx-text-fill: white;
+    -fx-background-color: white;
+    -fx-text-fill: #1A2560;
     -fx-font-weight: bold;
     -fx-padding: 6 10;
     -fx-border-radius: 6;
     -fx-background-radius: 6;
+    -fx-border-color: #dfe5fb;
+    -fx-border-width: 1;
+}
+
+.stock-btn:hover {
+    -fx-background-color: #f4f6fb;
+    -fx-border-color: #c4cbe0;
 }
 
 .stock-dialog {
