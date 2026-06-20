@@ -26,10 +26,13 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 
 import java.io.File;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -244,7 +247,129 @@ public class MainController implements Initializable {
         return null;
     }
 
-    private final class MaterialCardCell extends ListCell<InventoryItem> {
+    private String colNumberToName(int col) {
+        StringBuilder sb = new StringBuilder();
+        while (col > 0) {
+            col--; // 1-based to 0-based
+            sb.insert(0, (char)('A' + (col % 26)));
+            col /= 26;
+        }
+        return sb.toString();
+    }
+
+            private void showStockInDialog(InventoryItem item) {
+                Stage dialog = new Stage();
+                dialog.initModality(Modality.APPLICATION_MODAL);
+                dialog.initStyle(StageStyle.TRANSPARENT);
+
+                VBox root = new VBox(10);
+                root.getStyleClass().add("stock-dialog");
+
+                // number picker
+                HBox stepper = new HBox(8);
+                stepper.getStyleClass().add("stock-stepper");
+                Button minus = new Button("-");
+                minus.getStyleClass().add("stock-step-button");
+                TextField qtyField = new TextField("0");
+                qtyField.getStyleClass().add("stock-qty");
+                qtyField.setPrefWidth(80);
+                qtyField.setAlignment(Pos.CENTER);
+                Button plus = new Button("+");
+                plus.getStyleClass().add("stock-step-button");
+                stepper.getChildren().addAll(minus, qtyField, plus);
+
+                DatePicker datePicker = new DatePicker(LocalDate.now());
+
+                HBox buttons = new HBox(8);
+                Button cancel = new Button("Cancel");
+                Button save = new Button("Save");
+                buttons.getChildren().addAll(cancel, save);
+
+                root.getChildren().addAll(new Label("Stock In (writes to column G)"), stepper, new Label("Date (column H)"), datePicker, buttons);
+
+                minus.setOnAction(e -> {
+                    try { int v = Integer.parseInt(qtyField.getText().trim()); qtyField.setText(String.valueOf(Math.max(0, v-1))); } catch (Exception ex) { qtyField.setText("0"); }
+                });
+                plus.setOnAction(e -> {
+                    try { int v = Integer.parseInt(qtyField.getText().trim()); qtyField.setText(String.valueOf(v+1)); } catch (Exception ex) { qtyField.setText("1"); }
+                });
+
+                cancel.setOnAction(e -> dialog.close());
+                save.setOnAction(e -> {
+                    try {
+                        String tab = item.getSheetTabName() == null || item.getSheetTabName().isBlank() ? TAB_NAME : item.getSheetTabName();
+                        String qty = qtyField.getText().trim();
+                        LocalDate date = datePicker.getValue();
+                        if (qty.isEmpty() || date == null) return;
+
+                        Task<Void> task = new Task<>() {
+                            @Override
+                            protected Void call() throws Exception {
+                                GoogleSheetsService service = new GoogleSheetsService();
+                                String gRange = tab + "!G" + item.getSheetRowNumber();
+                                String hRange = tab + "!H" + item.getSheetRowNumber();
+                                service.writeCell(gRange, Double.parseDouble(qty));
+                                service.writeCell(hRange, date.toString());
+                                return null;
+                            }
+                        };
+                        task.setOnSucceeded(ev -> { dialog.close(); loadMaterials(); });
+                        task.setOnFailed(ev -> { dialog.close(); });
+                        new Thread(task).start();
+                    } catch (Exception ex) { dialog.close(); }
+                });
+
+                Scene scene = new Scene(root);
+                applyDialogStyles(scene);
+                dialog.setScene(scene);
+                dialog.showAndWait();
+            }
+
+            private void showStockOutDialog(InventoryItem item) {
+                Stage dialog = new Stage();
+                dialog.initModality(Modality.APPLICATION_MODAL);
+                dialog.initStyle(StageStyle.TRANSPARENT);
+
+                VBox root = new VBox(10);
+                root.getStyleClass().add("stock-dialog");
+                TextField qtyField = new TextField();
+                DatePicker datePicker = new DatePicker(LocalDate.now());
+                HBox buttons = new HBox(8);
+                Button cancel = new Button("Cancel");
+                Button save = new Button("Save");
+                buttons.getChildren().addAll(cancel, save);
+                root.getChildren().addAll(new Label("Record Daily Out (writes to L-AP based on day)"), qtyField, new Label("Date"), datePicker, buttons);
+                cancel.setOnAction(e -> dialog.close());
+                save.setOnAction(e -> {
+                    try {
+                        String qty = qtyField.getText().trim();
+                        LocalDate date = datePicker.getValue();
+                        if (qty.isEmpty() || date == null) return;
+                        int day = date.getDayOfMonth();
+                        int colNumber = 12 + (day - 1);
+                        String colLetter = colNumberToName(colNumber);
+                        String tab = item.getSheetTabName() == null || item.getSheetTabName().isBlank() ? TAB_NAME : item.getSheetTabName();
+                        String range = tab + "!" + colLetter + item.getSheetRowNumber();
+                        Task<Void> task = new Task<>() {
+                            @Override
+                            protected Void call() throws Exception {
+                                GoogleSheetsService service = new GoogleSheetsService();
+                                service.writeCell(range, Double.parseDouble(qty));
+                                return null;
+                            }
+                        };
+                        task.setOnSucceeded(ev -> { dialog.close(); loadMaterials(); });
+                        task.setOnFailed(ev -> { dialog.close(); });
+                        new Thread(task).start();
+                    } catch (Exception ex) { dialog.close(); }
+                });
+                Scene scene = new Scene(root);
+                applyDialogStyles(scene);
+                dialog.setScene(scene);
+                dialog.showAndWait();
+            }
+
+            private final class MaterialCardCell extends ListCell<InventoryItem> {
         private final HBox root = new HBox(16);
         private final StackPane thumbFrame = new StackPane();
         private final ImageView thumb = new ImageView();
@@ -317,9 +442,15 @@ public class MainController implements Initializable {
             moreMenu.getItems().add(actionItem);
 
             titleRow.getStyleClass().add("material-title-row");
-            titleRow.getChildren().addAll(codeLabel, moreButton);
-            descLabel.getStyleClass().add("material-desc");
-            descLabel.setWrapText(true);
+                        Button stockInBtn = new Button("Stock In +");
+                        stockInBtn.getStyleClass().add("stock-btn");
+                        stockInBtn.setOnAction(e -> { if (currentItem != null) showStockInDialog(currentItem); });
+                        Button stockOutBtn = new Button("Stock Out -");
+                        stockOutBtn.getStyleClass().add("stock-btn");
+                        stockOutBtn.setOnAction(e -> { if (currentItem != null) showStockOutDialog(currentItem); });
+                        titleRow.getChildren().addAll(codeLabel, stockInBtn, stockOutBtn, moreButton);
+                        descLabel.getStyleClass().add("material-desc");
+                        descLabel.setWrapText(true);
 
             center.getStyleClass().add("material-content");
             center.getChildren().addAll(titleRow, descLabel);

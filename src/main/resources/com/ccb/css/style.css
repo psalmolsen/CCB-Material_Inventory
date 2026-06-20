@@ -1033,3 +1033,46 @@
     -fx-text-fill: #C0392B;
 }
 
+/* Stock in dialog and stepper styles */
+.stock-btn {
+    -fx-background-color: #1E40AF;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 6 10;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.stock-dialog {
+    -fx-background-color: linear-gradient(#ffffff, #fbfdff);
+    -fx-padding: 12;
+    -fx-spacing: 10;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.stock-stepper {
+    -fx-alignment: center;
+    -fx-spacing: 6;
+}
+
+.stock-step-button {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dfe7ff;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-pref-width: 44;
+    -fx-pref-height: 32;
+    -fx-text-fill: #1E40AF;
+    -fx-font-weight: bold;
+}
+
+.stock-qty {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-pref-width: 64;
+}
+
