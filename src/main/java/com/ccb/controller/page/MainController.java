@@ -1,5 +1,10 @@
-package com.ccb;
+package com.ccb.controller.page;
 
+import com.ccb.GoogleSheetsService;
+import com.ccb.InventoryItem;
+import com.ccb.SheetMapper;
+import com.ccb.controller.modal.EditMaterialController;
+import com.ccb.controller.modal.MaterialMonthOutController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -113,6 +118,12 @@ public class MainController implements Initializable {
         navButtons = List.of(btnMaterial, btnCnf, btnOring, btnSales);
         sections = List.of(materialSection, cnfSection, oringSection, salesSection);
 
+        btnMaterial.setOnAction(e -> showMaterial());
+        btnCnf.setOnAction(e -> showCnf());
+        btnOring.setOnAction(e -> showOring());
+        btnSales.setOnAction(e -> showSales());
+        btnAddMaterial.setOnAction(e -> openAddMaterial());
+
         materialsList.setFocusTraversable(false);
         materialsList.setFixedCellSize(126);
         materialsList.setCellFactory(list -> new MaterialCardCell());
@@ -177,7 +188,7 @@ public class MainController implements Initializable {
     @FXML
     public void openAddMaterial() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/add_material.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/modal/add_material.fxml"));
             Parent root = loader.load();
             Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
@@ -233,7 +244,7 @@ public class MainController implements Initializable {
 
     private void openMonthlyOutDialog(InventoryItem item) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/material_month_out.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/modal/material_month_out.fxml"));
             Parent root = loader.load();
             MaterialMonthOutController controller = loader.getController();
             controller.setMaterial(item);
@@ -251,7 +262,7 @@ public class MainController implements Initializable {
 
     private void openEditMaterialDialog(InventoryItem item) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/edit_material.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/modal/edit_material.fxml"));
             Parent root = loader.load();
             EditMaterialController controller = loader.getController();
             controller.setMaterial(item);

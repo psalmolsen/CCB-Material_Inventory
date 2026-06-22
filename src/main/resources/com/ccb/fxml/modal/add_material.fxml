@@ -5,7 +5,7 @@
 <?import javafx.geometry.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.ccb.AddMaterialController"
+      fx:controller="com.ccb.controller.modal.AddMaterialController"
       style="-fx-background-color: white; -fx-background-radius: 16;"
       prefWidth="420" spacing="0">
 

@@ -10,7 +10,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/main.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/page/main.fxml"));
         Scene scene = new Scene(loader.load(), 1200, 750);
         scene.getStylesheets().add(getClass().getResource("/com/ccb/css/style.css").toExternalForm());
         stage.setTitle("CCB Inventory System");

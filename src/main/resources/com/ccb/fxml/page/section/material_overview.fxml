@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      style="-fx-background-color: #B71C1C; -fx-background-radius: 16; -fx-padding: 16 18; -fx-spacing: 12; -fx-effect: dropshadow(gaussian, rgba(183,28,28,0.38), 20, 0, 0, 8);">
+
+    <Label text="MATERIAL OVERVIEW" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.85); -fx-letter-spacing: 1.2px; -fx-padding: 0 0 8 0; -fx-border-color: transparent transparent rgba(255,255,255,0.2) transparent; -fx-border-width: 0 0 1 0;"/>
+
+    <HBox spacing="14">
+        <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER" spacing="4">
+                <Label fx:id="materialTotalCount" text="0000" styleClass="stat-number"/>
+                <Label fx:id="materialInitialUnit" text="" styleClass="stat-unit"/>
+            </HBox>
+            <Label text="INITIAL STOCK" styleClass="stat-label"/>
+        </VBox>
+        <VBox styleClass="stat-card stat-yellow" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER" spacing="4">
+                <Label fx:id="materialLowCount" text="0000" styleClass="stat-number"/>
+                <Label fx:id="materialReceivedUnit" text="" styleClass="stat-unit"/>
+            </HBox>
+            <Label text="RECEIVED" styleClass="stat-label"/>
+        </VBox>
+        <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER" spacing="4">
+                <Label fx:id="materialInCount" text="0000" styleClass="stat-number"/>
+                <Label fx:id="materialBalanceUnit" text="" styleClass="stat-unit"/>
+            </HBox>
+            <Label text="CURRENT BALANCE" styleClass="stat-label"/>
+        </VBox>
+        <VBox styleClass="stat-card stat-dark" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER" spacing="4">
+                <Label fx:id="materialOutCount" text="0000" styleClass="stat-number"/>
+                <Label fx:id="materialIssuedUnit" text="" styleClass="stat-unit"/>
+            </HBox>
+            <Label text="ISSUED" styleClass="stat-label"/>
+        </VBox>
+    </HBox>
+</VBox>

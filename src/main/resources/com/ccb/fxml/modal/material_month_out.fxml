@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.ccb.MaterialMonthOutController"
+      fx:controller="com.ccb.controller.modal.MaterialMonthOutController"
       prefWidth="560" prefHeight="720"
       styleClass="dialog-shell">
 

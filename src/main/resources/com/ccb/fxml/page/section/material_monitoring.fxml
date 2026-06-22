@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:id="materialSection"
+      styleClass="section-content"
+      VBox.vgrow="ALWAYS">
+
+    <HBox alignment="CENTER_RIGHT">
+        <Button fx:id="btnAddMaterial" text="＋  Add Material" styleClass="btn-add-material"/>
+    </HBox>
+
+    <VBox styleClass="panel" VBox.vgrow="ALWAYS">
+        <HBox alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0; -fx-border-color: transparent transparent #eaedf5 transparent; -fx-border-width: 0 0 1 0;">
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="List of Materials" styleClass="panel-title" style="-fx-border-width: 0; -fx-padding: 0;" HBox.hgrow="ALWAYS"/>
+                <Label text="Card view with code, description, status, and pricing" styleClass="placeholder-text" style="-fx-padding: 0; -fx-font-size: 11px;"/>
+            </VBox>
+            <Label text="Auto-loaded from Google Sheets" style="-fx-text-fill: #7b86aa; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+        </HBox>
+
+        <VBox styleClass="materials-list-shell" VBox.vgrow="ALWAYS">
+            <ListView fx:id="materialsList" VBox.vgrow="ALWAYS" styleClass="materials-list">
+                <placeholder>
+                    <Label text="No materials yet. Click + Add Material to get started." styleClass="placeholder-text"/>
+                </placeholder>
+            </ListView>
+        </VBox>
+    </VBox>
+</VBox>

@@ -1,5 +1,7 @@
-package com.ccb;
+package com.ccb.controller.modal;
 
+import com.ccb.GoogleSheetsService;
+import com.ccb.InventoryItem;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;

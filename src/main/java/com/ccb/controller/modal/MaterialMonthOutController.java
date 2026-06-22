@@ -1,5 +1,8 @@
-package com.ccb;
+package com.ccb.controller.modal;
 
+import com.ccb.GoogleSheetsService;
+import com.ccb.InventoryItem;
+import com.ccb.SheetMapper;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;

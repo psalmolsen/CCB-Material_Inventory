@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:id="cnfSection"
+      styleClass="section-content"
+      VBox.vgrow="ALWAYS"
+      visible="false"
+      managed="false">
+
+    <Label text="CNF Overview  (Collar · Nameplate · Footring)" styleClass="section-title"/>
+    <HBox styleClass="stat-cards" spacing="14">
+        <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
+            <Label fx:id="collarCount" text="0" styleClass="stat-number"/>
+            <Label text="Qty" styleClass="stat-qty"/>
+            <Label text="COLLAR" styleClass="stat-label"/>
+        </VBox>
+        <VBox styleClass="stat-card stat-red" HBox.hgrow="ALWAYS">
+            <Label fx:id="nameplateCount" text="0" styleClass="stat-number"/>
+            <Label text="Qty" styleClass="stat-qty"/>
+            <Label text="NAMEPLATE" styleClass="stat-label"/>
+        </VBox>
+        <VBox styleClass="stat-card stat-yellow" HBox.hgrow="ALWAYS">
+            <Label fx:id="footringCount" text="0" styleClass="stat-number"/>
+            <Label text="Qty" styleClass="stat-qty"/>
+            <Label text="FOOTRING" styleClass="stat-label"/>
+        </VBox>
+    </HBox>
+    <HBox spacing="16" VBox.vgrow="ALWAYS">
+        <VBox styleClass="panel" HBox.hgrow="ALWAYS">
+            <Label text="Collar Stock" styleClass="panel-title"/>
+            <Label text="Collar records will appear here." styleClass="placeholder-text"/>
+        </VBox>
+        <VBox styleClass="panel" HBox.hgrow="ALWAYS">
+            <Label text="Nameplate Stock" styleClass="panel-title"/>
+            <Label text="Nameplate records will appear here." styleClass="placeholder-text"/>
+        </VBox>
+        <VBox styleClass="panel" HBox.hgrow="ALWAYS">
+            <Label text="Footring Stock" styleClass="panel-title"/>
+            <Label text="Footring records will appear here." styleClass="placeholder-text"/>
+        </VBox>
+    </HBox>
+</VBox>

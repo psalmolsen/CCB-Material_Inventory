@@ -4,93 +4,80 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.geometry.*?>
-<?import javafx.scene.text.*?>
 
 <HBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.ccb.MainController"
+      fx:controller="com.ccb.controller.page.MainController"
       styleClass="root-container"
       prefWidth="1200" prefHeight="750">
 
-    <!-- ═══════════════════════════════════════ SIDEBAR ═══════════════════════════════════════ -->
+    <!-- Sidebar Navigation (inlined so @FXML fields inject properly) -->
     <VBox styleClass="sidebar" prefWidth="220">
-
-        <!-- Logo Area -->
         <VBox styleClass="logo-area" alignment="CENTER">
             <ImageView fitWidth="70" fitHeight="70" preserveRatio="true">
                 <image>
-                    <Image url="file:///C:/Users/USER/Desktop/CCB System/CCBInventory/src/imgs/CCBLogo.png"/>
+                    <Image url="@../../imgs/CCBLogo.png"/>
                 </image>
             </ImageView>
             <Label text="CCB Inventory" styleClass="logo-title"/>
             <Label text="Management System" styleClass="logo-subtitle"/>
         </VBox>
 
-        <!-- Navigation -->
         <VBox styleClass="nav-section" VBox.vgrow="ALWAYS">
             <Label text="MAIN MENU" styleClass="nav-section-label"/>
-
-            <Button fx:id="btnMaterial" text="🧱   Material Monitoring" styleClass="nav-btn, nav-btn-active" maxWidth="Infinity" onAction="#showMaterial"/>
-            <Button fx:id="btnCnf"     text="🔩   CNF Monitoring"      styleClass="nav-btn"                 maxWidth="Infinity" onAction="#showCnf"/>
-            <Button fx:id="btnOring"   text="⭕   O-Ring Monitoring"   styleClass="nav-btn"                 maxWidth="Infinity" onAction="#showOring"/>
-            <Button fx:id="btnSales"   text="📊   Pellets L-Sales"     styleClass="nav-btn"                 maxWidth="Infinity" onAction="#showSales"/>
+            <Button fx:id="btnMaterial" text="🧱   Material Monitoring" styleClass="nav-btn, nav-btn-active" maxWidth="Infinity"/>
+            <Button fx:id="btnCnf" text="🔩   CNF Monitoring" styleClass="nav-btn" maxWidth="Infinity"/>
+            <Button fx:id="btnOring" text="⭕   O-Ring Monitoring" styleClass="nav-btn" maxWidth="Infinity"/>
+            <Button fx:id="btnSales" text="📊   Pellets L-Sales" styleClass="nav-btn" maxWidth="Infinity"/>
         </VBox>
-
-
     </VBox>
 
-    <!-- ═══════════════════════════════════════ MAIN CONTENT ═══════════════════════════════════ -->
     <VBox styleClass="main-content" HBox.hgrow="ALWAYS">
 
-        <!-- Top Bar -->
         <HBox styleClass="topbar" alignment="CENTER_LEFT">
             <Label fx:id="pageTitle" text="Material Monitoring" styleClass="page-title" HBox.hgrow="ALWAYS"/>
         </HBox>
         <HBox styleClass="topbar-accent"/>
 
-        <!-- ─── MATERIAL MONITORING SECTION ─── -->
-        <VBox fx:id="materialSection" styleClass="section-content" VBox.vgrow="ALWAYS">
-
-            <!-- Red Overview Panel wrapping stat cards -->
-            <VBox style="-fx-background-color: #B71C1C; -fx-background-radius: 16; -fx-padding: 16 18; -fx-spacing: 12; -fx-effect: dropshadow(gaussian, rgba(183,28,28,0.38), 20, 0, 0, 8);">
-                <Label text="MATERIAL OVERVIEW" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.85); -fx-letter-spacing: 1.2px; -fx-padding: 0 0 8 0; -fx-border-color: transparent transparent rgba(255,255,255,0.2) transparent; -fx-border-width: 0 0 1 0;"/>
-                <HBox spacing="14">
-                    <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
-                        <HBox alignment="CENTER" spacing="4">
-                            <Label fx:id="materialTotalCount" text="0000" styleClass="stat-number"/>
-                            <Label fx:id="materialInitialUnit" text="" styleClass="stat-unit"/>
-                        </HBox>
-                        <Label text="INITIAL STOCK" styleClass="stat-label"/>
-                    </VBox>
-                    <VBox styleClass="stat-card stat-yellow" HBox.hgrow="ALWAYS">
-                        <HBox alignment="CENTER" spacing="4">
-                            <Label fx:id="materialLowCount" text="0000" styleClass="stat-number"/>
-                            <Label fx:id="materialReceivedUnit" text="" styleClass="stat-unit"/>
-                        </HBox>
-                        <Label text="RECEIVED" styleClass="stat-label"/>
-                    </VBox>
-                    <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
-                        <HBox alignment="CENTER" spacing="4">
-                            <Label fx:id="materialInCount" text="0000" styleClass="stat-number"/>
-                            <Label fx:id="materialBalanceUnit" text="" styleClass="stat-unit"/>
-                        </HBox>
-                        <Label text="CURRENT BALANCE" styleClass="stat-label"/>
-                    </VBox>
-                    <VBox styleClass="stat-card stat-dark" HBox.hgrow="ALWAYS">
-                        <HBox alignment="CENTER" spacing="4">
-                            <Label fx:id="materialOutCount" text="0000" styleClass="stat-number"/>
-                            <Label fx:id="materialIssuedUnit" text="" styleClass="stat-unit"/>
-                        </HBox>
-                        <Label text="ISSUED" styleClass="stat-label"/>
-                    </VBox>
-                </HBox>
-            </VBox>
-
-            <!-- Add Material Button -->
-            <HBox alignment="CENTER_RIGHT">
-                <Button fx:id="btnAddMaterial" text="＋  Add Material" styleClass="btn-add-material" onAction="#openAddMaterial"/>
+        <!-- Material Overview (inlined) -->
+        <VBox style="-fx-background-color: #B71C1C; -fx-background-radius: 16; -fx-padding: 16 18; -fx-spacing: 12; -fx-effect: dropshadow(gaussian, rgba(183,28,28,0.38), 20, 0, 0, 8);">
+            <Label text="MATERIAL OVERVIEW" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.85); -fx-letter-spacing: 1.2px; -fx-padding: 0 0 8 0; -fx-border-color: transparent transparent rgba(255,255,255,0.2) transparent; -fx-border-width: 0 0 1 0;"/>
+            <HBox spacing="14">
+                <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
+                    <HBox alignment="CENTER" spacing="4">
+                        <Label fx:id="materialTotalCount" text="0000" styleClass="stat-number"/>
+                        <Label fx:id="materialInitialUnit" text="" styleClass="stat-unit"/>
+                    </HBox>
+                    <Label text="INITIAL STOCK" styleClass="stat-label"/>
+                </VBox>
+                <VBox styleClass="stat-card stat-yellow" HBox.hgrow="ALWAYS">
+                    <HBox alignment="CENTER" spacing="4">
+                        <Label fx:id="materialLowCount" text="0000" styleClass="stat-number"/>
+                        <Label fx:id="materialReceivedUnit" text="" styleClass="stat-unit"/>
+                    </HBox>
+                    <Label text="RECEIVED" styleClass="stat-label"/>
+                </VBox>
+                <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
+                    <HBox alignment="CENTER" spacing="4">
+                        <Label fx:id="materialInCount" text="0000" styleClass="stat-number"/>
+                        <Label fx:id="materialBalanceUnit" text="" styleClass="stat-unit"/>
+                    </HBox>
+                    <Label text="CURRENT BALANCE" styleClass="stat-label"/>
+                </VBox>
+                <VBox styleClass="stat-card stat-dark" HBox.hgrow="ALWAYS">
+                    <HBox alignment="CENTER" spacing="4">
+                        <Label fx:id="materialOutCount" text="0000" styleClass="stat-number"/>
+                        <Label fx:id="materialIssuedUnit" text="" styleClass="stat-unit"/>
+                    </HBox>
+                    <Label text="ISSUED" styleClass="stat-label"/>
+                </VBox>
             </HBox>
+        </VBox>
 
-            <!-- Material Records Panel -->
+        <!-- Material Monitoring Section -->
+        <VBox fx:id="materialSection" styleClass="section-content" VBox.vgrow="ALWAYS">
+            <HBox alignment="CENTER_RIGHT">
+                <Button fx:id="btnAddMaterial" text="＋  Add Material" styleClass="btn-add-material"/>
+            </HBox>
             <VBox styleClass="panel" VBox.vgrow="ALWAYS">
                 <HBox alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0; -fx-border-color: transparent transparent #eaedf5 transparent; -fx-border-width: 0 0 1 0;">
                     <VBox spacing="4" HBox.hgrow="ALWAYS">
@@ -99,7 +86,6 @@
                     </VBox>
                     <Label text="Auto-loaded from Google Sheets" style="-fx-text-fill: #7b86aa; -fx-font-size: 11px; -fx-font-weight: bold;"/>
                 </HBox>
-
                 <VBox styleClass="materials-list-shell" VBox.vgrow="ALWAYS">
                     <ListView fx:id="materialsList" VBox.vgrow="ALWAYS" styleClass="materials-list">
                         <placeholder>
@@ -108,10 +94,9 @@
                     </ListView>
                 </VBox>
             </VBox>
-
         </VBox>
 
-        <!-- ─── CNF MONITORING SECTION ─── -->
+        <!-- CNF Monitoring Section -->
         <VBox fx:id="cnfSection" styleClass="section-content" VBox.vgrow="ALWAYS" visible="false" managed="false">
             <Label text="CNF Overview  (Collar · Nameplate · Footring)" styleClass="section-title"/>
             <HBox styleClass="stat-cards" spacing="14">
@@ -147,7 +132,7 @@
             </HBox>
         </VBox>
 
-        <!-- ─── O-RING MONITORING SECTION ─── -->
+        <!-- O-Ring Monitoring Section -->
         <VBox fx:id="oringSection" styleClass="section-content" VBox.vgrow="ALWAYS" visible="false" managed="false">
             <Label text="O-Ring Overview" styleClass="section-title"/>
             <HBox styleClass="stat-cards" spacing="14">
@@ -173,7 +158,7 @@
             </VBox>
         </VBox>
 
-        <!-- ─── PELLETS L-SALES REPORT SECTION ─── -->
+        <!-- Sales Report Section -->
         <VBox fx:id="salesSection" styleClass="section-content" VBox.vgrow="ALWAYS" visible="false" managed="false">
             <Label text="Pellets L-Sales Report" styleClass="section-title"/>
             <HBox styleClass="stat-cards" spacing="14">

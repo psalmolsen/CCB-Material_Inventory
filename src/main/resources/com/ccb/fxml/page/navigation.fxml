@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      styleClass="sidebar"
+      prefWidth="220">
+
+    <VBox styleClass="logo-area" alignment="CENTER">
+        <ImageView fitWidth="70" fitHeight="70" preserveRatio="true">
+            <image>
+                <Image url="@../../../../../../imgs/CCBLogo.png"/>
+            </image>
+        </ImageView>
+        <Label text="CCB Inventory" styleClass="logo-title"/>
+        <Label text="Management System" styleClass="logo-subtitle"/>
+    </VBox>
+
+    <VBox styleClass="nav-section" VBox.vgrow="ALWAYS">
+        <Label text="MAIN MENU" styleClass="nav-section-label"/>
+        <Button fx:id="btnMaterial" text="🧱   Material Monitoring" styleClass="nav-btn, nav-btn-active" maxWidth="Infinity"/>
+        <Button fx:id="btnCnf" text="🔩   CNF Monitoring" styleClass="nav-btn" maxWidth="Infinity"/>
+        <Button fx:id="btnOring" text="⭕   O-Ring Monitoring" styleClass="nav-btn" maxWidth="Infinity"/>
+        <Button fx:id="btnSales" text="📊   Pellets L-Sales" styleClass="nav-btn" maxWidth="Infinity"/>
+    </VBox>
+</VBox>
