@@ -53,7 +53,8 @@ public class EditMaterialController implements Initializable {
         codeField.setText(safe(material.getCodeNo()));
         descriptionField.setText(safe(material.getDescription()));
         uomField.setText(safe(material.getUom()));
-        priceField.setText(formatNumber(material.getUnitPrice()));
+        priceField.setText(material.getUnitPrice() == com.ccb.SheetMapper.PRICE_NA
+                ? "N/A" : formatNumber(material.getUnitPrice()));
         initialStockField.setText(formatNumber(material.getInitialStock()));
         receivedField.setText(formatNumber(material.getReceivedQuantity()));
         balanceField.setText(formatNumber(material.getCurrentBalance()));
@@ -166,7 +167,9 @@ public class EditMaterialController implements Initializable {
             row.add(newCode);
             row.add(descriptionField.getText().trim());
             row.add(uomField.getText().trim());
-            row.add(parseDouble(priceField.getText()));
+            String priceText = priceField.getText().trim();
+            row.add(priceText.equalsIgnoreCase("n/a") || priceText.equalsIgnoreCase("na") || priceText.isEmpty()
+                    ? "N/A" : parseDouble(priceText));
             row.add(parseDouble(initialStockField.getText()));
             row.add(parseDouble(receivedField.getText()));
             row.add("");

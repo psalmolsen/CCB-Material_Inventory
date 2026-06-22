@@ -970,11 +970,12 @@ public class MainController implements Initializable {
             descLabel.setText(description.isEmpty() ? "No description provided" : description);
 
             unitPriceLabel.setText("UNIT PRICE");
-            unitPriceValue.setText(String.format("\u20B1 %.2f", item.getUnitPrice()));
+            unitPriceValue.setText(item.getUnitPrice() == SheetMapper.PRICE_NA
+                    ? "N/A" : String.format("\u20B1 %.2f", item.getUnitPrice()));
 
             String range = reportRangeCombo.getSelectionModel().getSelectedItem();
             double rangeIssued = computeRangeIssued(item, range);
-            double rangeValue = item.getUnitPrice() * rangeIssued;
+            double rangeValue = item.getUnitPrice() == SheetMapper.PRICE_NA ? 0 : item.getUnitPrice() * rangeIssued;
 
             String rangeLabel = switch (range == null ? "Monthly" : range) {
                 case "Weekly"    -> "THIS WEEK VALUE";
@@ -984,7 +985,8 @@ public class MainController implements Initializable {
                 default          -> "VALUE";
             };
             totalPriceLabel.setText(rangeLabel);
-            totalPriceValue.setText(String.format("\u20B1 %.2f", rangeValue));
+            totalPriceValue.setText(item.getUnitPrice() == SheetMapper.PRICE_NA
+                    ? "N/A" : String.format("\u20B1 %.2f", rangeValue));
 
             thumbFallback.setText(code.isEmpty() ? "M" : code.substring(0, Math.min(2, code.length())).toUpperCase());
             File imageFile = resolveImageFile(code);

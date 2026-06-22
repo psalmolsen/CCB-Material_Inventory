@@ -21,7 +21,7 @@ import java.util.List;
 
 public class GoogleSheetsService {
 
-    private static final String SPREADSHEET_ID = "1_qSYYvcVe8lU0jyR_mrBadYJafSfFwmKA-xX7PpS4ns";
+    private static final String SPREADSHEET_ID = "1zNxROdrK1ip-8bQA4PAqQoy1YNDKcKSxM76KKgXlOUs";
     private static final String CREDENTIALS_PATH = "/com/ccb/credentials/service-account.json";
     public static final int DATA_START_ROW = 4;
     private static final String APP_NAME = "CCB Inventory System";

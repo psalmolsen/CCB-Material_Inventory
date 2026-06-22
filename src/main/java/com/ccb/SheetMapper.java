@@ -42,6 +42,9 @@ public class SheetMapper {
         return fromRow(row, -1);
     }
 
+    /** -1.0 sentinel means "N/A" — price not applicable for this material */
+    public static final double PRICE_NA = -1.0;
+
     /** Convert a raw sheet row into an InventoryItem with its sheet row number. */
     public static InventoryItem fromRow(List<Object> row, int sheetRowNumber) {
         InventoryItem item = new InventoryItem();
@@ -49,7 +52,7 @@ public class SheetMapper {
         item.setCodeNo(getCellString(row, COL_CODE));
         item.setDescription(getCellString(row, COL_DESC));
         item.setUom(getCellString(row, COL_UOM));
-        item.setUnitPrice(getCellDouble(row, COL_PRICE));
+        item.setUnitPrice(getCellPrice(row, COL_PRICE));  // handles N/A
         item.setInitialStock(getCellDouble(row, COL_INITIAL_STOCK));
         item.setReceivedQuantity(getCellDouble(row, COL_RECEIVED));
         item.setCurrentBalance(getCellDouble(row, COL_BALANCE));
@@ -84,7 +87,7 @@ public class SheetMapper {
         row.add(item.getCodeNo());            // col 1
         row.add(item.getDescription());       // col 2
         row.add(item.getUom());               // col 3
-        row.add(item.getUnitPrice());         // col 4
+        row.add(item.getUnitPrice() == PRICE_NA ? "N/A" : item.getUnitPrice());  // col 4
         row.add(item.getInitialStock());      // col 5
         row.add(item.getReceivedQuantity());  // col 6
         row.add("");                         // col 7 empty
@@ -113,6 +116,19 @@ public class SheetMapper {
             return Double.parseDouble(val);
         } catch (NumberFormatException e) {
             return 0.0;
+        }
+    }
+
+    /** Reads a price cell — returns PRICE_NA sentinel if blank or "n/a", otherwise the numeric value */
+    private static double getCellPrice(List<Object> row, int index) {
+        String val = getCellString(row, index).trim();
+        if (val.isEmpty() || val.equalsIgnoreCase("n/a") || val.equalsIgnoreCase("na")) {
+            return PRICE_NA;
+        }
+        try {
+            return Double.parseDouble(val);
+        } catch (NumberFormatException e) {
+            return PRICE_NA;
         }
     }
 
