@@ -42,7 +42,7 @@ public class InventoryItem {
 
     // Getters and Setters
     public double getTotalPrice() {
-        return unitPrice * getIssuedQuantity();
+        return unitPrice * getTotalIssued();
     }
 
     public double getIssuedQuantity()               { return issuedQuantity; }

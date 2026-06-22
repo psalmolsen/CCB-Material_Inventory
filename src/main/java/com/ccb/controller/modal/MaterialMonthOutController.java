@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -21,6 +22,7 @@ import java.util.ResourceBundle;
 public class MaterialMonthOutController implements Initializable {
 
     @FXML private Label materialLabel;
+    @FXML private Label dialogSubtitle;
     @FXML private ComboBox<String> monthComboBox;
     @FXML private Label totalIssuedLabel;
     @FXML private Label peakDayLabel;
@@ -35,7 +37,12 @@ public class MaterialMonthOutController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         monthComboBox.getItems().addAll("JAN", "FEB", "MAR", "APR", "MAY", "JUN",
             "JUL", "AUG", "SEP", "OCT", "NOV", "DEC");
-        monthComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldMonth, newMonth) -> loadMonth(newMonth));
+        monthComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldMonth, newMonth) -> {
+            if (newMonth != null && dialogSubtitle != null) {
+                dialogSubtitle.setText("Daily issued quantities for " + newMonth);
+            }
+            loadMonth(newMonth);
+        });
     }
 
     public void setMaterial(InventoryItem material) {
@@ -99,55 +106,69 @@ public class MaterialMonthOutController implements Initializable {
 
     private void renderDays(InventoryItem item, double totalIssued) {
         daysBox.getChildren().clear();
-        double peakValue = -1;
+
+        // First pass — find the month's max so bars are proportional to it
+        double maxDayValue = 0;
+        for (int day = 1; day <= 31; day++) {
+            double v = item.getDayValue(day);
+            if (v > maxDayValue) maxDayValue = v;
+        }
+
         int peakDay = 0;
         int activeDays = 0;
-        double maxDayValue = 0;
 
         for (int day = 1; day <= 31; day++) {
             double value = item.getDayValue(day);
-            if (value > 0) activeDays++;
-            if (value > peakValue) {
-                peakValue = value;
-                peakDay = day;
+            if (value > 0) {
+                activeDays++;
+                if (value == maxDayValue) peakDay = day;
             }
-            if (value > maxDayValue) maxDayValue = value;
+
+            // ── Row container ────────────────────────────────────
+            HBox row = new HBox(12);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.getStyleClass().add("day-row");
+
+            // ── Day badge (left) ─────────────────────────────────
+            Label dayBadge = new Label(String.format("DAY %02d", day));
+            dayBadge.getStyleClass().add("day-badge");
+
+            // ── Bar track (middle, grows to fill) ────────────────
+            StackPane track = new StackPane();
+            track.getStyleClass().add("day-bar-track");
+            track.setAlignment(Pos.CENTER_LEFT);
+            HBox.setHgrow(track, Priority.ALWAYS);
+
+            Region fill = new Region();
+            fill.getStyleClass().add("day-bar-fill");
+            fill.setMinHeight(6);
+            fill.setPrefHeight(6);
+
+            // Bind bar width to track width * proportion
+            double ratio = (maxDayValue <= 0 || value <= 0) ? 0.0 : (value / maxDayValue);
+            fill.prefWidthProperty().bind(track.widthProperty().multiply(ratio));
+            fill.minWidthProperty().bind(track.widthProperty().multiply(ratio));
+            fill.maxWidthProperty().bind(track.widthProperty().multiply(ratio));
+
+            StackPane.setAlignment(fill, Pos.CENTER_LEFT);
+            track.getChildren().add(fill);
+
+            // ── Value badge (right) ──────────────────────────────
+            Label valueBadge = new Label(value > 0 ? String.format("%.0f", value) : "—");
+            valueBadge.getStyleClass().add("day-value-badge");
+
+            row.getChildren().addAll(dayBadge, track, valueBadge);
+
+            // Dim rows with zero activity slightly
+            if (value <= 0) {
+                row.setOpacity(0.45);
+            }
+
+            daysBox.getChildren().add(row);
         }
 
         peakDayLabel.setText(peakDay == 0 ? "--" : String.format("Day %02d", peakDay));
         activeDaysLabel.setText(String.valueOf(activeDays));
         averageDayLabel.setText(activeDays == 0 ? "0" : String.format("%.1f", totalIssued / activeDays));
-
-        for (int day = 1; day <= 31; day++) {
-            double value = item.getDayValue(day);
-            
-            HBox row = new HBox(16);
-            row.setStyle("-fx-alignment: CENTER_LEFT; -fx-padding: 8 0;");
-
-            Label dayLabel = new Label(String.format("Day %02d", day));
-            dayLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.7); -fx-min-width: 60; -fx-pref-width: 60;");
-
-            StackPane barContainer = new StackPane();
-            barContainer.setStyle("-fx-min-height: 18; -fx-pref-height: 18;");
-            
-            Region bar = new Region();
-            double pct = maxDayValue <= 0 ? 0 : (value / maxDayValue);
-            double barWidth = Math.max(2, pct * 380);
-            bar.setStyle("-fx-background-color: linear-gradient(to right, #5b9bdb, #3d7bb5); -fx-background-radius: 4;");
-            bar.setPrefWidth(barWidth);
-            bar.setMinWidth(barWidth);
-            bar.setMaxWidth(barWidth);
-            bar.setPrefHeight(18);
-
-            barContainer.getChildren().add(bar);
-            barContainer.setAlignment(bar, Pos.CENTER_LEFT);
-            HBox.setHgrow(barContainer, javafx.scene.layout.Priority.ALWAYS);
-
-            Label valueLabel = new Label(String.format("%.0f", value));
-            valueLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: white; -fx-min-width: 50; -fx-pref-width: 50; -fx-text-alignment: RIGHT;");
-
-            row.getChildren().addAll(dayLabel, barContainer, valueLabel);
-            daysBox.getChildren().add(row);
-        }
     }
 }

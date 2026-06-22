@@ -2,11 +2,13 @@ package com.ccb.controller.page;
 
 import com.ccb.GoogleSheetsService;
 import com.ccb.InventoryItem;
+import com.ccb.MonthSheetProvisioner;
 import com.ccb.SheetMapper;
 import com.ccb.controller.modal.EditMaterialController;
 import com.ccb.controller.modal.MaterialMonthOutController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,6 +16,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Button;
 import javafx.scene.control.CustomMenuItem;
@@ -37,8 +40,13 @@ import javafx.scene.paint.Color;
 
 import java.io.File;
 import java.net.URL;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Month;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
@@ -107,8 +115,28 @@ public class MainController implements Initializable {
     @FXML
     private ListView<InventoryItem> materialsList;
 
+    @FXML
+    private ComboBox<String> reportRangeCombo;
+
+    @FXML
+    private TextField materialSearchField;
+
     private static final String IMAGE_DIR = System.getProperty("user.dir") + "/src/imgs/Material_Icon/";
     private static final String TAB_NAME = "MAY";
+
+    // Tab abbreviation → month number mapping
+    private static final Map<String, Integer> TAB_TO_MONTH = new HashMap<>();
+    static {
+        String[] tabs = {"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"};
+        for (int i = 0; i < tabs.length; i++) TAB_TO_MONTH.put(tabs[i], i + 1);
+    }
+    private static final String[] MONTH_TABS = {"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"};
+
+    // Cache of already-fetched tabs: tabName → list of items
+    private final Map<String, List<InventoryItem>> tabCache = new HashMap<>();
+
+    // Full unfiltered list — search filters against this
+    private final ObservableList<InventoryItem> allMaterials = FXCollections.observableArrayList();
 
     private List<Button> navButtons;
     private List<VBox> sections;
@@ -131,9 +159,56 @@ public class MainController implements Initializable {
         materialsList.getSelectionModel().selectedItemProperty()
                 .addListener((obs, oldItem, selectedItem) -> updateMaterialOverview(selectedItem));
 
+        // Search bar — filters the full list live as the user types
+        FilteredList<InventoryItem> filteredMaterials = new FilteredList<>(allMaterials, p -> true);
+        materialsList.setItems(filteredMaterials);
+        materialSearchField.textProperty().addListener((obs, oldVal, query) -> {
+            String q = query == null ? "" : query.trim().toLowerCase();
+            filteredMaterials.setPredicate(item -> {
+                if (q.isEmpty()) return true;
+                String code = item.getCodeNo() == null ? "" : item.getCodeNo().toLowerCase();
+                String desc = item.getDescription() == null ? "" : item.getDescription().toLowerCase();
+                return code.contains(q) || desc.contains(q);
+            });
+        });
+
+        // Report range dropdown
+        reportRangeCombo.getItems().addAll("Weekly", "Monthly", "Quarterly", "Yearly");
+        reportRangeCombo.getSelectionModel().select("Monthly");
+        reportRangeCombo.getSelectionModel().selectedItemProperty()
+                .addListener((obs, old, range) -> refreshCardValues());
+
         showSection(0, "Material Monitoring");
         updateMaterialOverview(null);
         loadMaterials();
+        ensureCurrentMonthTab();
+    }
+
+    /**
+     * Runs on startup in a background thread.
+     * Creates the current month's sheet tab if it doesn't exist yet,
+     * pre-filling it with identity columns and carrying forward the previous month's balance.
+     */
+    private void ensureCurrentMonthTab() {
+        Task<String> task = new Task<>() {
+            @Override
+            protected String call() throws Exception {
+                return MonthSheetProvisioner.provisionCurrentMonth();
+            }
+        };
+        task.setOnSucceeded(e -> {
+            String created = task.getValue();
+            if (created != null) {
+                System.out.println("New month tab ready: " + created);
+                // Optionally reload if the created tab matches TAB_NAME
+            }
+        });
+        task.setOnFailed(e ->
+            System.err.println("Month provisioning failed: " + task.getException().getMessage())
+        );
+        Thread t = new Thread(task);
+        t.setDaemon(true);
+        t.start();
     }
 
     public void loadMaterials() {
@@ -142,27 +217,180 @@ public class MainController implements Initializable {
             protected ObservableList<InventoryItem> call() throws Exception {
                 GoogleSheetsService service = new GoogleSheetsService();
                 List<List<Object>> rows = service.readSheet(TAB_NAME);
+                System.out.println("DEBUG: Tab=" + TAB_NAME + "  total rows=" + rows.size() + "  DATA_START_ROW=" + GoogleSheetsService.DATA_START_ROW);
                 ObservableList<InventoryItem> items = FXCollections.observableArrayList();
+                List<InventoryItem> cacheList = new ArrayList<>();
                 for (int i = GoogleSheetsService.DATA_START_ROW; i < rows.size(); i++) {
                     List<Object> row = rows.get(i);
                     if (row.size() > 1 && !row.get(1).toString().isBlank()) {
                         InventoryItem item = SheetMapper.fromRow(row, i + 1);
                         item.setSheetTabName(TAB_NAME);
                         items.add(item);
+                        cacheList.add(item);
                     }
                 }
+                System.out.println("DEBUG: items parsed=" + items.size());
+                tabCache.put(TAB_NAME, cacheList);
                 return items;
             }
         };
         task.setOnSucceeded(e -> {
-            materialsList.setItems(task.getValue());
+            allMaterials.setAll(task.getValue());
             materialsList.getSelectionModel().clearSelection();
             updateMaterialOverview(null);
+            prefetchTabsForRange(reportRangeCombo.getSelectionModel().getSelectedItem());
         });
-        task.setOnFailed(e -> System.err.println("Failed to load: " + task.getException().getMessage()));
+        task.setOnFailed(e -> {
+            Throwable ex = task.getException();
+            System.err.println("Failed to load materials: " + ex.getMessage());
+            ex.printStackTrace();
+        });
         Thread loader = new Thread(task);
         loader.setDaemon(true);
         loader.start();
+    }
+
+    /**
+     * Pre-fetch tabs needed for quarterly/yearly ranges so they're ready in cache.
+     */
+    private void prefetchTabsForRange(String range) {
+        List<String> needed = getTabsForRange(range);
+        List<String> missing = new ArrayList<>();
+        for (String tab : needed) {
+            if (!tabCache.containsKey(tab)) missing.add(tab);
+        }
+        if (missing.isEmpty()) return;
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                GoogleSheetsService service = new GoogleSheetsService();
+                for (String tab : missing) {
+                    try {
+                        List<List<Object>> rows = service.readSheet(tab);
+                        List<InventoryItem> items = new ArrayList<>();
+                        for (int i = GoogleSheetsService.DATA_START_ROW; i < rows.size(); i++) {
+                            List<Object> row = rows.get(i);
+                            if (row.size() > 1 && !row.get(1).toString().isBlank()) {
+                                InventoryItem item = SheetMapper.fromRow(row, i + 1);
+                                item.setSheetTabName(tab);
+                                items.add(item);
+                            }
+                        }
+                        tabCache.put(tab, items);
+                    } catch (Exception ex) {
+                        // Tab may not exist yet — skip silently
+                    }
+                }
+                return null;
+            }
+        };
+        task.setOnSucceeded(e -> refreshCardValues());
+        Thread t = new Thread(task);
+        t.setDaemon(true);
+        t.start();
+    }
+
+    /**
+     * Returns the list of sheet tabs needed for a given range, based on today's date.
+     */
+    private List<String> getTabsForRange(String range) {
+        List<String> tabs = new ArrayList<>();
+        if (range == null) { tabs.add(TAB_NAME); return tabs; }
+        LocalDate today = LocalDate.now();
+        int currentMonthIdx = today.getMonthValue() - 1; // 0-based index into MONTH_TABS
+
+        switch (range) {
+            case "Weekly":
+            case "Monthly":
+                tabs.add(TAB_NAME);
+                break;
+            case "Quarterly": {
+                // Quarter start month (0-based): Q1=0,Q2=3,Q3=6,Q4=9
+                int qStart = (currentMonthIdx / 3) * 3;
+                for (int i = qStart; i <= currentMonthIdx; i++) {
+                    tabs.add(MONTH_TABS[i]);
+                }
+                break;
+            }
+            case "Yearly": {
+                for (int i = 0; i <= currentMonthIdx; i++) {
+                    tabs.add(MONTH_TABS[i]);
+                }
+                break;
+            }
+            default:
+                tabs.add(TAB_NAME);
+        }
+        return tabs;
+    }
+
+    /**
+     * Computes the issued quantity for an item based on the selected range and today's date.
+     * Always starts from day 1 of the period.
+     */
+    double computeRangeIssued(InventoryItem baseItem, String range) {
+        LocalDate today = LocalDate.now();
+        int todayDay = today.getDayOfMonth();
+
+        switch (range == null ? "Monthly" : range) {
+            case "Weekly": {
+                // Week starts Monday; find first day of this week, clamped to day 1
+                int dow = today.getDayOfWeek().getValue(); // Mon=1 … Sun=7
+                int weekStartDay = Math.max(1, todayDay - (dow - 1));
+                double sum = 0;
+                for (int d = weekStartDay; d <= todayDay; d++) {
+                    sum += baseItem.getDayValue(d);
+                }
+                return sum;
+            }
+            case "Monthly": {
+                // Day 1 up to today's day-of-month
+                double sum = 0;
+                for (int d = 1; d <= todayDay; d++) {
+                    sum += baseItem.getDayValue(d);
+                }
+                return sum;
+            }
+            case "Quarterly":
+            case "Yearly": {
+                List<String> tabs = getTabsForRange(range);
+                String currentTab = TAB_NAME;
+                double sum = 0;
+                for (String tab : tabs) {
+                    boolean isCurrent = tab.equals(currentTab);
+                    if (isCurrent) {
+                        // Only days 1 → today
+                        for (int d = 1; d <= todayDay; d++) {
+                            sum += baseItem.getDayValue(d);
+                        }
+                    } else {
+                        // Past complete months — look up matching item from cache
+                        List<InventoryItem> cached = tabCache.get(tab);
+                        if (cached != null) {
+                            for (InventoryItem other : cached) {
+                                if (baseItem.getCodeNo() != null &&
+                                    baseItem.getCodeNo().equalsIgnoreCase(other.getCodeNo())) {
+                                    sum += other.getTotalIssued();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                return sum;
+            }
+            default:
+                return baseItem.getTotalIssued();
+        }
+    }
+
+    /**
+     * Forces all visible cards to re-render their value labels.
+     */
+    private void refreshCardValues() {
+        // Trigger a refresh by briefly cycling the cell factory
+        materialsList.refresh();
     }
 
     @FXML
@@ -220,13 +448,13 @@ public class MainController implements Initializable {
 
     private void updateMaterialOverview(InventoryItem item) {
         if (item == null) {
-            materialTotalCount.setText("0000");
+            materialTotalCount.setText("00");
             materialInitialUnit.setText("");
-            materialLowCount.setText("0000");
+            materialLowCount.setText("00");
             materialReceivedUnit.setText("");
-            materialInCount.setText("0000");
+            materialInCount.setText("00");
             materialBalanceUnit.setText("");
-            materialOutCount.setText("0000");
+            materialOutCount.setText("00");
             materialIssuedUnit.setText("");
             return;
         }
@@ -332,9 +560,9 @@ public class MainController implements Initializable {
 
         VBox headerTitles = new VBox(4);
         HBox.setHgrow(headerTitles, Priority.ALWAYS);
-        Label eyebrow = new Label("TRANSACTION ENTRY");
+        Label eyebrow = new Label("STOCK-IN RECORDING");
         eyebrow.getStyleClass().add("dialog-eyebrow");
-        Label title = new Label("STOCK IN RECORD");
+        Label title = new Label("Add Received Quantity");
         title.getStyleClass().add("dialog-title");
         Label subtitle = new Label("Add item quantity to inventory stock.");
         subtitle.getStyleClass().add("dialog-subtitle");
@@ -400,10 +628,9 @@ public class MainController implements Initializable {
         buttons.setAlignment(Pos.CENTER_RIGHT);
         Button cancel = new Button("Cancel");
         cancel.getStyleClass().add("btn-secondary");
-        cancel.setStyle("-fx-padding: 8 20; -fx-cursor: hand;");
 
-        Button save = new Button("Save Transaction");
-        save.getStyleClass().add("btn-blue");
+        Button save = new Button("Save");
+        save.getStyleClass().add("btn-add-material");
 
         buttons.getChildren().addAll(cancel, save);
 
@@ -485,11 +712,11 @@ public class MainController implements Initializable {
 
         VBox headerTitles = new VBox(4);
         HBox.setHgrow(headerTitles, Priority.ALWAYS);
-        Label eyebrow = new Label("TRANSACTION ENTRY");
+        Label eyebrow = new Label("STOCK OUT RECORDING");
         eyebrow.getStyleClass().add("dialog-eyebrow");
         Label title = new Label("STOCK OUT RECORD");
         title.getStyleClass().add("dialog-title");
-        Label subtitle = new Label("Record daily items issued to floor.");
+        Label subtitle = new Label("Record daily items issued to production.");
         subtitle.getStyleClass().add("dialog-subtitle");
         headerTitles.getChildren().addAll(eyebrow, title, subtitle);
 
@@ -553,10 +780,9 @@ public class MainController implements Initializable {
         buttons.setAlignment(Pos.CENTER_RIGHT);
         Button cancel = new Button("Cancel");
         cancel.getStyleClass().add("btn-secondary");
-        cancel.setStyle("-fx-padding: 8 20; -fx-cursor: hand;");
 
-        Button save = new Button("Save Transaction");
-        save.getStyleClass().add("btn-blue");
+        Button save = new Button("Save");
+        save.getStyleClass().add("btn-add-material");
 
         buttons.getChildren().addAll(cancel, save);
 
@@ -665,13 +891,9 @@ public class MainController implements Initializable {
 
             VBox actionPanel = new VBox(8);
             actionPanel.getStyleClass().add("material-action-panel");
-            Label actionTitle = new Label("Quick Actions");
-            actionTitle.getStyleClass().add("material-action-title");
-            Label actionHint = new Label("Choose what to inspect or edit");
-            actionHint.getStyleClass().add("material-action-hint");
 
-            Button monthOutButton = buildActionButton("View Monthly Daily Out",
-                    "Inspect each day for the selected month");
+            Button monthOutButton = buildActionButton("Monthly Daily Out Report",
+                    "View daily issued quantities per day of the month");
             monthOutButton.setOnAction(e -> {
                 moreMenu.hide();
                 if (currentItem != null) {
@@ -679,7 +901,8 @@ public class MainController implements Initializable {
                 }
             });
 
-            Button editButton = buildActionButton("Edit A-J Data", "Update the sheet row fields");
+            Button editButton = buildActionButton("Edit Material Details",
+                    "Update code, description, UOM, price and stock figures");
             editButton.setOnAction(e -> {
                 moreMenu.hide();
                 if (currentItem != null) {
@@ -687,7 +910,7 @@ public class MainController implements Initializable {
                 }
             });
 
-            actionPanel.getChildren().addAll(actionTitle, actionHint, monthOutButton, editButton);
+            actionPanel.getChildren().addAll(monthOutButton, editButton);
             CustomMenuItem actionItem = new CustomMenuItem(actionPanel, false);
             actionItem.setHideOnClick(false);
             moreMenu.getItems().add(actionItem);
@@ -748,8 +971,20 @@ public class MainController implements Initializable {
 
             unitPriceLabel.setText("UNIT PRICE");
             unitPriceValue.setText(String.format("\u20B1 %.2f", item.getUnitPrice()));
-            totalPriceLabel.setText("TOTAL ISSUED VALUE");
-            totalPriceValue.setText(String.format("\u20B1 %.2f", item.getTotalPrice()));
+
+            String range = reportRangeCombo.getSelectionModel().getSelectedItem();
+            double rangeIssued = computeRangeIssued(item, range);
+            double rangeValue = item.getUnitPrice() * rangeIssued;
+
+            String rangeLabel = switch (range == null ? "Monthly" : range) {
+                case "Weekly"    -> "THIS WEEK VALUE";
+                case "Monthly"   -> "THIS MONTH VALUE";
+                case "Quarterly" -> "THIS QUARTER VALUE";
+                case "Yearly"    -> "THIS YEAR VALUE";
+                default          -> "VALUE";
+            };
+            totalPriceLabel.setText(rangeLabel);
+            totalPriceValue.setText(String.format("\u20B1 %.2f", rangeValue));
 
             thumbFallback.setText(code.isEmpty() ? "M" : code.substring(0, Math.min(2, code.length())).toUpperCase());
             File imageFile = resolveImageFile(code);
@@ -776,9 +1011,7 @@ public class MainController implements Initializable {
             VBox textBlock = new VBox(2, titleLabel, subtitleLabel);
             HBox row = new HBox(10);
             row.getStyleClass().add("material-action-row");
-            Label icon = new Label("➜");
-            icon.getStyleClass().add("material-action-icon");
-            row.getChildren().addAll(textBlock, icon);
+            row.getChildren().add(textBlock);
             HBox.setHgrow(textBlock, Priority.ALWAYS);
 
             Button button = new Button();
