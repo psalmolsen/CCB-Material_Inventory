@@ -38,86 +38,39 @@
         </HBox>
         <HBox styleClass="topbar-accent"/>
 
-        <!-- Material Overview (inlined) -->
-        <VBox style="-fx-background-color: #B71C1C; -fx-background-radius: 16; -fx-padding: 16 18; -fx-spacing: 10; -fx-effect: dropshadow(gaussian, rgba(183,28,28,0.38), 20, 0, 0, 8);">
-            <Label text="MATERIAL OVERVIEW" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.85); -fx-letter-spacing: 1.2px; -fx-padding: 0 0 8 0; -fx-border-color: transparent transparent rgba(255,255,255,0.2) transparent; -fx-border-width: 0 0 1 0;"/>
-
-            <!-- Single GridPane: col = each stat, rows = [number, unit, label] -->
-            <!-- All cells in the same row share the same height — perfect vertical alignment -->
-            <GridPane hgap="14" vgap="0" maxWidth="Infinity">
-                <columnConstraints>
-                    <ColumnConstraints percentWidth="25" halignment="CENTER"/>
-                    <ColumnConstraints percentWidth="25" halignment="CENTER"/>
-                    <ColumnConstraints percentWidth="25" halignment="CENTER"/>
-                    <ColumnConstraints percentWidth="25" halignment="CENTER"/>
-                </columnConstraints>
-                <rowConstraints>
-                    <!-- Row 0: big number — all same height, bottom-aligned so numbers sit on same baseline -->
-                    <RowConstraints valignment="BOTTOM" minHeight="44"/>
-                    <!-- Row 1: unit (pcs / Spool / etc.) — all same height -->
-                    <RowConstraints valignment="TOP" minHeight="18"/>
-                    <!-- Row 2: category label — all same height -->
-                    <RowConstraints valignment="TOP" minHeight="20"/>
-                </rowConstraints>
-
-                <!-- Row 0: numbers -->
-                <Label fx:id="materialTotalCount" text="0000"
-                       style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;"
-                       maxWidth="Infinity" alignment="CENTER"
-                       GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
-                <Label fx:id="materialLowCount" text="0000"
-                       style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;"
-                       maxWidth="Infinity" alignment="CENTER"
-                       GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
-                <Label fx:id="materialInCount" text="0000"
-                       style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;"
-                       maxWidth="Infinity" alignment="CENTER"
-                       GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
-                <Label fx:id="materialOutCount" text="0000"
-                       style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;"
-                       maxWidth="Infinity" alignment="CENTER"
-                       GridPane.columnIndex="3" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
-
-                <!-- Row 1: units -->
-                <Label fx:id="materialInitialUnit" text=""
-                       style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7); -fx-alignment: CENTER;"
-                       maxWidth="Infinity" alignment="CENTER"
-                       GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
-                <Label fx:id="materialReceivedUnit" text=""
-                       style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7); -fx-alignment: CENTER;"
-                       maxWidth="Infinity" alignment="CENTER"
-                       GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
-                <Label fx:id="materialBalanceUnit" text=""
-                       style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7); -fx-alignment: CENTER;"
-                       maxWidth="Infinity" alignment="CENTER"
-                       GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
-                <Label fx:id="materialIssuedUnit" text=""
-                       style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7); -fx-alignment: CENTER;"
-                       maxWidth="Infinity" alignment="CENTER"
-                       GridPane.columnIndex="3" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
-
-                <!-- Row 2: category labels -->
-                <Label text="INITIAL STOCK"
-                       style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;"
-                       maxWidth="Infinity" alignment="CENTER"
-                       GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
-                <Label text="RECEIVED"
-                       style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;"
-                       maxWidth="Infinity" alignment="CENTER"
-                       GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
-                <Label text="CURRENT BALANCE"
-                       style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;"
-                       maxWidth="Infinity" alignment="CENTER"
-                       GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
-                <Label text="ISSUED"
-                       style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;"
-                       maxWidth="Infinity" alignment="CENTER"
-                       GridPane.columnIndex="3" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
-            </GridPane>
-        </VBox>
-
         <!-- Material Monitoring Section -->
         <VBox fx:id="materialSection" styleClass="section-content" VBox.vgrow="ALWAYS">
+
+            <!-- Material Overview — only visible in this section -->
+            <VBox style="-fx-background-color: #B71C1C; -fx-background-radius: 16; -fx-padding: 16 18; -fx-spacing: 10; -fx-effect: dropshadow(gaussian, rgba(183,28,28,0.38), 20, 0, 0, 8);">
+                <Label text="MATERIAL OVERVIEW" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.85); -fx-letter-spacing: 1.2px; -fx-padding: 0 0 8 0; -fx-border-color: transparent transparent rgba(255,255,255,0.2) transparent; -fx-border-width: 0 0 1 0;"/>
+                <GridPane hgap="14" vgap="0" maxWidth="Infinity">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="25" halignment="CENTER"/>
+                        <ColumnConstraints percentWidth="25" halignment="CENTER"/>
+                        <ColumnConstraints percentWidth="25" halignment="CENTER"/>
+                        <ColumnConstraints percentWidth="25" halignment="CENTER"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints valignment="BOTTOM" minHeight="44"/>
+                        <RowConstraints valignment="TOP" minHeight="18"/>
+                        <RowConstraints valignment="TOP" minHeight="20"/>
+                    </rowConstraints>
+                    <Label fx:id="materialTotalCount" text="0000" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+                    <Label fx:id="materialLowCount" text="0000" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+                    <Label fx:id="materialInCount" text="0000" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+                    <Label fx:id="materialOutCount" text="0000" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+                    <Label fx:id="materialInitialUnit" text="" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7); -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
+                    <Label fx:id="materialReceivedUnit" text="" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7); -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
+                    <Label fx:id="materialBalanceUnit" text="" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7); -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
+                    <Label fx:id="materialIssuedUnit" text="" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7); -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
+                    <Label text="INITIAL STOCK" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+                    <Label text="RECEIVED" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+                    <Label text="CURRENT BALANCE" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+                    <Label text="ISSUED" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+                </GridPane>
+            </VBox>
+
             <HBox alignment="CENTER_RIGHT">
                 <Button fx:id="btnAddMaterial" text="＋  Add Material" styleClass="btn-add-material"/>
             </HBox>
@@ -139,38 +92,43 @@
 
         <!-- CNF Monitoring Section -->
         <VBox fx:id="cnfSection" styleClass="section-content" VBox.vgrow="ALWAYS" visible="false" managed="false">
-            <Label text="CNF Overview  (Collar · Nameplate · Footring)" styleClass="section-title"/>
-            <HBox styleClass="stat-cards" spacing="14">
-                <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
-                    <Label fx:id="collarCount" text="0" styleClass="stat-number"/>
-                    <Label text="Qty" styleClass="stat-qty"/>
-                    <Label text="COLLAR" styleClass="stat-label"/>
-                </VBox>
-                <VBox styleClass="stat-card stat-red" HBox.hgrow="ALWAYS">
-                    <Label fx:id="nameplateCount" text="0" styleClass="stat-number"/>
-                    <Label text="Qty" styleClass="stat-qty"/>
-                    <Label text="NAMEPLATE" styleClass="stat-label"/>
-                </VBox>
-                <VBox styleClass="stat-card stat-yellow" HBox.hgrow="ALWAYS">
-                    <Label fx:id="footringCount" text="0" styleClass="stat-number"/>
-                    <Label text="Qty" styleClass="stat-qty"/>
-                    <Label text="FOOTRING" styleClass="stat-label"/>
-                </VBox>
-            </HBox>
-            <HBox spacing="16" VBox.vgrow="ALWAYS">
-                <VBox styleClass="panel" HBox.hgrow="ALWAYS">
-                    <Label text="Collar Stock" styleClass="panel-title"/>
-                    <Label text="Collar records will appear here." styleClass="placeholder-text"/>
-                </VBox>
-                <VBox styleClass="panel" HBox.hgrow="ALWAYS">
-                    <Label text="Nameplate Stock" styleClass="panel-title"/>
-                    <Label text="Nameplate records will appear here." styleClass="placeholder-text"/>
-                </VBox>
-                <VBox styleClass="panel" HBox.hgrow="ALWAYS">
-                    <Label text="Footring Stock" styleClass="panel-title"/>
-                    <Label text="Footring records will appear here." styleClass="placeholder-text"/>
-                </VBox>
-            </HBox>
+
+            <!-- Overview stat cards -->
+            <VBox style="-fx-background-color:#293A92;-fx-background-radius:16;-fx-padding:16 18;-fx-spacing:10;-fx-effect:dropshadow(gaussian,rgba(41,58,146,0.38),20,0,0,8);">
+                <Label text="CNF OVERVIEW" style="-fx-font-size:11px;-fx-font-weight:bold;-fx-text-fill:rgba(255,255,255,0.85);-fx-letter-spacing:1.2px;-fx-padding:0 0 8 0;-fx-border-color:transparent transparent rgba(255,255,255,0.2) transparent;-fx-border-width:0 0 1 0;"/>
+                <HBox spacing="14">
+                    <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS" alignment="CENTER">
+                        <Label fx:id="cnfCollarBalance" text="0" styleClass="stat-number"/>
+                        <Label text="Pcs" styleClass="stat-qty"/>
+                        <Label text="COLLAR" styleClass="stat-label"/>
+                    </VBox>
+                    <VBox styleClass="stat-card stat-red" HBox.hgrow="ALWAYS" alignment="CENTER">
+                        <Label fx:id="cnfNameplateBalance" text="0" styleClass="stat-number"/>
+                        <Label text="Pcs" styleClass="stat-qty"/>
+                        <Label text="NAMEPLATE" styleClass="stat-label"/>
+                    </VBox>
+                    <VBox styleClass="stat-card stat-dark" HBox.hgrow="ALWAYS" alignment="CENTER">
+                        <Label fx:id="cnfFootringBalance" text="0" styleClass="stat-number"/>
+                        <Label text="Pcs" styleClass="stat-qty"/>
+                        <Label text="FOOTRING" styleClass="stat-label"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- List panel -->
+            <VBox styleClass="panel" VBox.vgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding:0 0 10 0;-fx-border-color:transparent transparent #eaedf5 transparent;-fx-border-width:0 0 1 0;">
+                    <Label text="CNF Items" styleClass="panel-title" style="-fx-border-width:0;-fx-padding:0;"/>
+                    <TextField fx:id="cnfSearchField" promptText="🔍  Search CNF items..." styleClass="text-field" style="-fx-font-size:12px;" HBox.hgrow="ALWAYS"/>
+                    <ComboBox fx:id="cnfRangeCombo" styleClass="month-picker" prefWidth="130"/>
+                </HBox>
+                <ScrollPane fx:id="cnfScrollPane" fitToWidth="true" VBox.vgrow="ALWAYS"
+                            styleClass="glass-scroll" hbarPolicy="NEVER">
+                    <content>
+                        <VBox fx:id="cnfGroupBox" spacing="12" style="-fx-padding:4 0 8 0;"/>
+                    </content>
+                </ScrollPane>
+            </VBox>
         </VBox>
 
         <!-- O-Ring Monitoring Section -->

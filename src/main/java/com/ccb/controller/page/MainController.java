@@ -31,6 +31,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.ScrollPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -92,12 +93,15 @@ public class MainController implements Initializable {
     @FXML
     private Label materialIssuedUnit;
 
-    @FXML
-    private Label collarCount;
-    @FXML
-    private Label nameplateCount;
-    @FXML
-    private Label footringCount;
+    @FXML private Label cnfCollarBalance;
+    @FXML private Label cnfNameplateBalance;
+    @FXML private Label cnfFootringBalance;
+    @FXML private TextField cnfSearchField;
+    @FXML private ComboBox<String> cnfRangeCombo;
+    @FXML private ScrollPane cnfScrollPane;
+    @FXML private VBox cnfGroupBox;
+
+    private com.ccb.controller.page.CnfController cnfController;
 
     @FXML
     private Label oringTotalCount;
@@ -193,6 +197,11 @@ public class MainController implements Initializable {
         updateMaterialOverview(null);
         resolveCurrentTabThenLoad();
         ensureCurrentMonthTab();
+
+        // Wire CnfController with its injected FXML nodes
+        cnfController = new com.ccb.controller.page.CnfController();
+        cnfController.injectNodes(cnfCollarBalance, cnfNameplateBalance, cnfFootringBalance,
+                cnfSearchField, cnfRangeCombo, cnfGroupBox);
     }
 
     /**
@@ -458,6 +467,7 @@ public class MainController implements Initializable {
     @FXML
     public void showCnf() {
         showSection(1, "CNF Monitoring");
+        if (cnfController != null) cnfController.loadItems();
     }
 
     @FXML
