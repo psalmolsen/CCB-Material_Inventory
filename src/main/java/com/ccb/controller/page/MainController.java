@@ -195,7 +195,6 @@ public class MainController implements Initializable {
 
         showSection(0, "Material Monitoring");
         updateMaterialOverview(null);
-        resolveCurrentTabThenLoad();
         ensureCurrentMonthTab();
 
         // Wire CnfController with its injected FXML nodes
@@ -220,11 +219,14 @@ public class MainController implements Initializable {
             String created = task.getValue();
             if (created != null) {
                 System.out.println("New month tab ready: " + created);
-                // Optionally reload if the created tab matches currentTabName
             }
+            resolveCurrentTabThenLoad();
         });
         task.setOnFailed(e ->
-            System.err.println("Month provisioning failed: " + task.getException().getMessage())
+        {
+            System.err.println("Month provisioning failed: " + task.getException().getMessage());
+            resolveCurrentTabThenLoad();
+        }
         );
         Thread t = new Thread(task);
         t.setDaemon(true);

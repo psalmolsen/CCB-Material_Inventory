@@ -193,13 +193,57 @@ public class CnfController implements Initializable {
     }
 
     private VBox buildBrandSection(String brand, LinkedHashMap<String, List<CnfItem>> typeMap, String range) {
-        // ── Brand header label ────────────────────────────────────────────────
-        HBox header = new HBox();
+        // Build a prominent brand header (badge + name + right-side summary)
+        HBox header = new HBox(12);
         header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new javafx.geometry.Insets(0, 0, 10, 0));
-        Label brandLbl = new Label(brand + "  \u2014  PRODUCT CATEGORIES");
-        brandLbl.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #7b86aa; -fx-letter-spacing: 1.2px;");
-        header.getChildren().add(brandLbl);
+        header.setPadding(new javafx.geometry.Insets(0, 0, 6, 0));
+
+        // Brand badge (initial) on the left
+        StackPane brandBadge = new StackPane();
+        brandBadge.setMinSize(44, 44); brandBadge.setMaxSize(44, 44);
+        brandBadge.setStyle("-fx-background-color: #4a6cf7; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 8, 0, 0, 3);");
+        Label badgeLbl = new Label(brand == null || brand.isEmpty() ? "?" : brand.substring(0,1));
+        badgeLbl.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px;");
+        brandBadge.getChildren().add(badgeLbl);
+
+        // Brand name + descriptor
+        VBox nameBox = new VBox(2);
+        Label brandTitle = new Label(brand == null ? "UNKNOWN" : brand);
+        brandTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white;");
+        Label brandDesc = new Label("PRODUCT CATEGORIES");
+        brandDesc.setStyle("-fx-font-size: 11px; -fx-text-fill: #9aa6d8; -fx-letter-spacing: 1.0px;");
+        nameBox.getChildren().addAll(brandTitle, brandDesc);
+
+        // Spacer to push summary to the right
+        Region headerSpacer = new Region(); HBox.setHgrow(headerSpacer, Priority.ALWAYS);
+
+        // Compute brand totals
+        double brandTotal = typeMap.values().stream().flatMap(List::stream).mapToDouble(CnfItem::getCurrentBalance).sum();
+        int categoryCount = typeMap.size();
+        long variantCount = typeMap.values().stream().flatMap(List::stream).map(i -> parseVariant(i.getItemName())).distinct().count();
+
+        // Right-side summary (units / categories / variants)
+        HBox summaryRow = new HBox(18); summaryRow.setAlignment(Pos.CENTER_RIGHT);
+        summaryRow.setStyle("-fx-alignment: center-right;");
+
+        VBox unitsBox = new VBox(2); unitsBox.setAlignment(Pos.CENTER_RIGHT);
+        Label unitsVal = new Label(String.format("%.0f", brandTotal)); unitsVal.setStyle("-fx-font-size:20px; -fx-font-weight:bold; -fx-text-fill:white;");
+        Label unitsLbl = new Label("Units"); unitsLbl.setStyle("-fx-font-size:10px; -fx-text-fill:#9aa6d8; -fx-letter-spacing:0.8px;");
+        unitsBox.getChildren().addAll(unitsVal, unitsLbl);
+
+        VBox catsBox = new VBox(2); catsBox.setAlignment(Pos.CENTER_RIGHT);
+        Label catsVal = new Label(String.valueOf(categoryCount)); catsVal.setStyle("-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:white;");
+        Label catsLbl = new Label("Categories"); catsLbl.setStyle("-fx-font-size:10px; -fx-text-fill:#9aa6d8;");
+        catsBox.getChildren().addAll(catsVal, catsLbl);
+
+        VBox varsBox = new VBox(2); varsBox.setAlignment(Pos.CENTER_RIGHT);
+        Label varsVal = new Label(String.valueOf(variantCount)); varsVal.setStyle("-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:white;");
+        Label varsLbl = new Label("Variants"); varsLbl.setStyle("-fx-font-size:10px; -fx-text-fill:#9aa6d8;");
+        varsBox.getChildren().addAll(varsVal, varsLbl);
+
+        summaryRow.getChildren().addAll(unitsBox, catsBox, varsBox);
+
+        header.getChildren().addAll(brandBadge, nameBox, headerSpacer, summaryRow);
 
         // ── 3-column card row ─────────────────────────────────────────────────
         HBox cardRow = new HBox(14);
@@ -218,14 +262,32 @@ public class CnfController implements Initializable {
             if (!orderedTypes.contains(key)) orderedTypes.add(key);
         }
 
+        // Build cards and ensure equal width distribution
+        List<VBox> cards = new ArrayList<>();
         for (String type : orderedTypes) {
             List<CnfItem> typeItems = typeMap.get(type);
             VBox card = buildTypeCard(type, typeItems, range);
             HBox.setHgrow(card, Priority.ALWAYS);
+            cards.add(card);
             cardRow.getChildren().add(card);
         }
+        // Bind each card's preferred width so all share the row equally
+        int count = cards.size();
+        double spacing = 14; // same as cardRow spacing
+        if (count > 0) {
+            for (VBox c : cards) {
+                c.prefWidthProperty().bind(cardRow.widthProperty().subtract((count - 1) * spacing).multiply(1.0 / count));
+                c.setMaxWidth(Double.MAX_VALUE);
+            }
+        }
 
-        VBox section = new VBox(8, header, cardRow);
+        // Wrap header + cards inside a distinct brand panel so users clearly see brand grouping
+        VBox brandShell = new VBox(12);
+        brandShell.setStyle("-fx-background-color: linear-gradient(to right, #162044, #1b2a4a); -fx-background-radius: 12; -fx-border-color: #1e2d60; -fx-border-width: 1; -fx-border-radius: 12; -fx-padding: 14;");
+        brandShell.getChildren().addAll(header, cardRow);
+
+        // Outer section spacing
+        VBox section = new VBox(10, brandShell);
         return section;
     }
 

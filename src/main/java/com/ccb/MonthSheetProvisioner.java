@@ -95,8 +95,9 @@ public class MonthSheetProvisioner {
      * existing tab, matching either short or full name.
      */
     private static String findMostRecentTab(List<String> existingTabs, int currentMonthIdx) {
-        for (int i = currentMonthIdx - 1; i >= 0; i--) {
-            Month m = Month.of(i + 1);
+        int startMonth = currentMonthIdx == 0 ? 12 : currentMonthIdx;
+        for (int monthNumber = startMonth; monthNumber >= 1; monthNumber--) {
+            Month m = Month.of(monthNumber);
             String shortName = m.getDisplayName(TextStyle.SHORT, Locale.ENGLISH).toUpperCase();
             String fullName  = m.getDisplayName(TextStyle.FULL,  Locale.ENGLISH).toUpperCase();
             for (String tab : existingTabs) {

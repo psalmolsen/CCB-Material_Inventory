@@ -1,4 +1,5 @@
 com\ccb\controller\page\CnfController.class
+MaterialMonthOutController.class
 com\ccb\controller\page\MainController$5.class
 com\ccb\MonthSheetProvisioner.class
 com\ccb\CnfItem.class
