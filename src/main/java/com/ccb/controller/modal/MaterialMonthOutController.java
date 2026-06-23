@@ -35,8 +35,7 @@ public class MaterialMonthOutController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        monthComboBox.getItems().addAll("JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-            "JUL", "AUG", "SEP", "OCT", "NOV", "DEC");
+        // Tabs are loaded dynamically from the sheet in setMaterial()
         monthComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldMonth, newMonth) -> {
             if (newMonth != null && dialogSubtitle != null) {
                 dialogSubtitle.setText("Daily issued quantities for " + newMonth);
@@ -49,12 +48,40 @@ public class MaterialMonthOutController implements Initializable {
         this.material = material;
         materialLabel.setText((material.getCodeNo() == null ? "" : material.getCodeNo()) + " - " +
             (material.getDescription() == null ? "" : material.getDescription()));
-        String tab = material.getSheetTabName() == null || material.getSheetTabName().isBlank()
-            ? "MAY" : material.getSheetTabName().trim().toUpperCase();
-        if (!monthComboBox.getItems().contains(tab)) {
-            tab = "MAY";
-        }
-        monthComboBox.getSelectionModel().select(tab);
+
+        // Load available tabs from the sheet, then select the current one
+        javafx.concurrent.Task<java.util.List<String>> tabTask = new javafx.concurrent.Task<>() {
+            @Override
+            protected java.util.List<String> call() throws Exception {
+                return new GoogleSheetsService().getSheetTabNames();
+            }
+        };
+        tabTask.setOnSucceeded(e -> {
+            java.util.List<String> tabs = tabTask.getValue();
+            monthComboBox.getItems().setAll(tabs);
+            // Select the tab this item came from, or the first available
+            String currentTab = material.getSheetTabName() == null || material.getSheetTabName().isBlank()
+                    ? "" : material.getSheetTabName().trim();
+            // Try exact match first, then case-insensitive
+            String toSelect = tabs.stream()
+                    .filter(t -> t.equalsIgnoreCase(currentTab))
+                    .findFirst()
+                    .orElse(tabs.isEmpty() ? null : tabs.get(0));
+            if (toSelect != null) {
+                monthComboBox.getSelectionModel().select(toSelect);
+            }
+        });
+        tabTask.setOnFailed(e -> {
+            // Fallback to hardcoded list if fetch fails
+            monthComboBox.getItems().setAll("JAN","FEB","MAR","APR","MAY","JUN",
+                    "JUL","AUG","SEP","OCT","NOV","DEC");
+            String tab = material.getSheetTabName() == null ? "MAY"
+                    : material.getSheetTabName().trim().toUpperCase();
+            monthComboBox.getSelectionModel().select(tab);
+        });
+        Thread t = new Thread(tabTask);
+        t.setDaemon(true);
+        t.start();
     }
 
     @FXML
@@ -68,40 +95,59 @@ public class MaterialMonthOutController implements Initializable {
             return;
         }
 
-        try {
-            GoogleSheetsService service = new GoogleSheetsService();
-            List<List<Object>> rows = service.readSheet(monthTab);
-            InventoryItem matched = null;
-            for (int i = GoogleSheetsService.DATA_START_ROW; i < rows.size(); i++) {
-                List<Object> row = rows.get(i);
-                if (row.size() > 1 && material.getCodeNo() != null && material.getCodeNo().equalsIgnoreCase(row.get(1).toString().trim())) {
-                    matched = SheetMapper.fromRow(row, i + 1);
-                    break;
-                }
-            }
+        // Show loading state
+        totalIssuedLabel.setText("...");
+        peakDayLabel.setText("...");
+        activeDaysLabel.setText("...");
+        averageDayLabel.setText("...");
+        daysBox.getChildren().clear();
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
 
+        javafx.concurrent.Task<InventoryItem> task = new javafx.concurrent.Task<>() {
+            @Override
+            protected InventoryItem call() throws Exception {
+                GoogleSheetsService service = new GoogleSheetsService();
+                List<List<Object>> rows = service.readSheet(monthTab);
+                for (int i = GoogleSheetsService.DATA_START_ROW; i < rows.size(); i++) {
+                    List<Object> row = rows.get(i);
+                    if (row.size() > 1 && material.getCodeNo() != null
+                            && material.getCodeNo().equalsIgnoreCase(row.get(1).toString().trim())) {
+                        return SheetMapper.fromRow(row, i + 1);
+                    }
+                }
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            InventoryItem matched = task.getValue();
             if (matched == null) {
                 errorLabel.setText("No record found for " + monthTab + ".");
                 errorLabel.setVisible(true);
                 errorLabel.setManaged(true);
-                totalIssuedLabel.setText("0000");
+                totalIssuedLabel.setText("0");
                 peakDayLabel.setText("--");
                 activeDaysLabel.setText("0");
                 averageDayLabel.setText("0");
-                daysBox.getChildren().clear();
                 return;
             }
-
-            errorLabel.setVisible(false);
-            errorLabel.setManaged(false);
-            double totalIssued = matched.getIssuedQuantity() > 0 ? matched.getIssuedQuantity() : matched.getTotalIssued();
+            double totalIssued = matched.getTotalIssued() > 0 ? matched.getTotalIssued()
+                    : matched.getIssuedQuantity();
             totalIssuedLabel.setText(String.format("%.0f", totalIssued));
             renderDays(matched, totalIssued);
-        } catch (Exception e) {
-            errorLabel.setText("Failed to load month data: " + e.getMessage());
+        });
+
+        task.setOnFailed(e -> {
+            errorLabel.setText("Failed to load: " + task.getException().getMessage());
             errorLabel.setVisible(true);
             errorLabel.setManaged(true);
-        }
+            totalIssuedLabel.setText("0");
+        });
+
+        Thread t = new Thread(task);
+        t.setDaemon(true);
+        t.start();
     }
 
     private void renderDays(InventoryItem item, double totalIssued) {

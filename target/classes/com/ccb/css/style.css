@@ -492,6 +492,7 @@
     -fx-border-width: 1;
     -fx-border-radius: 18;
     -fx-padding: 14 16;
+    -fx-min-height: 112;
     -fx-effect: dropshadow(gaussian, rgba(26,37,96,0.09), 20, 0, 0, 5);
 }
 
@@ -512,8 +513,8 @@
 }
 
 .material-thumb-frame {
-    -fx-pref-width: 72;
-    -fx-pref-height: 72;
+    -fx-pref-width: 64;
+    -fx-pref-height: 64;
     -fx-background-color: linear-gradient(to bottom right, #eef1fc, #ffffff);
     -fx-background-radius: 16;
     -fx-border-color: #dfe5fb;
@@ -529,17 +530,66 @@
 }
 
 .material-content {
-    -fx-padding: 2 0 0 0;
-    -fx-spacing: 4;
+    -fx-padding: 1 0 0 0;
+    -fx-spacing: 2;
 }
 
-.material-title-row {
+.material-code {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #7b86aa;
+    -fx-letter-spacing: 0.8px;
+}
+
+.material-desc {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1A2560;
+    -fx-line-spacing: 2;
+}
+
+.material-badge-row {
+    -fx-spacing: 8;
+    -fx-padding: 1 0 0 0;
+}
+
+.material-badge {
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 5 10;
+}
+
+.material-badge-blue {
+    -fx-background-color: #eef1fc;
+    -fx-border-color: #c8cff2;
+    -fx-text-fill: #293A92;
+}
+
+.material-badge-neutral {
+    -fx-background-color: #f4f6fb;
+    -fx-border-color: #dfe5fb;
+    -fx-text-fill: #1A2560;
+}
+
+.material-action-row-inline {
     -fx-alignment: center-left;
+    -fx-spacing: 8;
 }
 
-.material-code { -fx-font-size: 11px; -fx-font-weight: normal; -fx-text-fill: #7b86aa; }
+.material-ellipsis-wrap {
+    -fx-pref-width: 20;
+    -fx-min-width: 20;
+    -fx-max-width: 20;
+    -fx-alignment: center;
+}
 
-.material-desc { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1A2560; -fx-line-spacing: 2; }
+.material-divider {
+    -fx-background-color: #eef1fb;
+    -fx-background-radius: 999;
+}
 
 .material-more-button {
     -fx-background-color: transparent;
@@ -1016,11 +1066,11 @@
 }
 
 .material-price-panel {
-    -fx-min-width: 185;
-    -fx-pref-width: 185;
+    -fx-min-width: 176;
+    -fx-pref-width: 176;
     -fx-alignment: center-right;
     -fx-spacing: 2;
-    -fx-padding: 4 0 0 8;
+    -fx-padding: 4 0 0 10;
     -fx-border-color: transparent transparent transparent #eef1fb;
     -fx-border-width: 0 0 0 1;
 }
@@ -1047,9 +1097,9 @@
     -fx-background-color: white;
     -fx-text-fill: #1A2560;
     -fx-font-weight: bold;
-    -fx-padding: 6 10;
-    -fx-border-radius: 6;
-    -fx-background-radius: 6;
+    -fx-padding: 7 12;
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
     -fx-border-color: #dfe5fb;
     -fx-border-width: 1;
 }
