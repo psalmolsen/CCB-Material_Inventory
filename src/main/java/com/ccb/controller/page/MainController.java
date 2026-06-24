@@ -6,6 +6,7 @@ import com.ccb.MonthSheetProvisioner;
 import com.ccb.SheetMapper;
 import com.ccb.controller.modal.EditMaterialController;
 import com.ccb.controller.modal.MaterialMonthOutController;
+import com.ccb.service.SheetsDataService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -13,6 +14,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -100,6 +102,9 @@ public class MainController implements Initializable {
     @FXML private ComboBox<String> cnfRangeCombo;
     @FXML private ScrollPane cnfScrollPane;
     @FXML private VBox cnfGroupBox;
+    @FXML private VBox brandPanelHost;
+
+    private BrandPanelController brandPanelController;
 
     private com.ccb.controller.page.CnfController cnfController;
 
@@ -201,6 +206,9 @@ public class MainController implements Initializable {
         cnfController = new com.ccb.controller.page.CnfController();
         cnfController.injectNodes(cnfCollarBalance, cnfNameplateBalance, cnfFootringBalance,
                 cnfSearchField, cnfRangeCombo, cnfGroupBox);
+
+        loadBrandPanelIntoHost();
+        loadBrandPanelData();
     }
 
     /**
@@ -265,6 +273,7 @@ public class MainController implements Initializable {
             currentTabName = task.getValue();
             System.out.println("DEBUG: resolved currentTabName=" + currentTabName);
             loadMaterials();
+            loadBrandPanelData();
         });
         task.setOnFailed(e -> {
             System.err.println("Tab resolution failed: " + task.getException().getMessage());
@@ -273,6 +282,56 @@ public class MainController implements Initializable {
         Thread t = new Thread(task);
         t.setDaemon(true);
         t.start();
+    }
+
+    private void loadBrandPanelIntoHost() {
+        if (brandPanelHost == null) {
+            return;
+        }
+        if (brandPanelController != null) {
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/page/BrandPanel.fxml"));
+            Parent root = loader.load();
+            brandPanelController = loader.getController();
+            brandPanelHost.getChildren().setAll(root);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void loadBrandPanelData() {
+        if (brandPanelController == null) {
+            loadBrandPanelIntoHost();
+        }
+        if (brandPanelController == null) {
+            return;
+        }
+
+        Task<List<BrandPanelController.BrandData>> task = new Task<>() {
+            @Override
+            protected List<BrandPanelController.BrandData> call() throws Exception {
+                return SheetsDataService.fetchCNFBrands(getCurrentMonthTabName());
+            }
+        };
+        task.setOnSucceeded(e -> {
+            if (brandPanelController != null) {
+                brandPanelController.loadBrands(task.getValue());
+            }
+        });
+        task.setOnFailed(e -> task.getException().printStackTrace());
+        Thread loader = new Thread(task);
+        loader.setDaemon(true);
+        loader.start();
+    }
+
+    private String getCurrentMonthTabName() {
+        if (currentTabName != null && !currentTabName.isBlank()) {
+            return currentTabName;
+        }
+        LocalDate today = LocalDate.now();
+        return today.getMonth().getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH).toUpperCase();
     }
 
     public void loadMaterials() {

@@ -49,6 +49,12 @@ public class CnfController implements Initializable {
     @Override public void initialize(URL url, ResourceBundle rb) {}
 
     private void init() {
+        if (cnfRangeCombo == null || cnfSearchField == null) {
+            resolveTabThenLoad();
+            ensureCurrentMonthTab();
+            return;
+        }
+
         cnfRangeCombo.getItems().addAll("Weekly", "Monthly", "Quarterly", "Yearly");
         cnfRangeCombo.getSelectionModel().select("Monthly");
         cnfRangeCombo.getSelectionModel().selectedItemProperty()
@@ -155,6 +161,10 @@ public class CnfController implements Initializable {
     }
 
     private void renderGroups(List<CnfItem> items, String query) {
+        if (cnfGroupBox == null) {
+            return;
+        }
+
         cnfGroupBox.getChildren().clear();
         if (items == null || items.isEmpty()) {
             Label empty = new Label("No CNF items loaded.");
@@ -164,32 +174,68 @@ public class CnfController implements Initializable {
         }
 
         String q = query == null ? "" : query.trim().toLowerCase();
-        String range = cnfRangeCombo.getSelectionModel().getSelectedItem();
+        List<CnfItem> filtered = items.stream()
+                .filter(i -> q.isEmpty() || (i.getItemName() != null && i.getItemName().toLowerCase().contains(q)))
+                .toList();
 
-        // Group by brand → type, tracking last brand and last type for sub-rows
-        LinkedHashMap<String, LinkedHashMap<String, List<CnfItem>>> byBrandType = new LinkedHashMap<>();
-        String lastBrand = "OTHER";
-        String lastType  = "OTHER";
+        if (filtered.isEmpty()) {
+            Label empty = new Label("No matching CNF items.");
+            empty.getStyleClass().add("placeholder-text");
+            cnfGroupBox.getChildren().add(empty);
+            return;
+        }
+
+        LinkedHashMap<String, List<CnfItem>> grouped = new LinkedHashMap<>();
+        grouped.put("COLLAR", new ArrayList<>());
+        grouped.put("NAMEPLATE", new ArrayList<>());
+        grouped.put("FOOTRING", new ArrayList<>());
+
+        for (CnfItem item : filtered) {
+            switch (item.getType()) {
+                case COLLAR -> grouped.get("COLLAR").add(item);
+                case NAMEPLATE -> grouped.get("NAMEPLATE").add(item);
+                case FOOTRING -> grouped.get("FOOTRING").add(item);
+                default -> grouped.computeIfAbsent("OTHER", k -> new ArrayList<>()).add(item);
+            }
+        }
+
+        for (Map.Entry<String, List<CnfItem>> entry : grouped.entrySet()) {
+            if (entry.getValue().isEmpty()) continue;
+            cnfGroupBox.getChildren().add(buildSimpleTypePanel(entry.getKey(), entry.getValue()));
+        }
+    }
+
+    private VBox buildSimpleTypePanel(String type, List<CnfItem> items) {
+        VBox panel = new VBox(10);
+        panel.getStyleClass().add("panel");
+
+        Label title = new Label(switch (type) {
+            case "COLLAR" -> "Collar Stock";
+            case "NAMEPLATE" -> "Nameplate Stock";
+            case "FOOTRING" -> "Footring Stock";
+            default -> "Other Stock";
+        });
+        title.getStyleClass().add("panel-title");
+        panel.getChildren().add(title);
+
         for (CnfItem item : items) {
-            String brand = parseBrand(item.getItemName());
-            String type  = parseTypeOrNull(item.getItemName());
-            if (brand != null) lastBrand = brand;
-            if (type  != null) lastType  = type;
-            byBrandType
-                .computeIfAbsent(lastBrand, k -> new LinkedHashMap<>())
-                .computeIfAbsent(lastType,  k -> new ArrayList<>())
-                .add(item);
+            HBox row = new HBox(10);
+            row.getStyleClass().add("stock-row");
+            row.setAlignment(Pos.CENTER_LEFT);
+
+            Label name = new Label(item.getItemName());
+            name.getStyleClass().add("stock-label");
+            name.setWrapText(true);
+            HBox.setHgrow(name, Priority.ALWAYS);
+
+            Label value = new Label(String.format("%s %s", fmt(item.getCurrentBalance()), item.getUom()));
+            value.getStyleClass().add("stock-value");
+
+            row.getChildren().addAll(name, value);
+            panel.getChildren().add(row);
         }
 
-        for (Map.Entry<String, LinkedHashMap<String, List<CnfItem>>> brandEntry : byBrandType.entrySet()) {
-            String brand = brandEntry.getKey();
-            LinkedHashMap<String, List<CnfItem>> typeMap = brandEntry.getValue();
-            boolean anyVisible = q.isEmpty() || typeMap.values().stream()
-                    .flatMap(List::stream)
-                    .anyMatch(i -> i.getItemName().toLowerCase().contains(q));
-            if (!anyVisible) continue;
-            cnfGroupBox.getChildren().add(buildBrandSection(brand, typeMap, range));
-        }
+        return panel;
     }
 
     private VBox buildBrandSection(String brand, LinkedHashMap<String, List<CnfItem>> typeMap, String range) {

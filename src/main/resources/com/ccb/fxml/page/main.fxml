@@ -122,12 +122,7 @@
                     <TextField fx:id="cnfSearchField" promptText="🔍  Search CNF items..." styleClass="text-field" style="-fx-font-size:12px;" HBox.hgrow="ALWAYS"/>
                     <ComboBox fx:id="cnfRangeCombo" styleClass="month-picker" prefWidth="130"/>
                 </HBox>
-                <ScrollPane fx:id="cnfScrollPane" fitToWidth="true" VBox.vgrow="ALWAYS"
-                            styleClass="glass-scroll" hbarPolicy="NEVER">
-                    <content>
-                        <VBox fx:id="cnfGroupBox" spacing="12" style="-fx-padding:4 0 8 0;"/>
-                    </content>
-                </ScrollPane>
+                <VBox fx:id="brandPanelHost" VBox.vgrow="ALWAYS"/>
             </VBox>
         </VBox>
 

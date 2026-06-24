@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<ScrollPane
+    fx:id="rootScrollPane"
+    fitToWidth="true"
+    hbarPolicy="NEVER"
+    vbarPolicy="AS_NEEDED"
+    xmlns:fx="http://javafx.com/fxml"
+    fx:controller="com.ccb.controller.page.BrandPanelController">
+
+    <VBox fx:id="brandListContainer" spacing="28">
+        <padding>
+            <Insets top="16" right="16" bottom="16" left="16"/>
+        </padding>
+    </VBox>
+
+</ScrollPane>
