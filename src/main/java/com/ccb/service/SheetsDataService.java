@@ -9,6 +9,14 @@ import java.util.Locale;
 
 public class SheetsDataService {
 
+    private static final int COL_UOM          = 3;
+    private static final int COL_PRICE        = 4;
+    private static final int COL_INITIAL      = 5;
+    private static final int COL_IN_QTY       = 6;
+    private static final int COL_BALANCE      = 9;
+    private static final int COL_DAY_START    = 13;
+    private static final int COL_TOTAL_ISSUED = 44;
+    private static final int DAYS_IN_MONTH    = 31;
     public static List<BrandPanelController.BrandData> fetchCNFBrands(String sheetTabName) throws Exception {
         if (sheetTabName == null || sheetTabName.isBlank()) {
             sheetTabName = "MAY";
@@ -64,9 +72,9 @@ public class SheetsDataService {
             }
 
             List<BrandPanelController.CategoryData> categories = new ArrayList<>();
-            categories.add(buildCollarCategory(groupRows));
-            categories.add(buildNameplateCategory(groupRows));
-            categories.add(buildFootringCategory(groupRows));
+            categories.add(buildCollarCategory(groupRows, 6 + index));
+            categories.add(buildNameplateCategory(groupRows, 6 + index));
+            categories.add(buildFootringCategory(groupRows, 6 + index));
             brands.add(new BrandPanelController.BrandData(brandName, categories));
             index += 7;
         }
@@ -128,11 +136,11 @@ public class SheetsDataService {
         return requested;
     }
 
-    private static BrandPanelController.CategoryData buildCollarCategory(List<List<Object>> groupRows) {
+    private static BrandPanelController.CategoryData buildCollarCategory(List<List<Object>> groupRows, int baseRow) {
         List<BrandPanelController.VariantData> variants = List.of(
-                new BrandPanelController.VariantData(readVariantLabel(groupRows.get(0)), readTotalIssued(groupRows.get(0)), readBalanceQty(groupRows.get(0)), readDailyIssued(groupRows.get(0))),
-                new BrandPanelController.VariantData(readVariantLabel(groupRows.get(1)), readTotalIssued(groupRows.get(1)), readBalanceQty(groupRows.get(1)), readDailyIssued(groupRows.get(1))),
-                new BrandPanelController.VariantData(readVariantLabel(groupRows.get(2)), readTotalIssued(groupRows.get(2)), readBalanceQty(groupRows.get(2)), readDailyIssued(groupRows.get(2)))
+                variantFromRow(groupRows.get(0), baseRow),
+                variantFromRow(groupRows.get(1), baseRow + 1),
+                variantFromRow(groupRows.get(2), baseRow + 2)
         );
         return new BrandPanelController.CategoryData(
                 readCategoryLabel(groupRows.get(0)),
@@ -143,9 +151,9 @@ public class SheetsDataService {
         );
     }
 
-    private static BrandPanelController.CategoryData buildNameplateCategory(List<List<Object>> groupRows) {
+    private static BrandPanelController.CategoryData buildNameplateCategory(List<List<Object>> groupRows, int baseRow) {
         List<BrandPanelController.VariantData> variants = List.of(
-                new BrandPanelController.VariantData(readVariantLabel(groupRows.get(3)), readTotalIssued(groupRows.get(3)), readBalanceQty(groupRows.get(3)), readDailyIssued(groupRows.get(3)))
+                variantFromRow(groupRows.get(3), baseRow + 3)
         );
         return new BrandPanelController.CategoryData(
                 readCategoryLabel(groupRows.get(3)),
@@ -156,11 +164,11 @@ public class SheetsDataService {
         );
     }
 
-    private static BrandPanelController.CategoryData buildFootringCategory(List<List<Object>> groupRows) {
+    private static BrandPanelController.CategoryData buildFootringCategory(List<List<Object>> groupRows, int baseRow) {
         List<BrandPanelController.VariantData> variants = List.of(
-                new BrandPanelController.VariantData(readVariantLabel(groupRows.get(4)), readTotalIssued(groupRows.get(4)), readBalanceQty(groupRows.get(4)), readDailyIssued(groupRows.get(4))),
-                new BrandPanelController.VariantData(readVariantLabel(groupRows.get(5)), readTotalIssued(groupRows.get(5)), readBalanceQty(groupRows.get(5)), readDailyIssued(groupRows.get(5))),
-                new BrandPanelController.VariantData(readVariantLabel(groupRows.get(6)), readTotalIssued(groupRows.get(6)), readBalanceQty(groupRows.get(6)), readDailyIssued(groupRows.get(6)))
+                variantFromRow(groupRows.get(4), baseRow + 4),
+                variantFromRow(groupRows.get(5), baseRow + 5),
+                variantFromRow(groupRows.get(6), baseRow + 6)
         );
         return new BrandPanelController.CategoryData(
                 readCategoryLabel(groupRows.get(4)),
@@ -169,6 +177,25 @@ public class SheetsDataService {
                 "#1e2e56",
                 "#7b8fd4"
         );
+    }
+
+    private static BrandPanelController.VariantData variantFromRow(List<Object> row, int sheetRowNumber) {
+        return new BrandPanelController.VariantData(
+                readVariantLabel(row),
+                readTotalIssued(row),
+                readBalanceQty(row),
+                readDailyIssued(row),
+                readInitialStock(row),
+                readReceivedQty(row),
+                readUnitPrice(row),
+                sheetRowNumber,
+                readUom(row)
+        );
+    }
+
+    private static String readUom(List<Object> row) {
+        String value = readCell(row, COL_UOM).trim();
+        return value.isBlank() ? "Pcs" : value;
     }
 
     private static String readCell(List<Object> row, int index) {
@@ -190,24 +217,29 @@ public class SheetsDataService {
     }
 
     private static int readBalanceQty(List<Object> row) {
-        return readInt(row, 9);
+        return readInt(row, COL_BALANCE);
+    }
+
+    private static int readInitialStock(List<Object> row) {
+        return readInt(row, COL_INITIAL);
+    }
+
+    private static int readReceivedQty(List<Object> row) {
+        return readInt(row, COL_IN_QTY);
+    }
+
+    private static double readUnitPrice(List<Object> row) {
+        String val = readCell(row, COL_PRICE).trim();
+        if (val.isEmpty() || val.equalsIgnoreCase("n/a")) return 0.0;
+        try { return Double.parseDouble(val); } catch (NumberFormatException e) { return 0.0; }
     }
 
     private static int readTotalIssued(List<Object> row) {
-        if (row == null) {
-            return 0;
+        int total = readInt(row, COL_TOTAL_ISSUED);
+        if (total != 0) {
+            return total;
         }
-        for (int i = row.size() - 1; i >= 0; i--) {
-            Object value = row.get(i);
-            if (value == null || value.toString().isBlank()) {
-                continue;
-            }
-            int parsed = parseInt(value);
-            if (parsed != Integer.MIN_VALUE) {
-                return parsed;
-            }
-        }
-        return 0;
+        return readDailyIssued(row).stream().mapToInt(Integer::intValue).sum();
     }
 
     private static int readInt(List<Object> row, int index) {
@@ -220,22 +252,11 @@ public class SheetsDataService {
 
     private static List<Integer> readDailyIssued(List<Object> row) {
         List<Integer> daily = new ArrayList<>();
-        if (row == null || row.size() <= 11) {
+        if (row == null) {
             return daily;
         }
-
-        int lastNonEmpty = 10;
-        for (int i = row.size() - 1; i >= 11; i--) {
-            Object value = row.get(i);
-            if (value == null || value.toString().trim().isEmpty()) {
-                continue;
-            }
-            lastNonEmpty = i;
-            break;
-        }
-
-        for (int i = 11; i < lastNonEmpty; i++) {
-            daily.add(readInt(row, i));
+        for (int day = 0; day < DAYS_IN_MONTH; day++) {
+            daily.add(readInt(row, COL_DAY_START + day));
         }
         return daily;
     }

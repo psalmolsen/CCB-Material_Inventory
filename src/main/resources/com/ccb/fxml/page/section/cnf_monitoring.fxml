@@ -5,14 +5,14 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:id="cnfSection"
-      styleClass="section-content"
+      styleClass="cnf-monitor-shell"
       VBox.vgrow="ALWAYS"
       visible="false"
       managed="false">
 
-    <Label text="CNF Overview  (Collar · Nameplate · Footring)" styleClass="section-title"/>
+    <Label text="CNF OVERVIEW (Collar · Nameplate · Footring)" styleClass="cnf-monitor-title"/>
     <HBox styleClass="stat-cards" spacing="14">
-        <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
+        <VBox styleClass="stat-card stat-red" HBox.hgrow="ALWAYS">
             <Label fx:id="collarCount" text="0" styleClass="stat-number"/>
             <Label text="Qty" styleClass="stat-qty"/>
             <Label text="COLLAR" styleClass="stat-label"/>

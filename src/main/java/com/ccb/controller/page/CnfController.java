@@ -30,19 +30,40 @@ public class CnfController implements Initializable {
     private ComboBox<String> cnfRangeCombo;
     private VBox cnfGroupBox;
 
+    // CNF detail overview labels (top red panel)
+    private Label cnfOverviewInitial;
+    private Label cnfOverviewReceived;
+    private Label cnfOverviewBalance;
+    private Label cnfOverviewIssued;
+    private Label cnfOverviewUom;
+    private Label cnfOverviewItemName;
+    private Label cnfOverviewUnitPrice;
+    private Label cnfOverviewTotalPrice;
+
     private String currentTabName = "MAY";
     private List<CnfItem> allItems = new ArrayList<>();
 
     // ── Injection ─────────────────────────────────────────────────────────────
 
     public void injectNodes(Label collarLbl, Label nameplateLbl, Label footringLbl,
-                            TextField searchFld, ComboBox<String> rangeCombo, VBox groupBox) {
-        this.cnfCollarBalance    = collarLbl;
-        this.cnfNameplateBalance = nameplateLbl;
-        this.cnfFootringBalance  = footringLbl;
-        this.cnfSearchField      = searchFld;
-        this.cnfRangeCombo       = rangeCombo;
-        this.cnfGroupBox         = groupBox;
+                            TextField searchFld, ComboBox<String> rangeCombo, VBox groupBox,
+                            Label overviewInitial, Label overviewReceived, Label overviewBalance,
+                            Label overviewIssued, Label overviewUom, Label overviewItemName,
+                            Label overviewUnitPrice, Label overviewTotalPrice) {
+        this.cnfCollarBalance     = collarLbl;
+        this.cnfNameplateBalance  = nameplateLbl;
+        this.cnfFootringBalance   = footringLbl;
+        this.cnfSearchField       = searchFld;
+        this.cnfRangeCombo        = rangeCombo;
+        this.cnfGroupBox          = groupBox;
+        this.cnfOverviewInitial   = overviewInitial;
+        this.cnfOverviewReceived  = overviewReceived;
+        this.cnfOverviewBalance   = overviewBalance;
+        this.cnfOverviewIssued    = overviewIssued;
+        this.cnfOverviewUom       = overviewUom;
+        this.cnfOverviewItemName  = overviewItemName;
+        this.cnfOverviewUnitPrice = overviewUnitPrice;
+        this.cnfOverviewTotalPrice = overviewTotalPrice;
         init();
     }
 
@@ -402,28 +423,56 @@ public class CnfController implements Initializable {
         totalVal.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;");
         totalSection.getChildren().addAll(totalCap, totalVal);
 
-        // ── Per-variant bar rows ──────────────────────────────────────────────
-        VBox variantRows = new VBox(8);
+        // ── Per-variant bar rows ── single-select within this card ──────────
+        VBox variantRows = new VBox(4);
         variantRows.setStyle("-fx-padding: 4 0 12 0;");
+
+        // Track selected row per card (single-select)
+        final CnfItem[] selectedHolder = {null};
+        final List<Button> rowBtns = new ArrayList<>();
+
+        String NORMAL_STYLE  = "-fx-background-color: transparent; -fx-background-radius: 8; " +
+                               "-fx-border-color: transparent; -fx-border-radius: 8; -fx-border-width: 1; " +
+                               "-fx-padding: 6 6; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; " +
+                               "-fx-transition: background-color 150ms ease, border-color 150ms ease;";
+        String HOVER_STYLE   = "-fx-background-color: rgba(255,255,255,0.12); -fx-background-radius: 8; " +
+                               "-fx-border-color: rgba(255,255,255,0.25); -fx-border-radius: 8; -fx-border-width: 1; " +
+                               "-fx-padding: 6 6; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; " +
+                               "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 4, 0, 0, 1); " +
+                               "-fx-transition: background-color 150ms ease, border-color 150ms ease;";
+        String SELECTED_STYLE = "-fx-background-color: #FEF200; -fx-background-radius: 8; " +
+                               "-fx-border-color: #e8dc00; -fx-border-radius: 8; -fx-border-width: 2; " +
+                               "-fx-padding: 5 5; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; " +
+                               "-fx-effect: dropshadow(gaussian, rgba(232,220,0,0.3), 6, 0, 0, 2); " +
+                               "-fx-transition: background-color 150ms ease, border-color 150ms ease;";
 
         for (CnfItem item : typeItems) {
             String variant = parseVariant(item.getItemName());
             double bal = item.getCurrentBalance();
             double ratio = maxVariant <= 0 ? 0 : bal / maxVariant;
 
-            HBox varRow = new HBox(8);
-            varRow.setAlignment(Pos.CENTER_LEFT);
+            // Use Button so it's keyboard-focusable and screen-reader accessible
+            Button rowBtn = new Button();
+            rowBtn.setMaxWidth(Double.MAX_VALUE);
+            rowBtn.setStyle(NORMAL_STYLE);
+            rowBtn.setFocusTraversable(true);
+            rowBtn.getProperties().put("aria-pressed", "false");
+            rowBtn.setAccessibleText("Select " + variant + " with balance " + fmt(bal));
+            rowBtns.add(rowBtn);
 
             Label varLbl = new Label(variant);
-            varLbl.setStyle("-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.6); -fx-min-width: 46; -fx-pref-width: 46;");
+            varLbl.setStyle("-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.6); " +
+                    "-fx-min-width: 46; -fx-pref-width: 46; -fx-mouse-transparent: true;");
 
             StackPane track = new StackPane();
-            track.setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 999; -fx-min-height: 6; -fx-pref-height: 6;");
+            track.setStyle("-fx-background-color: rgba(255,255,255,0.08); " +
+                    "-fx-background-radius: 999; -fx-min-height: 6; -fx-pref-height: 6;");
             track.setAlignment(Pos.CENTER_LEFT);
             HBox.setHgrow(track, Priority.ALWAYS);
 
             Region fill = new Region();
-            fill.setStyle("-fx-background-color: " + iconColor + "; -fx-background-radius: 999; -fx-min-height: 6; -fx-pref-height: 6;");
+            fill.setStyle("-fx-background-color: " + iconColor + "; " +
+                    "-fx-background-radius: 999; -fx-min-height: 6; -fx-pref-height: 6;");
             fill.prefWidthProperty().bind(track.widthProperty().multiply(ratio));
             fill.minWidthProperty().bind(track.widthProperty().multiply(ratio));
             fill.maxWidthProperty().bind(track.widthProperty().multiply(ratio));
@@ -431,10 +480,98 @@ public class CnfController implements Initializable {
             track.getChildren().add(fill);
 
             Label valLbl = new Label(fmt(bal));
-            valLbl.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: white; -fx-min-width: 36; -fx-alignment: CENTER_RIGHT;");
+            valLbl.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: white; " +
+                    "-fx-min-width: 36; -fx-alignment: CENTER_RIGHT; -fx-mouse-transparent: true;");
 
-            varRow.getChildren().addAll(varLbl, track, valLbl);
-            variantRows.getChildren().add(varRow);
+            HBox inner = new HBox(8, varLbl, track, valLbl);
+            inner.setAlignment(Pos.CENTER_LEFT);
+            HBox.setHgrow(track, Priority.ALWAYS);
+            rowBtn.setGraphic(inner);
+            rowBtn.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+            // Enhanced hover and focus behavior
+            rowBtn.setOnMouseEntered(e -> {
+                if (selectedHolder[0] != item) {
+                    rowBtn.setStyle(HOVER_STYLE);
+                }
+            });
+            rowBtn.setOnMouseExited(e -> {
+                if (selectedHolder[0] != item) {
+                    rowBtn.setStyle(NORMAL_STYLE);
+                }
+            });
+            
+            // Focus styling for keyboard navigation
+            rowBtn.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+                if (isFocused && selectedHolder[0] != item) {
+                    rowBtn.setStyle(HOVER_STYLE + "-fx-border-color: #4a90e2; -fx-border-width: 2;");
+                } else if (!isFocused && selectedHolder[0] != item) {
+                    rowBtn.setStyle(NORMAL_STYLE);
+                }
+            });
+
+            // Click — single select within this card
+            rowBtn.setOnAction(e -> {
+                // Reset all rows in this card
+                for (int i = 0; i < rowBtns.size(); i++) {
+                    Button b = rowBtns.get(i);
+                    CnfItem rowItem = typeItems.get(i);
+                    b.setStyle(NORMAL_STYLE);
+                    b.getProperties().put("aria-pressed", "false");
+                    // Reset label colors to normal
+                    HBox g = (HBox) b.getGraphic();
+                    ((Label) g.getChildren().get(0)).setStyle(
+                        "-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.6); " +
+                        "-fx-min-width: 46; -fx-pref-width: 46; -fx-mouse-transparent: true;");
+                    ((Label) g.getChildren().get(2)).setStyle(
+                        "-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: white; " +
+                        "-fx-min-width: 36; -fx-alignment: CENTER_RIGHT; -fx-mouse-transparent: true;");
+                }
+                
+                // Select this row
+                rowBtn.setStyle(SELECTED_STYLE);
+                rowBtn.getProperties().put("aria-pressed", "true");
+                
+                // Update label colors for selected state (dark text on yellow background)
+                varLbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #1A2560; -fx-font-weight: bold; " +
+                    "-fx-min-width: 46; -fx-pref-width: 46; -fx-mouse-transparent: true;");
+                valLbl.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #1A2560; " +
+                    "-fx-min-width: 36; -fx-alignment: CENTER_RIGHT; -fx-mouse-transparent: true;");
+                
+                selectedHolder[0] = item;
+                // Update overview panel
+                updateCnfOverview(item);
+            });
+
+            // Enhanced keyboard navigation — Space/Enter triggers same as click
+            rowBtn.setOnKeyPressed(e -> {
+                if (e.getCode() == javafx.scene.input.KeyCode.SPACE ||
+                    e.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                    e.consume(); // Prevent default button behavior
+                    rowBtn.fire();
+                }
+            });
+            
+            // Add keyboard support for arrow key navigation within the card
+            rowBtn.setOnKeyPressed(keyEvent -> {
+                if (keyEvent.getCode() == javafx.scene.input.KeyCode.DOWN ||
+                    keyEvent.getCode() == javafx.scene.input.KeyCode.UP) {
+                    keyEvent.consume();
+                    int currentIndex = rowBtns.indexOf(rowBtn);
+                    int nextIndex = keyEvent.getCode() == javafx.scene.input.KeyCode.DOWN ?
+                        Math.min(currentIndex + 1, rowBtns.size() - 1) :
+                        Math.max(currentIndex - 1, 0);
+                    if (nextIndex != currentIndex) {
+                        rowBtns.get(nextIndex).requestFocus();
+                    }
+                } else if (keyEvent.getCode() == javafx.scene.input.KeyCode.SPACE ||
+                           keyEvent.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                    keyEvent.consume();
+                    rowBtn.fire();
+                }
+            });
+
+            variantRows.getChildren().add(rowBtn);
         }
 
         // ── Action buttons ────────────────────────────────────────────────────
@@ -485,6 +622,7 @@ public class CnfController implements Initializable {
     // ── Stat cards ────────────────────────────────────────────────────────────
 
     private void updateStatCards() {
+        if (cnfCollarBalance == null) return;
         double collar = 0, nameplate = 0, footring = 0;
         for (CnfItem item : allItems) {
             switch (item.getType()) {
@@ -496,6 +634,40 @@ public class CnfController implements Initializable {
         cnfCollarBalance.setText(fmt(collar));
         cnfNameplateBalance.setText(fmt(nameplate));
         cnfFootringBalance.setText(fmt(footring));
+    }
+
+    /** Updates the red CNF overview panel with the selected variant's data */
+    private void updateCnfOverview(CnfItem item) {
+        if (cnfOverviewInitial == null) return;
+        if (item == null) {
+            cnfOverviewInitial.setText("00");
+            cnfOverviewReceived.setText("00");
+            cnfOverviewBalance.setText("00");
+            cnfOverviewIssued.setText("00");
+            cnfOverviewUom.setText("");
+            cnfOverviewItemName.setText("— select a variant");
+            if (cnfOverviewUnitPrice  != null) cnfOverviewUnitPrice.setText("—");
+            if (cnfOverviewTotalPrice != null) cnfOverviewTotalPrice.setText("—");
+            return;
+        }
+        String uom = item.getUom() == null || item.getUom().isBlank() ? "" : item.getUom().trim();
+        String range = cnfRangeCombo.getSelectionModel().getSelectedItem();
+        double issued = computeRangeIssued(item, range);
+        cnfOverviewInitial.setText(fmt(item.getInitialStock()));
+        cnfOverviewReceived.setText(fmt(item.getReceivedQuantity()));
+        cnfOverviewBalance.setText(fmt(item.getCurrentBalance()));
+        cnfOverviewIssued.setText(fmt(issued));
+        cnfOverviewUom.setText(uom);
+        cnfOverviewItemName.setText(item.getItemName() == null ? "" : "— " + item.getItemName());
+        if (cnfOverviewUnitPrice != null) {
+            double price = item.getUnitPrice();
+            cnfOverviewUnitPrice.setText(price <= 0 ? "N/A" : String.format("\u20B1%.2f", price));
+        }
+        if (cnfOverviewTotalPrice != null) {
+            double price = item.getUnitPrice();
+            cnfOverviewTotalPrice.setText(price <= 0 ? "N/A"
+                    : String.format("\u20B1%.2f", price * issued));
+        }
     }
 
     // ── Range computation ─────────────────────────────────────────────────────

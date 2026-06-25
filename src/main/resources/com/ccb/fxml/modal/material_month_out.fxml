@@ -15,7 +15,8 @@
                 <Label fx:id="materialLabel" text="Material" styleClass="dialog-title"/>
                 <Label fx:id="dialogSubtitle" text="" styleClass="dialog-subtitle"/>
             </VBox>
-            <Button text="Close" onAction="#closeDialog" styleClass="btn-secondary"/>
+            <Button text="X" onAction="#closeDialog"
+                    style="-fx-background-color: transparent; -fx-text-fill: #7b86aa; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand; -fx-border-width: 0; -fx-padding: 0 2 0 2;"/>
         </HBox>
     </VBox>
 

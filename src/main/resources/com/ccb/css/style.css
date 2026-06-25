@@ -179,6 +179,24 @@
     -fx-background-color: #F7F8FD;
 }
 
+.cnf-monitor-shell {
+    -fx-background-color: #B71C1C;
+    -fx-background-radius: 16;
+    -fx-padding: 16 18;
+    -fx-spacing: 12;
+    -fx-effect: dropshadow(gaussian, rgba(183, 28, 28, 0.38), 20, 0, 0, 8);
+}
+
+.cnf-monitor-title {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: rgba(255, 255, 255, 0.85);
+    -fx-letter-spacing: 1.2px;
+    -fx-padding: 0 0 8 0;
+    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.2) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
 .section-title {
     -fx-font-size: 12px;
     -fx-font-weight: bold;
@@ -1164,3 +1182,242 @@
     -fx-alignment: center;
     -fx-pref-width: 64;
 }
+
+/* ══════════════════════════════════════════
+   CNF MONITORING RESTYLING (2026 Brand Theme)
+   ══════════════════════════════════════════ */
+.cnf-overview-banner {
+    -fx-background-color: #1E3A8A; /* Logo's blue top face */
+    -fx-background-radius: 16;
+    -fx-padding: 16 18;
+    -fx-spacing: 10;
+    -fx-effect: dropshadow(gaussian, rgba(30, 58, 138, 0.38), 20, 0, 0, 8);
+}
+
+.cnf-overview-title {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: rgba(255, 255, 255, 0.85);
+    -fx-letter-spacing: 1.2px;
+    -fx-padding: 0 0 8 0;
+    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.2) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.cnf-overview-value {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.cnf-overview-label {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #B5D4F4; /* Light-blue text */
+    -fx-letter-spacing: 0.8px;
+}
+
+.cnf-brand-header {
+    -fx-background-color: rgba(30, 58, 138, 0.06);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(30, 58, 138, 0.18);
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+}
+
+.cnf-brand-header-accent {
+    -fx-background-color: #1E3A8A;
+    -fx-background-radius: 2;
+}
+
+.cnf-brand-name {
+    -fx-text-fill: #1A2560;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+}
+
+.cnf-brand-subtitle {
+    -fx-text-fill: #7b86aa;
+    -fx-font-size: 11px;
+}
+
+.cnf-category-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: #eaedf5;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(41, 58, 146, 0.08), 20, 0, 0, 4);
+}
+
+.cnf-category-card-active {
+    -fx-border-color: #F0B429;
+    -fx-border-width: 1.5;
+}
+
+.cnf-card-title {
+    -fx-text-fill: #1A2560;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.cnf-card-subtitle {
+    -fx-text-fill: #a6afc7;
+    -fx-font-size: 11px;
+}
+
+.cnf-card-summary {
+    -fx-background-color: #f4f6fb;
+    -fx-background-radius: 8;
+}
+
+.cnf-card-total-label {
+    -fx-text-fill: #a6afc7;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.cnf-card-total-value {
+    -fx-text-fill: #1A2560;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.cnf-active-badge {
+    -fx-background-color: #F0B429;
+    -fx-text-fill: #1A2560;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-padding: 3 8;
+}
+
+.cnf-card-divider {
+    -fx-background-color: #eaedf5;
+    -fx-min-height: 1;
+    -fx-max-height: 1;
+}
+
+.cnf-card-more-label {
+    -fx-text-fill: #a6afc7;
+    -fx-font-size: 11px;
+}
+
+.cnf-category-icon {
+    -fx-background-color: rgba(30, 58, 138, 0.10);
+    -fx-background-radius: 8;
+    -fx-text-fill: #1E3A8A;
+    -fx-font-size: 16px;
+    -fx-min-width: 34px;
+    -fx-min-height: 34px;
+    -fx-alignment: center;
+}
+
+.cnf-bar-label {
+    -fx-text-fill: #7b86aa;
+    -fx-font-size: 11px;
+}
+
+.cnf-bar-track {
+    -fx-background-color: #e6ebf8;
+    -fx-background-radius: 3;
+    -fx-min-height: 5;
+    -fx-max-height: 5;
+}
+
+.cnf-bar-value {
+    -fx-text-fill: #1A2560;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.cnf-bar-row {
+    -fx-background-radius: 6;
+}
+
+.cnf-bar-row-selected {
+    -fx-background-color: rgba(240, 180, 41, 0.28);
+    -fx-background-radius: 6;
+}
+
+.cnf-outline-btn {
+    -fx-background-color: white;
+    -fx-text-fill: #1A2560;
+    -fx-border-color: #dfe5fb;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+}
+
+.cnf-outline-btn:hover {
+    -fx-background-color: #f4f6fb;
+    -fx-border-color: #c4cbe0;
+    -fx-text-fill: #1E3A8A;
+}
+
+/* ══════════════════════════════════════════
+   CNF WEIGHT VARIANT ROWS - Enhanced Interactivity
+   ══════════════════════════════════════════ */
+
+/* Base state for variant rows */
+.cnf-variant-row {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 6;
+    -fx-cursor: hand;
+    -fx-alignment: center-left;
+    -fx-transition: all 150ms ease;
+}
+
+/* Hover state - subtle highlight with elevation */
+.cnf-variant-row:hover {
+    -fx-background-color: rgba(255,255,255,0.12);
+    -fx-border-color: rgba(255,255,255,0.25);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 4, 0, 0, 1);
+}
+
+/* Focus state for keyboard navigation */
+.cnf-variant-row:focused {
+    -fx-border-color: #4a90e2;
+    -fx-border-width: 2;
+    -fx-background-color: rgba(255,255,255,0.12);
+}
+
+/* Selected state - yellow highlight matching nav active state */
+.cnf-variant-row-selected {
+    -fx-background-color: #FEF200;
+    -fx-border-color: #e8dc00;
+    -fx-border-width: 2;
+    -fx-padding: 5; /* Slightly less to account for thicker border */
+    -fx-effect: dropshadow(gaussian, rgba(232,220,0,0.3), 6, 0, 0, 2);
+}
+
+/* Ensure text remains readable on yellow background */
+.cnf-variant-row-selected .cnf-variant-label,
+.cnf-variant-row-selected .cnf-variant-value {
+    -fx-text-fill: #1A2560;
+    -fx-font-weight: bold;
+}
+
+/* Progress bar fills get the brand colors */
+.cnf-progress-fill-collar {
+    -fx-background-color: #7c6bff;
+    -fx-background-radius: 999;
+}
+
+.cnf-progress-fill-nameplate {
+    -fx-background-color: #3ecf8e;
+    -fx-background-radius: 999;
+}
+
+.cnf-progress-fill-footring {
+    -fx-background-color: #4a90d9;
+    -fx-background-radius: 999;
+}

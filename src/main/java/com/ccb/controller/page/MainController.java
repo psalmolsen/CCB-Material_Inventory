@@ -102,6 +102,14 @@ public class MainController implements Initializable {
     @FXML private ComboBox<String> cnfRangeCombo;
     @FXML private ScrollPane cnfScrollPane;
     @FXML private VBox cnfGroupBox;
+    @FXML private Label cnfOverviewInitial;
+    @FXML private Label cnfOverviewReceived;
+    @FXML private Label cnfOverviewBalance;
+    @FXML private Label cnfOverviewIssued;
+    @FXML private Label cnfOverviewUom;
+    @FXML private Label cnfOverviewItemName;
+    @FXML private Label cnfOverviewUnitPrice;
+    @FXML private Label cnfOverviewTotalPrice;
     @FXML private VBox brandPanelHost;
 
     private BrandPanelController brandPanelController;
@@ -205,7 +213,10 @@ public class MainController implements Initializable {
         // Wire CnfController with its injected FXML nodes
         cnfController = new com.ccb.controller.page.CnfController();
         cnfController.injectNodes(cnfCollarBalance, cnfNameplateBalance, cnfFootringBalance,
-                cnfSearchField, cnfRangeCombo, cnfGroupBox);
+                cnfSearchField, cnfRangeCombo, cnfGroupBox,
+                cnfOverviewInitial, cnfOverviewReceived, cnfOverviewBalance,
+                cnfOverviewIssued, cnfOverviewUom, cnfOverviewItemName,
+                cnfOverviewUnitPrice, cnfOverviewTotalPrice);
 
         loadBrandPanelIntoHost();
         loadBrandPanelData();
@@ -317,6 +328,12 @@ public class MainController implements Initializable {
         };
         task.setOnSucceeded(e -> {
             if (brandPanelController != null) {
+                brandPanelController.setOverviewLabels(
+                        cnfOverviewItemName, cnfOverviewInitial, cnfOverviewReceived,
+                        cnfOverviewBalance, cnfOverviewIssued, cnfOverviewUom,
+                        cnfOverviewUnitPrice, cnfOverviewTotalPrice);
+                brandPanelController.setSelectedTabName(getCurrentMonthTabName());
+                brandPanelController.setRefreshCallback(this::loadBrandPanelData);
                 brandPanelController.loadBrands(task.getValue());
             }
         });
@@ -758,7 +775,7 @@ public class MainController implements Initializable {
         // --- FOOTER BUTTONS ---
         HBox buttons = new HBox(10);
         buttons.setAlignment(Pos.CENTER_RIGHT);
-        Button cancel = new Button("Cancel");
+        Button cancel = new Button("Close");
         cancel.getStyleClass().add("btn-secondary");
 
         Button save = new Button("Save");
@@ -910,7 +927,7 @@ public class MainController implements Initializable {
         // --- FOOTER BUTTONS ---
         HBox buttons = new HBox(10);
         buttons.setAlignment(Pos.CENTER_RIGHT);
-        Button cancel = new Button("Cancel");
+        Button cancel = new Button("Close");
         cancel.getStyleClass().add("btn-secondary");
 
         Button save = new Button("Save");
@@ -1029,8 +1046,22 @@ public class MainController implements Initializable {
                 }
             });
 
-            VBox actionPanel = new VBox(8);
+            VBox actionPanel = new VBox(10);
             actionPanel.getStyleClass().add("material-action-panel");
+
+            HBox actionHeader = new HBox(10);
+            actionHeader.setAlignment(Pos.CENTER_LEFT);
+            Label actionTitle = new Label("Quick Actions");
+            actionTitle.getStyleClass().add("material-action-title");
+            Region actionSpacer = new Region();
+            HBox.setHgrow(actionSpacer, Priority.ALWAYS);
+            Button closeMenuButton = new Button("X");
+            closeMenuButton.setFocusTraversable(false);
+            closeMenuButton.setStyle(
+                    "-fx-background-color: transparent; -fx-text-fill: #7b86aa; -fx-font-size: 14px; " +
+                    "-fx-font-weight: bold; -fx-cursor: hand; -fx-border-width: 0; -fx-padding: 0 2 0 2;");
+            closeMenuButton.setOnAction(e -> moreMenu.hide());
+            actionHeader.getChildren().addAll(actionTitle, actionSpacer, closeMenuButton);
 
             Button monthOutButton = buildActionButton("Monthly Daily Out Report",
                     "View daily issued quantities per day of the month");
@@ -1050,7 +1081,7 @@ public class MainController implements Initializable {
                 }
             });
 
-            actionPanel.getChildren().addAll(monthOutButton, editButton);
+            actionPanel.getChildren().addAll(actionHeader, monthOutButton, editButton);
             CustomMenuItem actionItem = new CustomMenuItem(actionPanel, false);
             actionItem.setHideOnClick(false);
             moreMenu.getItems().add(actionItem);
