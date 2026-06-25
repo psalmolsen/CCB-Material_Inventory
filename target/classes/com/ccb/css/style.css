@@ -22,16 +22,16 @@
    SIDEBAR
 ══════════════════════════════════════════ */
 .sidebar {
-    -fx-background-color: #1A2560;
-    -fx-min-width: 230px;
-    -fx-max-width: 230px;
-    -fx-pref-width: 230px;
+    -fx-background-color: #1B2A3B;
+    -fx-min-width: 200px;
+    -fx-max-width: 200px;
+    -fx-pref-width: 200px;
 }
 
 .logo-area {
-    -fx-padding: 32 20 20 20;
+    -fx-padding: 28 18 18 18;
     -fx-spacing: 6;
-    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.08) transparent;
+    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.10) transparent;
     -fx-border-width: 0 0 1 0;
 }
 
@@ -63,30 +63,30 @@
 
 .nav-btn {
     -fx-background-color: transparent;
-    -fx-text-fill: rgba(255, 255, 255, 0.55);
-    -fx-font-size: 13px;
+    -fx-text-fill: #5A7A99;
+    -fx-font-size: 12px;
     -fx-alignment: CENTER_LEFT;
-    -fx-padding: 11 16;
-    -fx-background-radius: 10;
+    -fx-padding: 10 14;
+    -fx-background-radius: 0;
     -fx-cursor: hand;
     -fx-border-width: 0;
 }
 
 .nav-btn:hover {
-    -fx-background-color: rgba(254, 242, 0, 0.10);
+    -fx-background-color: rgba(255, 255, 255, 0.04);
     -fx-text-fill: white;
 }
 
-/* Active nav uses the yellow accent — pops against the dark sidebar */
 .nav-btn-active {
-    -fx-background-color: #FEF200;
-    -fx-text-fill: #1A2560;
+    -fx-background-color: #243547;
+    -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-effect: dropshadow(gaussian, rgba(254, 242, 0, 0.35), 12, 0, 0, 3);
+    -fx-border-color: transparent transparent transparent #E9B52D;
+    -fx-border-width: 0 0 0 3;
 }
 
 .nav-btn-active:hover {
-    -fx-background-color: #ffe900;
+    -fx-background-color: #2a3c52;
 }
 
 .sidebar-bottom {
@@ -124,24 +124,28 @@
 
 .topbar {
     -fx-background-color: white;
-    -fx-padding: 0 28;
-    -fx-pref-height: 62;
-    -fx-min-height: 62;
-    -fx-border-color: transparent transparent #eaedf5 transparent;
+    -fx-padding: 0 24;
+    -fx-pref-height: 60;
+    -fx-min-height: 60;
+    -fx-border-color: transparent transparent #E5E7EB transparent;
     -fx-border-width: 0 0 1 0;
 }
 
 /* Top bar has a 3px red accent line at the bottom to bring in the red */
 .topbar-accent {
     -fx-background-color: #C0392B;
-    -fx-pref-height: 3;
-    -fx-min-height: 3;
+    -fx-pref-height: 4;
+    -fx-min-height: 4;
 }
 
 .page-title {
-    -fx-font-size: 20px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
-    -fx-text-fill: #1A2560;
+    -fx-text-fill: #1A2535;
+}
+
+.cnf-toolbar {
+    -fx-padding: 0;
 }
 
 .topbar-actions {
@@ -805,11 +809,12 @@
 }
 
 .month-picker {
-    -fx-background-color: white;
-    -fx-background-radius: 12;
-    -fx-border-color: #b8c6f1;
-    -fx-border-radius: 12;
+    -fx-background-color: #1B2A3B;
+    -fx-background-radius: 6;
+    -fx-border-color: #1B2A3B;
+    -fx-border-radius: 6;
     -fx-border-width: 1;
+    -fx-text-fill: white;
 }
 
 .summary-pill {
@@ -1031,17 +1036,17 @@
 }
 
 .text-field {
-    -fx-background-color: #f8faff;
-    -fx-background-radius: 12;
-    -fx-border-color: #dfe5fb;
-    -fx-border-radius: 12;
+    -fx-background-color: #F4F5F7;
+    -fx-background-radius: 7;
+    -fx-border-color: #DDE1E7;
+    -fx-border-radius: 7;
     -fx-border-width: 1;
-    -fx-padding: 10 12;
-    -fx-prompt-text-fill: #a7b1d1;
+    -fx-padding: 8 12;
+    -fx-prompt-text-fill: #9CA3AF;
 }
 
 .text-field:focused {
-    -fx-border-color: #2f4aa0;
+    -fx-border-color: #1F5FA6;
     -fx-background-color: white;
 }
 
@@ -1218,9 +1223,9 @@
 }
 
 .cnf-brand-header {
-    -fx-background-color: rgba(30, 58, 138, 0.06);
+    -fx-background-color: #FFFFFF;
     -fx-background-radius: 12;
-    -fx-border-color: rgba(30, 58, 138, 0.18);
+    -fx-border-color: #E5E7EB;
     -fx-border-radius: 12;
     -fx-border-width: 1;
 }
@@ -1244,10 +1249,9 @@
 .cnf-category-card {
     -fx-background-color: white;
     -fx-background-radius: 12;
-    -fx-border-color: #eaedf5;
+    -fx-border-color: #E5E7EB;
     -fx-border-width: 1;
     -fx-border-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(41, 58, 146, 0.08), 20, 0, 0, 4);
 }
 
 .cnf-category-card-active {
@@ -1420,4 +1424,4 @@
 .cnf-progress-fill-footring {
     -fx-background-color: #4a90d9;
     -fx-background-radius: 999;
-}
+}

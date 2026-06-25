@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class CnfController implements Initializable {
@@ -42,6 +43,13 @@ public class CnfController implements Initializable {
 
     private String currentTabName = "MAY";
     private List<CnfItem> allItems = new ArrayList<>();
+    private final Map<String, List<CnfItem>> tabCache = new ConcurrentHashMap<>();
+    private CnfItem selectedItem;
+
+    private static final String[] MONTH_TABS = {
+            "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+            "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+    };
 
     // ── Injection ─────────────────────────────────────────────────────────────
 
@@ -79,8 +87,11 @@ public class CnfController implements Initializable {
         cnfRangeCombo.getItems().addAll("Weekly", "Monthly", "Quarterly", "Yearly");
         cnfRangeCombo.getSelectionModel().select("Monthly");
         cnfRangeCombo.getSelectionModel().selectedItemProperty()
-                .addListener((obs, o, r) -> renderGroups(allItems, cnfSearchField.getText()));
-        cnfSearchField.textProperty().addListener((obs, o, q) -> renderGroups(allItems, q));
+                .addListener((obs, o, r) -> {
+                    refreshVisibleGroups();
+                    prefetchTabsForRange(r);
+                });
+        cnfSearchField.textProperty().addListener((obs, o, q) -> refreshVisibleGroups());
         resolveTabThenLoad();
         ensureCurrentMonthTab();
     }
@@ -120,8 +131,10 @@ public class CnfController implements Initializable {
         };
         task.setOnSucceeded(e -> {
             allItems = task.getValue();
+            tabCache.put(currentTabName, new ArrayList<>(allItems));
             updateStatCards();
-            renderGroups(allItems, cnfSearchField.getText());
+            refreshVisibleGroups();
+            prefetchTabsForRange(getSelectedRange());
         });
         task.setOnFailed(e -> System.err.println("CNF load failed: " + task.getException().getMessage()));
         daemon(task);
@@ -132,6 +145,102 @@ public class CnfController implements Initializable {
             @Override protected Void call() throws Exception { CnfMonthProvisioner.provision(); return null; }
         };
         daemon(t);
+    }
+
+    private String getSelectedRange() {
+        String range = cnfRangeCombo == null ? null : cnfRangeCombo.getSelectionModel().getSelectedItem();
+        return (range == null || range.isBlank()) ? "Monthly" : range;
+    }
+
+    private void refreshVisibleGroups() {
+        if (allItems == null) {
+            return;
+        }
+        renderGroups(allItems, cnfSearchField == null ? "" : cnfSearchField.getText());
+        updateCnfOverview(selectedItem);
+    }
+
+    private void prefetchTabsForRange(String range) {
+        List<String> needed = getTabsForRange(range);
+        List<String> missing = needed.stream()
+                .filter(tab -> tab != null && !tabCache.containsKey(tab))
+                .toList();
+        if (missing.isEmpty()) {
+            return;
+        }
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                CnfSheetService svc = new CnfSheetService();
+                for (String tab : missing) {
+                    try {
+                        List<List<Object>> rows = svc.readSheet(tab);
+                        List<CnfItem> items = new ArrayList<>();
+                        for (int i = CnfItem.DATA_START_ROW; i < rows.size(); i++) {
+                            List<Object> row = rows.get(i);
+                            if (row.isEmpty() || row.get(0).toString().isBlank()) continue;
+                            items.add(CnfSheetService.parseRow(row, i + 1, tab));
+                        }
+                        tabCache.put(tab, items);
+                    } catch (Exception ignored) {
+                        // Missing sheet tabs are allowed; skip quietly.
+                    }
+                }
+                return null;
+            }
+        };
+        task.setOnSucceeded(e -> refreshVisibleGroups());
+        daemon(task);
+    }
+
+    private List<String> getTabsForRange(String range) {
+        List<String> tabs = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        int currentMonthIdx = today.getMonthValue() - 1;
+
+        switch (range == null ? "Monthly" : range) {
+            case "Weekly":
+            case "Monthly":
+                tabs.add(currentTabName);
+                break;
+            case "Quarterly": {
+                int quarterStart = (currentMonthIdx / 3) * 3;
+                for (int i = quarterStart; i <= currentMonthIdx; i++) {
+                    tabs.add(MONTH_TABS[i]);
+                }
+                break;
+            }
+            case "Yearly":
+                for (int i = 0; i <= currentMonthIdx; i++) {
+                    tabs.add(MONTH_TABS[i]);
+                }
+                break;
+            default:
+                tabs.add(currentTabName);
+                break;
+        }
+        return tabs;
+    }
+
+    private static String normalizeItemKey(String name) {
+        if (name == null) return "";
+        return name.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
+    }
+
+    private CnfItem findMatchingCachedItem(String tab, CnfItem baseItem) {
+        List<CnfItem> cached = tabCache.get(tab);
+        if (cached == null || cached.isEmpty() || baseItem == null) {
+            return null;
+        }
+
+        String key = normalizeItemKey(baseItem.getItemName());
+        for (CnfItem item : cached) {
+            if (normalizeItemKey(item.getItemName()).equals(key)) {
+                return item;
+            }
+        }
+        return null;
     }
 
     // ── Grouped rendering ─────────────────────────────────────────────────────
@@ -196,7 +305,13 @@ public class CnfController implements Initializable {
 
         String q = query == null ? "" : query.trim().toLowerCase();
         List<CnfItem> filtered = items.stream()
-                .filter(i -> q.isEmpty() || (i.getItemName() != null && i.getItemName().toLowerCase().contains(q)))
+                .filter(i -> {
+                    if (q.isEmpty()) return true;
+                    String name = i.getItemName() == null ? "" : i.getItemName().toLowerCase();
+                    String uom = i.getUom() == null ? "" : i.getUom().toLowerCase();
+                    String type = i.getType().name().toLowerCase();
+                    return name.contains(q) || uom.contains(q) || type.contains(q);
+                })
                 .toList();
 
         if (filtered.isEmpty()) {
@@ -253,6 +368,10 @@ public class CnfController implements Initializable {
             value.getStyleClass().add("stock-value");
 
             row.getChildren().addAll(name, value);
+            row.setOnMouseClicked(e -> {
+                selectedItem = item;
+                updateCnfOverview(item);
+            });
             panel.getChildren().add(row);
         }
 
@@ -423,6 +542,15 @@ public class CnfController implements Initializable {
         totalVal.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;");
         totalSection.getChildren().addAll(totalCap, totalVal);
 
+        double rangeIssuedTotal = typeItems.stream().mapToDouble(i -> computeRangeIssued(i, range)).sum();
+        VBox rangeSection = new VBox(2);
+        rangeSection.setStyle("-fx-padding: 0 0 10 0;");
+        Label rangeCap = new Label((range == null ? "Monthly" : range).toUpperCase(Locale.ROOT) + " ISSUED");
+        rangeCap.setStyle("-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.45); -fx-letter-spacing: 1px;");
+        Label rangeVal = new Label(fmt(rangeIssuedTotal));
+        rangeVal.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #FEF200;");
+        rangeSection.getChildren().addAll(rangeCap, rangeVal);
+
         // ── Per-variant bar rows ── single-select within this card ──────────
         VBox variantRows = new VBox(4);
         variantRows.setStyle("-fx-padding: 4 0 12 0;");
@@ -539,6 +667,7 @@ public class CnfController implements Initializable {
                     "-fx-min-width: 36; -fx-alignment: CENTER_RIGHT; -fx-mouse-transparent: true;");
                 
                 selectedHolder[0] = item;
+                selectedItem = item;
                 // Update overview panel
                 updateCnfOverview(item);
             });
@@ -615,7 +744,7 @@ public class CnfController implements Initializable {
             actions.getChildren().add(more);
         }
 
-        card.getChildren().addAll(topRow, totalSection, variantRows, actions);
+        card.getChildren().addAll(topRow, totalSection, rangeSection, variantRows, actions);
         return card;
     }
 
@@ -672,25 +801,57 @@ public class CnfController implements Initializable {
 
     // ── Range computation ─────────────────────────────────────────────────────
 
-    double computeRangeIssued(CnfItem item, String range) {
-        LocalDate today = LocalDate.now();
-        int todayDay = today.getDayOfMonth();
-        return switch (range == null ? "Monthly" : range) {
-            case "Weekly" -> {
-                int dow = today.getDayOfWeek().getValue();
-                int start = Math.max(1, todayDay - (dow - 1));
-                double sum = 0;
-                for (int d = start; d <= todayDay; d++) sum += item.getDayValue(d);
-                yield sum;
-            }
-            case "Monthly" -> {
-                double sum = 0;
-                for (int d = 1; d <= todayDay; d++) sum += item.getDayValue(d);
-                yield sum;
-            }
-            default -> item.getTotalIssued();
-        };
+double computeRangeIssued(CnfItem item, String range) {
+    if (item == null) {
+        return 0;
     }
+
+    LocalDate today = LocalDate.now();
+    int todayDay = today.getDayOfMonth();
+    String selectedRange = range == null ? "Monthly" : range;
+
+    if ("Weekly".equals(selectedRange)) {
+        int dow = today.getDayOfWeek().getValue();
+        int start = Math.max(1, todayDay - (dow - 1));
+        double sum = 0;
+        for (int d = start; d <= todayDay; d++) {
+            sum += item.getDayValue(d);
+        }
+        return sum;
+    }
+
+    if ("Monthly".equals(selectedRange)) {
+        double sum = 0;
+        for (int d = 1; d <= todayDay; d++) {
+            sum += item.getDayValue(d);
+        }
+        return sum;
+    }
+
+    if ("Quarterly".equals(selectedRange) || "Yearly".equals(selectedRange)) {
+        double sum = 0;
+        for (String tab : getTabsForRange(selectedRange)) {
+            if (tab == null || tab.isBlank()) {
+                continue;
+            }
+
+            if (tab.equalsIgnoreCase(currentTabName)) {
+                for (int d = 1; d <= todayDay; d++) {
+                    sum += item.getDayValue(d);
+                }
+                continue;
+            }
+
+            CnfItem matched = findMatchingCachedItem(tab, item);
+            if (matched != null) {
+                sum += matched.getTotalIssued();
+            }
+        }
+        return sum;
+    }
+
+    return item.getTotalIssued();
+}
 
     // ── Dialogs ───────────────────────────────────────────────────────────────
 
@@ -767,37 +928,37 @@ public class CnfController implements Initializable {
         VBox root = new VBox(0); root.getStyleClass().add("dialog-shell");
         root.setPrefWidth(560); root.setPrefHeight(700);
 
+        String range = getSelectedRange();
         VBox hdrBox = dlgHeader("", item.getItemName(),
-                "Daily issued quantities for " + currentTabName, dialog);
+                range + " issued quantities for " + currentTabName, dialog);
         VBox body = new VBox(14); body.getStyleClass().add("dialog-body");
 
         VBox pill = new VBox(4); pill.getStyleClass().add("summary-pill"); pill.setAlignment(Pos.CENTER);
-        Label sl = new Label("TOTAL ISSUED"); sl.getStyleClass().add("summary-label");
-        Label sv = new Label(String.format("%.0f", item.getTotalIssued())); sv.getStyleClass().add("summary-value");
+        Label sl = new Label(range.toUpperCase(Locale.ROOT) + " ISSUED"); sl.getStyleClass().add("summary-label");
+        Label sv = new Label(fmt(computeRangeIssued(item, range))); sv.getStyleClass().add("summary-value");
         pill.getChildren().addAll(sl, sv);
 
-        VBox daysBox = new VBox(8); daysBox.getStyleClass().add("day-list-stack");
-        double maxVal = 0;
-        for (int d = 1; d <= 31; d++) maxVal = Math.max(maxVal, item.getDayValue(d));
-        for (int day = 1; day <= 31; day++) {
-            double val = item.getDayValue(day);
+        VBox listBox = new VBox(8); listBox.getStyleClass().add("day-list-stack");
+        List<RangeMetric> metrics = buildCnfRangeMetrics(item, range);
+        double maxVal = metrics.stream().mapToDouble(RangeMetric::value).max().orElse(0);
+        for (RangeMetric metric : metrics) {
             HBox row = new HBox(12); row.setAlignment(Pos.CENTER_LEFT);
             row.getStyleClass().add("day-row");
-            if (val <= 0) row.setOpacity(0.45);
-            Label badge = new Label(String.format("DAY %02d", day)); badge.getStyleClass().add("day-badge");
+            if (metric.value() <= 0) row.setOpacity(0.45);
+            Label badge = new Label(metric.label()); badge.getStyleClass().add("day-badge");
             StackPane track = new StackPane(); track.getStyleClass().add("day-bar-track");
             track.setAlignment(Pos.CENTER_LEFT); HBox.setHgrow(track, Priority.ALWAYS);
             Region fill = new Region(); fill.getStyleClass().add("day-bar-fill");
             fill.setMinHeight(6); fill.setPrefHeight(6);
-            double ratio = (maxVal <= 0 || val <= 0) ? 0 : val / maxVal;
+            double ratio = (maxVal <= 0 || metric.value() <= 0) ? 0 : metric.value() / maxVal;
             fill.prefWidthProperty().bind(track.widthProperty().multiply(ratio));
             fill.minWidthProperty().bind(track.widthProperty().multiply(ratio));
             fill.maxWidthProperty().bind(track.widthProperty().multiply(ratio));
             StackPane.setAlignment(fill, Pos.CENTER_LEFT); track.getChildren().add(fill);
-            Label vb = new Label(val > 0 ? String.format("%.0f", val) : "—"); vb.getStyleClass().add("day-value-badge");
-            row.getChildren().addAll(badge, track, vb); daysBox.getChildren().add(row);
+            Label vb = new Label(metric.value() > 0 ? fmt(metric.value()) : "—"); vb.getStyleClass().add("day-value-badge");
+            row.getChildren().addAll(badge, track, vb); listBox.getChildren().add(row);
         }
-        VBox shell = new VBox(daysBox); shell.getStyleClass().add("day-list-shell");
+        VBox shell = new VBox(listBox); shell.getStyleClass().add("day-list-shell");
         ScrollPane scroll = new ScrollPane(shell);
         scroll.setFitToWidth(true); scroll.setFitToHeight(true);
         VBox.setVgrow(scroll, Priority.ALWAYS);
@@ -806,6 +967,42 @@ public class CnfController implements Initializable {
         body.getChildren().addAll(pill, scroll);
         root.getChildren().addAll(hdrBox, body);
         show(dialog, root);
+    }
+
+    private record RangeMetric(String label, double value) {}
+
+    private List<RangeMetric> buildCnfRangeMetrics(CnfItem item, String range) {
+        List<RangeMetric> metrics = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        String selected = range == null ? "Monthly" : range;
+
+        if ("Weekly".equals(selected)) {
+            int dow = today.getDayOfWeek().getValue();
+            int start = Math.max(1, today.getDayOfMonth() - (dow - 1));
+            for (int day = start; day <= today.getDayOfMonth(); day++) {
+                metrics.add(new RangeMetric(String.format("DAY %02d", day), item.getDayValue(day)));
+            }
+            return metrics;
+        }
+
+        if ("Monthly".equals(selected)) {
+            for (int day = 1; day <= today.getDayOfMonth(); day++) {
+                metrics.add(new RangeMetric(String.format("DAY %02d", day), item.getDayValue(day)));
+            }
+            return metrics;
+        }
+
+        List<String> tabs = getTabsForRange(selected);
+        for (String tab : tabs) {
+            if (tab == null || tab.isBlank()) continue;
+            if (tab.equalsIgnoreCase(currentTabName)) {
+                metrics.add(new RangeMetric(tab, computeRangeIssued(item, "Monthly")));
+                continue;
+            }
+            CnfItem matched = findMatchingCachedItem(tab, item);
+            metrics.add(new RangeMetric(tab, matched == null ? 0 : matched.getTotalIssued()));
+        }
+        return metrics;
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

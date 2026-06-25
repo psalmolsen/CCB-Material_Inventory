@@ -77,6 +77,8 @@ public class MainController implements Initializable {
 
     @FXML
     private Label pageTitle;
+    @FXML
+    private HBox cnfToolbar;
 
     @FXML
     private Label materialTotalCount;
@@ -154,6 +156,7 @@ public class MainController implements Initializable {
 
     // Cache of already-fetched tabs: tabName → list of items
     private final Map<String, List<InventoryItem>> tabCache = new HashMap<>();
+    private List<BrandPanelController.BrandData> allCnfBrands = new ArrayList<>();
 
     // Full unfiltered list — search filters against this
     private final ObservableList<InventoryItem> allMaterials = FXCollections.observableArrayList();
@@ -217,6 +220,8 @@ public class MainController implements Initializable {
                 cnfOverviewInitial, cnfOverviewReceived, cnfOverviewBalance,
                 cnfOverviewIssued, cnfOverviewUom, cnfOverviewItemName,
                 cnfOverviewUnitPrice, cnfOverviewTotalPrice);
+
+        cnfSearchField.textProperty().addListener((obs, oldVal, query) -> applyCnfBrandSearch(query));
 
         loadBrandPanelIntoHost();
         loadBrandPanelData();
@@ -328,19 +333,82 @@ public class MainController implements Initializable {
         };
         task.setOnSucceeded(e -> {
             if (brandPanelController != null) {
+                allCnfBrands = task.getValue() == null ? new ArrayList<>() : new ArrayList<>(task.getValue());
                 brandPanelController.setOverviewLabels(
                         cnfOverviewItemName, cnfOverviewInitial, cnfOverviewReceived,
                         cnfOverviewBalance, cnfOverviewIssued, cnfOverviewUom,
                         cnfOverviewUnitPrice, cnfOverviewTotalPrice);
                 brandPanelController.setSelectedTabName(getCurrentMonthTabName());
                 brandPanelController.setRefreshCallback(this::loadBrandPanelData);
-                brandPanelController.loadBrands(task.getValue());
+                applyCnfBrandSearch(cnfSearchField == null ? "" : cnfSearchField.getText());
             }
         });
         task.setOnFailed(e -> task.getException().printStackTrace());
         Thread loader = new Thread(task);
         loader.setDaemon(true);
         loader.start();
+    }
+
+    private void applyCnfBrandSearch(String query) {
+        if (brandPanelController == null || allCnfBrands == null) {
+            return;
+        }
+        String q = query == null ? "" : query.trim().toLowerCase();
+        if (q.isEmpty()) {
+            brandPanelController.loadBrands(allCnfBrands);
+            return;
+        }
+
+        List<BrandPanelController.BrandData> filteredBrands = new ArrayList<>();
+        for (BrandPanelController.BrandData brand : allCnfBrands) {
+            if (brandMatchesQuery(brand, q)) {
+                filteredBrands.add(brand);
+                continue;
+            }
+
+            List<BrandPanelController.CategoryData> matchedCategories = new ArrayList<>();
+            for (BrandPanelController.CategoryData category : brand.categories()) {
+                List<BrandPanelController.VariantData> matchedVariants = new ArrayList<>();
+                for (BrandPanelController.VariantData variant : category.variants()) {
+                    if (variantMatchesQuery(category, variant, q)) {
+                        matchedVariants.add(variant);
+                    }
+                }
+                if (!matchedVariants.isEmpty()) {
+                    matchedCategories.add(new BrandPanelController.CategoryData(
+                            category.title(),
+                            matchedVariants,
+                            category.barColor(),
+                            category.iconBg(),
+                            category.iconColor()
+                    ));
+                }
+            }
+            if (!matchedCategories.isEmpty()) {
+                filteredBrands.add(new BrandPanelController.BrandData(brand.name(), matchedCategories));
+            }
+        }
+        brandPanelController.loadBrands(filteredBrands);
+    }
+
+    private boolean brandMatchesQuery(BrandPanelController.BrandData brand, String q) {
+        if (brand == null || q == null || q.isBlank()) return false;
+        if (brand.name() != null && brand.name().toLowerCase().contains(q)) return true;
+        for (BrandPanelController.CategoryData category : brand.categories()) {
+            if (category.title() != null && category.title().toLowerCase().contains(q)) return true;
+            for (BrandPanelController.VariantData variant : category.variants()) {
+                if (variantMatchesQuery(category, variant, q)) return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean variantMatchesQuery(BrandPanelController.CategoryData category,
+                                        BrandPanelController.VariantData variant, String q) {
+        if (variant == null || q == null || q.isBlank()) return false;
+        return (variant.label() != null && variant.label().toLowerCase().contains(q))
+                || (variant.uom() != null && variant.uom().toLowerCase().contains(q))
+                || (category != null && category.title() != null && category.title().toLowerCase().contains(q));
     }
 
     private String getCurrentMonthTabName() {
@@ -580,6 +648,11 @@ public class MainController implements Initializable {
         pageTitle.setText(title);
         btnAddMaterial.setVisible(index == 0);
         btnAddMaterial.setManaged(index == 0);
+        if (cnfToolbar != null) {
+            boolean showCnfTools = index == 1;
+            cnfToolbar.setVisible(showCnfTools);
+            cnfToolbar.setManaged(showCnfTools);
+        }
         for (int i = 0; i < sections.size(); i++) {
             boolean active = i == index;
             sections.get(i).setVisible(active);

@@ -144,6 +144,7 @@ public class BrandPanelController implements Initializable {
     private VBox buildBrandSection(BrandData brand, int globalMaxIssued) {
         VBox section = new VBox(12);
         section.setFillWidth(true);
+        section.setPadding(new Insets(0, 0, 10, 0));
 
         HBox labelRow = new HBox(10);
         labelRow.setAlignment(Pos.CENTER_LEFT);
@@ -168,6 +169,16 @@ public class BrandPanelController implements Initializable {
 
         labelRow.getChildren().addAll(accent, nameStack);
 
+        VBox contentShell = new VBox(12);
+        contentShell.setPadding(new Insets(14));
+        contentShell.setStyle(
+                "-fx-background-color: white;" +
+                "-fx-background-radius: 10;" +
+                "-fx-border-color: #E5E7EB;" +
+                "-fx-border-radius: 10;" +
+                "-fx-border-width: 1;"
+        );
+
         HBox columns = new HBox(12);
         columns.setFillHeight(true);
         List<VBox> cards = new java.util.ArrayList<>();
@@ -189,14 +200,31 @@ public class BrandPanelController implements Initializable {
             }
         }
 
-        section.getChildren().addAll(labelRow, columns);
+        contentShell.getChildren().add(columns);
+        section.setStyle(
+                "-fx-background-color: white;" +
+                "-fx-background-radius: 10;" +
+                "-fx-border-color: #E5E7EB;" +
+                "-fx-border-radius: 10;" +
+                "-fx-border-width: 1;" +
+                "-fx-padding: 0 0 14 0;"
+        );
+        section.getChildren().addAll(labelRow, contentShell);
         return section;
     }
 
     private VBox buildCategoryCard(CategoryData cat, String brandName, boolean isActive) {
         VBox card = new VBox(12);
-        card.setPadding(new Insets(16));
+        card.setPadding(new Insets(14));
         card.getStyleClass().add("cnf-category-card");
+        String borderColor = cat.barColor() == null || cat.barColor().isBlank() ? "#E5E7EB" : cat.barColor();
+        card.setStyle(
+                "-fx-background-color: #FFFFFF;" +
+                "-fx-background-radius: 9;" +
+                "-fx-border-color: " + borderColor + " #E5E7EB #E5E7EB #E5E7EB;" +
+                "-fx-border-radius: 9;" +
+                "-fx-border-width: 3 1 1 1;"
+        );
         if (isActive) {
             card.getStyleClass().add("cnf-category-card-active");
         }
@@ -214,40 +242,39 @@ public class BrandPanelController implements Initializable {
         VBox titleBox = new VBox(2);
         Label titleLbl = new Label(cat.title());
         titleLbl.getStyleClass().add("cnf-card-title");
-        Label subLbl = new Label(cat.subtitle());
-        subLbl.getStyleClass().add("cnf-card-subtitle");
-        titleBox.getChildren().addAll(titleLbl, subLbl);
+        titleBox.getChildren().add(titleLbl);
         header.getChildren().addAll(icon, titleBox);
 
-        if (isActive) {
-            Region spacer = new Region();
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-            Label activeBadge = new Label("Active");
-            activeBadge.getStyleClass().add("cnf-active-badge");
-            header.getChildren().addAll(spacer, activeBadge);
-        }
+        Region headerSpacer = new Region();
+        HBox.setHgrow(headerSpacer, Priority.ALWAYS);
+        Label badge = new Label(cat.subtitle());
+        badge.setStyle(
+                "-fx-background-color: " + tint(borderColor) + ";" +
+                "-fx-text-fill: " + textForTint(borderColor) + ";" +
+                "-fx-background-radius: 10;" +
+                "-fx-padding: 3 8;" +
+                "-fx-font-size: 9px;" +
+                "-fx-font-weight: bold;"
+        );
+        header.getChildren().addAll(headerSpacer, badge);
 
         VBox summary = new VBox(8);
         summary.setPadding(new Insets(12));
         summary.getStyleClass().add("cnf-card-summary");
+        summary.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #E5E7EB; -fx-border-radius: 8; -fx-border-width: 1;");
 
         Label totalLbl = new Label("TOTAL ISSUED");
         totalLbl.getStyleClass().add("cnf-card-total-label");
 
         Label totalVal = new Label(String.valueOf(cat.totalIssued()));
         totalVal.getStyleClass().add("cnf-card-total-value");
+        totalVal.setStyle("-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: " + borderColor + ";");
 
         summary.getChildren().addAll(totalLbl, totalVal);
 
         int maxIssued = cat.variants().stream()
             .mapToInt(VariantData::totalIssued).max().orElse(1);
         if (maxIssued == 0) maxIssued = 1;
-
-        Label more = new Label("...");
-        more.getStyleClass().add("cnf-card-more-label");
-
-        Region verticalSpacer = new Region();
-        VBox.setVgrow(verticalSpacer, Priority.ALWAYS);
 
         Region divider = new Region();
         divider.getStyleClass().add("cnf-card-divider");
@@ -327,8 +354,31 @@ public class BrandPanelController implements Initializable {
             else moreMenu.hide();
         });
 
-        card.getChildren().addAll(header, summary, more, verticalSpacer, actionSection);
+        VBox body = new VBox(10);
+        body.getChildren().addAll(summary, actionSection);
+
+        card.getChildren().addAll(header, body);
         return card;
+    }
+
+    private static String tint(String hex) {
+        if (hex == null) return "#F3F4F6";
+        return switch (hex.toUpperCase(java.util.Locale.ROOT)) {
+            case "#E9B52D" -> "#FEF3C7";
+            case "#C0392B" -> "#FEE2E2";
+            case "#1F5FA6" -> "#DBEAFE";
+            default -> "#F3F4F6";
+        };
+    }
+
+    private static String textForTint(String hex) {
+        if (hex == null) return "#6B7280";
+        return switch (hex.toUpperCase(java.util.Locale.ROOT)) {
+            case "#E9B52D" -> "#92400E";
+            case "#C0392B" -> "#991B1B";
+            case "#1F5FA6" -> "#1E40AF";
+            default -> "#6B7280";
+        };
     }
 
     private void clearGlobalSelection() {

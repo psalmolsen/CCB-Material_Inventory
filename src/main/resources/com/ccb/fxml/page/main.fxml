@@ -33,8 +33,12 @@
 
     <VBox styleClass="main-content" HBox.hgrow="ALWAYS">
 
-        <HBox styleClass="topbar" alignment="CENTER_LEFT">
+        <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="12">
             <Label fx:id="pageTitle" text="Material Monitoring" styleClass="page-title" HBox.hgrow="ALWAYS"/>
+            <HBox fx:id="cnfToolbar" spacing="10" alignment="CENTER_RIGHT" visible="false" managed="false">
+                <TextField fx:id="cnfSearchField" promptText="Search CNF items..." styleClass="text-field" style="-fx-font-size: 12px;" prefWidth="180"/>
+                <ComboBox fx:id="cnfRangeCombo" styleClass="month-picker" prefWidth="110"/>
+            </HBox>
         </HBox>
         <HBox styleClass="topbar-accent"/>
 
@@ -141,8 +145,6 @@
             <VBox styleClass="panel" VBox.vgrow="ALWAYS">
                 <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding:0 0 10 0;-fx-border-color:transparent transparent #eaedf5 transparent;-fx-border-width:0 0 1 0;">
                     <Label text="CNF Items" styleClass="panel-title" style="-fx-border-width:0;-fx-padding:0;"/>
-                    <TextField fx:id="cnfSearchField" promptText="🔍  Search CNF items..." styleClass="text-field" style="-fx-font-size:12px;" HBox.hgrow="ALWAYS"/>
-                    <ComboBox fx:id="cnfRangeCombo" styleClass="month-picker" prefWidth="130"/>
                 </HBox>
                 <VBox fx:id="brandPanelHost" VBox.vgrow="ALWAYS"/>
             </VBox>
