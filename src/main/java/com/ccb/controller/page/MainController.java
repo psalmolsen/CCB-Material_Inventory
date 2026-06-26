@@ -115,6 +115,7 @@ public class MainController implements Initializable {
     @FXML private VBox brandPanelHost;
 
     private BrandPanelController brandPanelController;
+    private OringMonitoringController oringMonitoringController;
 
     private com.ccb.controller.page.CnfController cnfController;
 
@@ -225,6 +226,7 @@ public class MainController implements Initializable {
 
         loadBrandPanelIntoHost();
         loadBrandPanelData();
+        loadOringPanelIntoHost();
     }
 
     /**
@@ -347,6 +349,25 @@ public class MainController implements Initializable {
         Thread loader = new Thread(task);
         loader.setDaemon(true);
         loader.start();
+    }
+
+    private void loadOringPanelIntoHost() {
+        if (oringSection == null || oringMonitoringController != null) {
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/page/section/oring_monitoring.fxml"));
+            Parent root = loader.load();
+            oringMonitoringController = loader.getController();
+            oringMonitoringController.setRefreshCallback(this::refreshAllDashboardData);
+            oringSection.getChildren().setAll(root);
+            VBox.setVgrow(root, Priority.ALWAYS);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Label fallback = new Label("Unable to load O-Ring monitoring page.");
+            fallback.getStyleClass().add("placeholder-text");
+            oringSection.getChildren().setAll(fallback);
+        }
     }
 
     private void applyCnfBrandSearch(String query) {
@@ -619,11 +640,25 @@ public class MainController implements Initializable {
     @FXML
     public void showOring() {
         showSection(2, "O-Ring Monitoring");
+        if (oringMonitoringController != null) {
+            oringMonitoringController.refresh();
+        }
     }
 
     @FXML
     public void showSales() {
         showSection(3, "Pellets L-Sales Report");
+    }
+
+    private void refreshAllDashboardData() {
+        loadMaterials();
+        loadBrandPanelData();
+        if (cnfController != null) {
+            cnfController.loadItems();
+        }
+        if (oringMonitoringController != null) {
+            oringMonitoringController.refresh();
+        }
     }
 
     @FXML

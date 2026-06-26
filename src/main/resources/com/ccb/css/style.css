@@ -1425,3 +1425,389 @@
     -fx-background-color: #4a90d9;
     -fx-background-radius: 999;
 }
+
+/* ==========================================================================
+   O-RING MONITORING PAGE
+   ========================================================================== */
+
+.oring-scroll {
+    -fx-background-color: #F4F5F7;
+    -fx-background: #F4F5F7;
+    -fx-padding: 0;
+}
+
+.oring-page {
+    -fx-background-color: #F4F5F7;
+    -fx-padding: 20 24 24 24;
+    -fx-spacing: 16;
+}
+
+.oring-topbar {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: #E5E7EB;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-padding: 14 16;
+}
+
+.oring-title-accent {
+    -fx-pref-width: 4;
+    -fx-pref-height: 22;
+    -fx-background-color: #E9B52D;
+    -fx-background-radius: 2;
+}
+
+.oring-page-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1A2535;
+}
+
+.oring-page-subtitle {
+    -fx-font-size: 10px;
+    -fx-text-fill: #9CA3AF;
+}
+
+.oring-search-field {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 8;
+    -fx-padding: 8 12;
+    -fx-prompt-text-fill: #C0C7D0;
+    -fx-text-fill: #1A2535;
+}
+
+.oring-filter-button,
+.oring-refresh-button {
+    -fx-background-color: #1B2A3B;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #1B2A3B;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.oring-filter-button {
+    -fx-padding: 8 12;
+}
+
+.oring-refresh-button {
+    -fx-min-width: 34;
+    -fx-pref-width: 34;
+    -fx-min-height: 34;
+    -fx-pref-height: 34;
+    -fx-padding: 0;
+}
+
+.oring-add-button {
+    -fx-background-color: #1B2A3B;
+    -fx-text-fill: white;
+    -fx-background-radius: 9;
+    -fx-border-radius: 9;
+    -fx-border-color: #1B2A3B;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+}
+
+.oring-add-button:hover {
+    -fx-background-color: #243547;
+    -fx-border-color: #243547;
+}
+
+.oring-state-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 22 18;
+}
+
+.oring-state-text,
+.oring-error-text,
+.oring-empty-title,
+.oring-empty-text {
+    -fx-text-fill: #6B7280;
+}
+
+.oring-error-text {
+    -fx-font-weight: bold;
+}
+
+.oring-retry-button {
+    -fx-background-color: #1B2A3B;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-font-weight: bold;
+}
+
+.oring-empty-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.oring-section-label {
+    -fx-font-size: 9px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #9CA3AF;
+    -fx-letter-spacing: 1.2px;
+}
+
+.oring-summary-card,
+.oring-surface,
+.oring-source-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 14;
+}
+
+.oring-summary-card {
+    -fx-min-height: 120;
+}
+
+.oring-question-label {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #9CA3AF;
+}
+
+.oring-big-value {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+
+.oring-muted-total {
+    -fx-font-size: 18px;
+    -fx-text-fill: #9CA3AF;
+}
+
+.oring-context-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #6B7280;
+}
+
+.oring-badge,
+.oring-status-badge {
+    -fx-background-radius: 999;
+    -fx-padding: 4 8;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.oring-card-title,
+.oring-table-title,
+.oring-source-name {
+    -fx-font-weight: bold;
+    -fx-text-fill: #1A2535;
+}
+
+.oring-card-title {
+    -fx-font-size: 12px;
+}
+
+.oring-card-desc {
+    -fx-font-size: 10px;
+    -fx-text-fill: #9CA3AF;
+}
+
+.oring-bar-chart,
+.oring-pie-chart {
+    -fx-background-color: transparent;
+}
+
+.oring-bar-chart .chart-plot-background,
+.oring-pie-chart .chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.oring-bar-chart .axis {
+    -fx-tick-label-fill: #9CA3AF;
+    -fx-tick-label-font-size: 10px;
+}
+
+.oring-bar-chart .chart-bar {
+    -fx-background-radius: 5 5 0 0;
+}
+
+.oring-bar-chart .default-color0.chart-bar {
+    -fx-bar-fill: #1F5FA6;
+}
+
+.oring-bar-chart .default-color1.chart-bar {
+    -fx-bar-fill: #C0392B;
+}
+
+.oring-bar-chart .chart-legend {
+    -fx-background-color: transparent;
+}
+
+.oring-pie-chart .chart-pie {
+    -fx-border-color: transparent;
+}
+
+.oring-legend-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #1A2535;
+}
+
+.oring-source-card {
+    -fx-padding: 12;
+}
+
+.oring-metric-key {
+    -fx-font-size: 10px;
+    -fx-text-fill: #6B7280;
+}
+
+.oring-metric-value {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.oring-table-subtitle {
+    -fx-font-size: 10px;
+    -fx-text-fill: #9CA3AF;
+}
+
+.oring-table-header,
+.oring-table-row {
+    -fx-padding: 0 10;
+}
+
+.oring-table-header {
+    -fx-background-color: #F9FAFB;
+    -fx-border-color: #E5E7EB;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-min-height: 32;
+    -fx-alignment: center-left;
+}
+
+.oring-table-head-cell {
+    -fx-font-size: 9px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #9CA3AF;
+    -fx-letter-spacing: 1px;
+}
+
+.oring-table-row {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #F3F4F6 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.oring-table-row:hover {
+    -fx-background-color: #F9FAFB;
+}
+
+.oring-table-row-flagged {
+    -fx-border-color: transparent transparent #F3F4F6 transparent, transparent transparent transparent #C0392B;
+    -fx-border-width: 0 0 1 0, 0 0 0 3;
+}
+
+.oring-cell-date {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1A2535;
+}
+
+.oring-cell-strong,
+.oring-cell-good,
+.oring-cell-bad,
+.oring-cell-muted,
+.oring-cell-remarks {
+    -fx-font-size: 11px;
+}
+
+.oring-cell-strong {
+    -fx-font-weight: bold;
+    -fx-text-fill: #1A2535;
+}
+
+.oring-cell-good {
+    -fx-font-weight: bold;
+    -fx-text-fill: #16A34A;
+}
+
+.oring-cell-bad {
+    -fx-font-weight: bold;
+    -fx-text-fill: #C0392B;
+}
+
+.oring-cell-muted {
+    -fx-text-fill: #D1D5DB;
+}
+
+.oring-cell-remarks {
+    -fx-font-size: 10px;
+    -fx-font-style: italic;
+    -fx-text-fill: #6B7280;
+}
+
+.oring-pill-blue,
+.oring-pill-gray {
+    -fx-background-radius: 8;
+    -fx-padding: 2 7;
+    -fx-font-size: 9px;
+    -fx-font-weight: bold;
+}
+
+.oring-pill-blue {
+    -fx-background-color: #EFF6FF;
+    -fx-text-fill: #1D4ED8;
+}
+
+.oring-pill-gray {
+    -fx-background-color: #F3F4F6;
+    -fx-text-fill: #374151;
+}
+
+.oring-pagination-summary {
+    -fx-font-size: 10px;
+    -fx-text-fill: #9CA3AF;
+}
+
+.oring-page-button {
+    -fx-min-width: 28;
+    -fx-min-height: 28;
+    -fx-pref-width: 28;
+    -fx-pref-height: 28;
+    -fx-background-color: white;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 7;
+    -fx-background-radius: 7;
+    -fx-text-fill: #1B2A3B;
+    -fx-font-weight: bold;
+}
+
+.oring-page-button:hover {
+    -fx-background-color: #1B2A3B;
+    -fx-text-fill: white;
+}
+
+.oring-page-dot {
+    -fx-min-width: 6;
+    -fx-pref-width: 6;
+    -fx-min-height: 6;
+    -fx-pref-height: 6;
+    -fx-background-radius: 999;
+    -fx-background-color: #E5E7EB;
+    -fx-cursor: hand;
+}
+
+.oring-page-dot.active {
+    -fx-background-color: #1B2A3B;
+    -fx-min-width: 18;
+    -fx-pref-width: 18;
+    -fx-background-radius: 3;
+}

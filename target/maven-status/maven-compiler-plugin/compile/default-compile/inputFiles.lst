@@ -8,11 +8,14 @@ C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\m
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\page\BrandPanelController.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\page\CnfController.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\page\MainController.java
+C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\page\OringMonitoringController.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\EditMaterialController.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\GoogleSheetsService.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\InventoryItem.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\MainController.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\MaterialMonthOutController.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\MonthSheetProvisioner.java
+C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\OringRecord.java
+C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\OringSheetService.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\service\SheetsDataService.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\SheetMapper.java

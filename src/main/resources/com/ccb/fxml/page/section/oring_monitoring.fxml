@@ -1,35 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:id="oringSection"
-      styleClass="section-content"
-      VBox.vgrow="ALWAYS"
-      visible="false"
-      managed="false">
+<ScrollPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.ccb.controller.page.OringMonitoringController"
+            fitToWidth="true"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED"
+            styleClass="oring-scroll">
+    <content>
+        <VBox styleClass="oring-page" spacing="16" VBox.vgrow="ALWAYS">
+            <HBox styleClass="oring-topbar" alignment="CENTER_LEFT" spacing="12">
+                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Region styleClass="oring-title-accent"/>
+                        <Label text="O-Ring Monitoring" styleClass="oring-page-title"/>
+                    </HBox>
+                    <Label text="Live repairs, rejects, and repair logs from Google Sheets." styleClass="oring-page-subtitle"/>
+                </VBox>
 
-    <Label text="O-Ring Overview" styleClass="section-title"/>
-    <HBox styleClass="stat-cards" spacing="14">
-        <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
-            <Label fx:id="oringTotalCount" text="0" styleClass="stat-number"/>
-            <Label text="Qty" styleClass="stat-qty"/>
-            <Label text="TOTAL O-RINGS" styleClass="stat-label"/>
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <TextField fx:id="searchField" promptText="Search records..." styleClass="oring-search-field" prefWidth="220"/>
+                    <MenuButton fx:id="monthFilterButton" text="All Months" styleClass="oring-filter-button" mnemonicParsing="false"/>
+                    <Button fx:id="refreshButton" text="↻" styleClass="oring-refresh-button" mnemonicParsing="false"/>
+                    <Button fx:id="addRecordButton" text="+ Add Record" styleClass="oring-add-button" mnemonicParsing="false"/>
+                </HBox>
+            </HBox>
+
+            <VBox fx:id="loadingState" styleClass="oring-state-card" alignment="CENTER" spacing="10">
+                <ProgressIndicator maxWidth="36" maxHeight="36"/>
+                <Label text="Loading O-Ring data..." styleClass="oring-state-text"/>
+            </VBox>
+
+            <VBox fx:id="errorState" styleClass="oring-state-card" alignment="CENTER" spacing="10" visible="false" managed="false">
+                <Label fx:id="errorMessage" text="Unable to load O-Ring data." wrapText="true" styleClass="oring-error-text"/>
+                <Button fx:id="retryButton" text="Retry" styleClass="oring-retry-button"/>
+            </VBox>
+
+            <VBox fx:id="emptyState" styleClass="oring-state-card" alignment="CENTER" spacing="8" visible="false" managed="false">
+                <Label text="No O-Ring records found." styleClass="oring-empty-title"/>
+                <Label text="Try a different month filter or refresh the sheet." wrapText="true" styleClass="oring-empty-text"/>
+            </VBox>
+
+            <VBox fx:id="dataState" spacing="16" visible="false" managed="false"/>
         </VBox>
-        <VBox styleClass="stat-card stat-red" HBox.hgrow="ALWAYS">
-            <Label fx:id="oringLowCount" text="0" styleClass="stat-number"/>
-            <Label text="Qty" styleClass="stat-qty"/>
-            <Label text="LOW STOCK" styleClass="stat-label"/>
-        </VBox>
-        <VBox styleClass="stat-card stat-yellow" HBox.hgrow="ALWAYS">
-            <Label fx:id="oringIssuedCount" text="0" styleClass="stat-number"/>
-            <Label text="Qty" styleClass="stat-qty"/>
-            <Label text="ISSUED TODAY" styleClass="stat-label"/>
-        </VBox>
-    </HBox>
-    <VBox styleClass="panel" VBox.vgrow="ALWAYS">
-        <Label text="O-Ring Records" styleClass="panel-title"/>
-        <Label text="O-ring monitoring table will appear here." styleClass="placeholder-text"/>
-    </VBox>
-</VBox>
+    </content>
+</ScrollPane>
