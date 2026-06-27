@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.ccb.controller.page.PelletsLSalesController"
+            fitToWidth="true"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED"
+            styleClass="oring-scroll"
+            style="-fx-background-color: #F4F5F7;">
+    <content>
+        <VBox spacing="14" style="-fx-background-color: #F4F5F7; -fx-padding: 16;" VBox.vgrow="ALWAYS">
+            
+            <!-- Top Bar -->
+            <HBox fx:id="pelletsLSalesTopbar" alignment="CENTER_LEFT" spacing="12" 
+                  style="-fx-background-color: #FFFFFF; -fx-padding: 12 16; -fx-border-color: #E5E7EB; -fx-border-width: 0 0 1 0;">
+                <HBox spacing="10" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                    <!-- Left: Red bar and Title -->
+                    <Region fx:id="titleAccent" style="-fx-background-color: #C0392B; -fx-pref-width: 4; -fx-pref-height: 22; -fx-min-width: 4; -fx-max-width: 4;"/>
+                    <Label text="Pellets L-Sales" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1A2535;"/>
+                </HBox>
+                
+                <!-- Right: Controls -->
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <TextField fx:id="searchField" promptText="Search records..." 
+                               style="-fx-background-color: #F4F5F7; -fx-background-radius: 7; -fx-border-color: #DDE1E7; -fx-border-radius: 7; -fx-border-width: 1; -fx-padding: 8 12; -fx-prompt-text-fill: #9CA3AF; -fx-text-fill: #1A2535; -fx-font-size: 12px;" 
+                               prefWidth="220"/>
+                    <ComboBox fx:id="sackFilterComboBox" 
+                               style="-fx-background-color: #1B2A3B; -fx-text-fill: #FFFFFF; -fx-background-radius: 7; -fx-border-radius: 7; -fx-border-color: #1B2A3B; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 8 14; -fx-cursor: hand;" 
+                               prefWidth="280"/>
+                    <Button fx:id="refreshButton" text="🔄" 
+                            style="-fx-background-color: #1B2A3B; -fx-text-fill: #FFFFFF; -fx-background-radius: 9; -fx-border-radius: 9; -fx-border-color: #1B2A3B; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 8 16; -fx-cursor: hand;" 
+                            mnemonicParsing="false"/>
+                </HBox>
+            </HBox>
+
+            <!-- Loading State -->
+            <VBox fx:id="loadingState" alignment="CENTER" spacing="10" 
+                  style="-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 12; -fx-padding: 22 18;">
+                <ProgressIndicator maxWidth="36" maxHeight="36"/>
+                <Label text="Loading Pellets L-Sales data..." style="-fx-text-fill: #6B7280; -fx-font-size: 12px;"/>
+            </VBox>
+
+            <!-- Error State -->
+            <VBox fx:id="errorState" alignment="CENTER" spacing="10" visible="false" managed="false"
+                  style="-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 12; -fx-padding: 22 18;">
+                <Label fx:id="errorMessage" text="Unable to load Pellets L-Sales data." wrapText="true" 
+                       style="-fx-text-fill: #C0392B; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                <Button fx:id="retryButton" text="Retry" 
+                        style="-fx-background-color: #1B2A3B; -fx-text-fill: #FFFFFF; -fx-background-radius: 8; -fx-border-radius: 8; -fx-font-weight: bold; -fx-padding: 6 12; -fx-cursor: hand;"/>
+            </VBox>
+
+            <!-- Empty State -->
+            <VBox fx:id="emptyState" alignment="CENTER" spacing="8" visible="false" managed="false"
+                  style="-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 12; -fx-padding: 22 18;">
+                <Label text="No Pellets L-Sales records found." 
+                       style="-fx-text-fill: #1A2535; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <Label text="Try a different month filter or refresh the sheet." wrapText="true" 
+                       style="-fx-text-fill: #6B7280; -fx-font-size: 12px;"/>
+            </VBox>
+
+            <!-- Data State (Dynamic content will be built inside here) -->
+            <VBox fx:id="dataState" spacing="14" visible="false" managed="false"/>
+            
+        </VBox>
+    </content>
+</ScrollPane>

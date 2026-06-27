@@ -7,6 +7,7 @@ import com.ccb.SheetMapper;
 import com.ccb.controller.modal.EditMaterialController;
 import com.ccb.controller.modal.MaterialMonthOutController;
 import com.ccb.service.SheetsDataService;
+import com.ccb.controller.page.PelletsLSalesController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -116,6 +117,8 @@ public class MainController implements Initializable {
 
     private BrandPanelController brandPanelController;
     private OringMonitoringController oringMonitoringController;
+    private PelletsMonitoringController pelletsMonitoringController;
+    private PelletsLSalesController pelletsLSalesController;
 
     private com.ccb.controller.page.CnfController cnfController;
 
@@ -227,6 +230,7 @@ public class MainController implements Initializable {
         loadBrandPanelIntoHost();
         loadBrandPanelData();
         loadOringPanelIntoHost();
+        loadPelletsPanelIntoHost();
     }
 
     /**
@@ -367,6 +371,25 @@ public class MainController implements Initializable {
             Label fallback = new Label("Unable to load O-Ring monitoring page.");
             fallback.getStyleClass().add("placeholder-text");
             oringSection.getChildren().setAll(fallback);
+        }
+    }
+
+    private void loadPelletsPanelIntoHost() {
+        if (salesSection == null || pelletsLSalesController != null) {
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/page/section/pellets_l_sales.fxml"));
+            Parent root = loader.load();
+            pelletsLSalesController = loader.getController();
+            pelletsLSalesController.setRefreshCallback(this::refreshAllDashboardData);
+            salesSection.getChildren().setAll(root);
+            VBox.setVgrow(root, Priority.ALWAYS);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Label fallback = new Label("Unable to load Pellets L-Sales monitoring page.");
+            fallback.getStyleClass().add("placeholder-text");
+            salesSection.getChildren().setAll(fallback);
         }
     }
 
@@ -647,7 +670,10 @@ public class MainController implements Initializable {
 
     @FXML
     public void showSales() {
-        showSection(3, "Pellets L-Sales Report");
+        showSection(3, "Pellets L-Sales");
+        if (pelletsLSalesController != null) {
+            pelletsLSalesController.refresh();
+        }
     }
 
     private void refreshAllDashboardData() {
@@ -658,6 +684,9 @@ public class MainController implements Initializable {
         }
         if (oringMonitoringController != null) {
             oringMonitoringController.refresh();
+        }
+        if (pelletsLSalesController != null) {
+            pelletsLSalesController.refresh();
         }
     }
 
