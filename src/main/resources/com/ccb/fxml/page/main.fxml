@@ -1,206 +1,412 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+
+
 <?import javafx.scene.layout.*?>
+
 <?import javafx.scene.control.*?>
+
 <?import javafx.scene.image.*?>
+
 <?import javafx.geometry.*?>
 
+
+
 <HBox xmlns:fx="http://javafx.com/fxml"
+
       fx:controller="com.ccb.controller.page.MainController"
+
       styleClass="root-container"
+
       prefWidth="1200" prefHeight="750">
 
+
+
     <!-- Sidebar Navigation (inlined so @FXML fields inject properly) -->
+
     <VBox styleClass="sidebar" prefWidth="220">
+
         <VBox styleClass="logo-area" alignment="CENTER">
+
             <ImageView fitWidth="70" fitHeight="70" preserveRatio="true">
+
                 <image>
+
                     <Image url="@../../imgs/CCBLogo.png"/>
+
                 </image>
+
             </ImageView>
+
             <Label text="CCB Inventory" styleClass="logo-title"/>
+
             <Label text="Management System" styleClass="logo-subtitle"/>
+
         </VBox>
 
+
+
         <VBox styleClass="nav-section" VBox.vgrow="ALWAYS">
+
             <Label text="MAIN MENU" styleClass="nav-section-label"/>
+
             <Button fx:id="btnMaterial" text="🧱   Material Monitoring" styleClass="nav-btn, nav-btn-active" maxWidth="Infinity"/>
+
             <Button fx:id="btnCnf" text="🔩   CNF Monitoring" styleClass="nav-btn" maxWidth="Infinity"/>
+
             <Button fx:id="btnOring" text="⭕   O-Ring Monitoring" styleClass="nav-btn" maxWidth="Infinity"/>
+
             <Button fx:id="btnSales" text="📊   Pellets L-Sales" styleClass="nav-btn" maxWidth="Infinity"/>
+
         </VBox>
+
     </VBox>
+
+
 
     <VBox styleClass="main-content" HBox.hgrow="ALWAYS">
 
+
+
         <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="12">
+
             <Label fx:id="pageTitle" text="Material Monitoring" styleClass="page-title" HBox.hgrow="ALWAYS"/>
+
             <HBox fx:id="cnfToolbar" spacing="10" alignment="CENTER_RIGHT" visible="false" managed="false">
+
                 <TextField fx:id="cnfSearchField" promptText="Search CNF items..." styleClass="text-field" style="-fx-font-size: 12px;" prefWidth="180"/>
+
                 <ComboBox fx:id="cnfRangeCombo" styleClass="month-picker" prefWidth="110"/>
+
             </HBox>
+
         </HBox>
+
         <HBox styleClass="topbar-accent"/>
 
+
+
         <!-- Material Monitoring Section -->
+
         <VBox fx:id="materialSection" styleClass="section-content" VBox.vgrow="ALWAYS">
 
+
+
             <!-- Material Overview — only visible in this section -->
+
             <VBox style="-fx-background-color: #B71C1C; -fx-background-radius: 16; -fx-padding: 16 18; -fx-spacing: 10; -fx-effect: dropshadow(gaussian, rgba(183,28,28,0.38), 20, 0, 0, 8);">
+
                 <Label text="MATERIAL OVERVIEW" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.85); -fx-letter-spacing: 1.2px; -fx-padding: 0 0 8 0; -fx-border-color: transparent transparent rgba(255,255,255,0.2) transparent; -fx-border-width: 0 0 1 0;"/>
+
                 <GridPane hgap="14" vgap="0" maxWidth="Infinity">
+
                     <columnConstraints>
+
                         <ColumnConstraints percentWidth="25" halignment="CENTER"/>
+
                         <ColumnConstraints percentWidth="25" halignment="CENTER"/>
+
                         <ColumnConstraints percentWidth="25" halignment="CENTER"/>
+
                         <ColumnConstraints percentWidth="25" halignment="CENTER"/>
+
                     </columnConstraints>
+
                     <rowConstraints>
+
                         <RowConstraints valignment="BOTTOM" minHeight="44"/>
+
                         <RowConstraints valignment="TOP" minHeight="18"/>
+
                         <RowConstraints valignment="TOP" minHeight="20"/>
+
                     </rowConstraints>
+
                     <Label fx:id="materialTotalCount" text="0000" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+
                     <Label fx:id="materialLowCount" text="0000" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+
                     <Label fx:id="materialInCount" text="0000" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+
                     <Label fx:id="materialOutCount" text="0000" style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+
                     <Label fx:id="materialInitialUnit" text="" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7); -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
+
                     <Label fx:id="materialReceivedUnit" text="" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7); -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
+
                     <Label fx:id="materialBalanceUnit" text="" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7); -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
+
                     <Label fx:id="materialIssuedUnit" text="" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7); -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
+
                     <Label text="INITIAL STOCK" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+
                     <Label text="RECEIVED" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+
                     <Label text="CURRENT BALANCE" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+
                     <Label text="ISSUED" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+
                 </GridPane>
+
             </VBox>
+
+
 
             <HBox alignment="CENTER_RIGHT">
+
                 <Button fx:id="btnAddMaterial" text="＋  Add Material" styleClass="btn-add-material"/>
+
             </HBox>
+
             <VBox styleClass="panel" VBox.vgrow="ALWAYS">
+
                 <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 0 0 10 0; -fx-border-color: transparent transparent #eaedf5 transparent; -fx-border-width: 0 0 1 0;">
+
                     <Label text="List of Materials" styleClass="panel-title" style="-fx-border-width: 0; -fx-padding: 0;"/>
+
                     <TextField fx:id="materialSearchField" promptText="🔍  Search materials..." styleClass="text-field" style="-fx-font-size: 12px;" HBox.hgrow="ALWAYS"/>
+
                     <ComboBox fx:id="reportRangeCombo" styleClass="month-picker" prefWidth="130"/>
+
                 </HBox>
+
                 <VBox styleClass="materials-list-shell" VBox.vgrow="ALWAYS">
+
                     <ListView fx:id="materialsList" VBox.vgrow="ALWAYS" styleClass="materials-list">
+
                         <placeholder>
+
                             <Label text="No materials yet. Click + Add Material to get started." styleClass="placeholder-text"/>
+
                         </placeholder>
+
                     </ListView>
+
                 </VBox>
+
             </VBox>
+
         </VBox>
+
+
 
         <!-- CNF Monitoring Section -->
+
         <VBox fx:id="cnfSection" styleClass="section-content" VBox.vgrow="ALWAYS" visible="false" managed="false">
 
+
+
             <!-- CNF Overview — same red panel style as Material Overview -->
+
             <VBox style="-fx-background-color: #B71C1C; -fx-background-radius: 16; -fx-padding: 16 18; -fx-spacing: 10; -fx-effect: dropshadow(gaussian, rgba(183,28,28,0.38), 20, 0, 0, 8);">
+
                 <HBox alignment="CENTER_LEFT">
+
                     <Label text="CNF OVERVIEW" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.85); -fx-letter-spacing: 1.2px; -fx-border-color: transparent transparent rgba(255,255,255,0.2) transparent; -fx-border-width: 0 0 1 0;" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+
                     <Label fx:id="cnfOverviewItemName" text="— select a variant" style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.5); -fx-font-style: italic;"/>
+
                 </HBox>
+
                 <GridPane hgap="14" vgap="0" maxWidth="Infinity">
+
                     <columnConstraints>
+
                         <ColumnConstraints percentWidth="16" halignment="CENTER"/>
+
                         <ColumnConstraints percentWidth="16" halignment="CENTER"/>
+
                         <ColumnConstraints percentWidth="16" halignment="CENTER"/>
+
                         <ColumnConstraints percentWidth="16" halignment="CENTER"/>
+
                         <ColumnConstraints percentWidth="18" halignment="CENTER"/>
+
                         <ColumnConstraints percentWidth="18" halignment="CENTER"/>
+
                     </columnConstraints>
+
                     <rowConstraints>
+
                         <RowConstraints valignment="BOTTOM" minHeight="44"/>
+
                         <RowConstraints valignment="TOP" minHeight="18"/>
+
                         <RowConstraints valignment="TOP" minHeight="20"/>
+
                     </rowConstraints>
+
                     <!-- Row 0: numbers -->
+
                     <Label fx:id="cnfOverviewInitial" text="00" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+
                     <Label fx:id="cnfOverviewReceived" text="00" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+
                     <Label fx:id="cnfOverviewBalance" text="00" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+
                     <Label fx:id="cnfOverviewIssued" text="00" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+
                     <Label fx:id="cnfOverviewUnitPrice" text="—" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+
                     <Label fx:id="cnfOverviewTotalPrice" text="—" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="0" GridPane.valignment="BOTTOM"/>
+
                     <!-- Row 1: units -->
+
                     <Label fx:id="cnfOverviewUom" text="" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.7); -fx-alignment: CENTER;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
+
                     <Label text="" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
                     <Label text="" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+
                     <Label text="" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
                     <Label text="" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="1"/>
+
                     <Label text="" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="1"/>
+
                     <!-- Row 2: labels -->
+
                     <Label text="INITIAL STOCK" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+
                     <Label text="RECEIVED" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+
                     <Label text="CURRENT BALANCE" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+
                     <Label text="ISSUED" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+
                     <Label text="PRICE / UNIT" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+
                     <Label text="TOTAL VALUE" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: rgba(255,255,255,0.55); -fx-letter-spacing: 0.8px; -fx-alignment: CENTER; -fx-padding: 4 0 0 0;" maxWidth="Infinity" alignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
+
                 </GridPane>
+
             </VBox>
+
+
 
             <!-- List panel -->
+
             <VBox styleClass="panel" VBox.vgrow="ALWAYS">
+
                 <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding:0 0 10 0;-fx-border-color:transparent transparent #eaedf5 transparent;-fx-border-width:0 0 1 0;">
+
                     <Label text="CNF Items" styleClass="panel-title" style="-fx-border-width:0;-fx-padding:0;"/>
+
                 </HBox>
+
                 <VBox fx:id="brandPanelHost" VBox.vgrow="ALWAYS"/>
+
             </VBox>
+
         </VBox>
+
+
 
         <!-- O-Ring Monitoring Section -->
+
         <VBox fx:id="oringSection" styleClass="section-content" VBox.vgrow="ALWAYS" visible="false" managed="false">
+
             <Label text="O-Ring Overview" styleClass="section-title"/>
+
             <HBox styleClass="stat-cards" spacing="14">
+
                 <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
+
                     <Label fx:id="oringTotalCount" text="0" styleClass="stat-number"/>
+
                     <Label text="Qty" styleClass="stat-qty"/>
+
                     <Label text="TOTAL O-RINGS" styleClass="stat-label"/>
+
                 </VBox>
+
                 <VBox styleClass="stat-card stat-red" HBox.hgrow="ALWAYS">
+
                     <Label fx:id="oringLowCount" text="0" styleClass="stat-number"/>
+
                     <Label text="Qty" styleClass="stat-qty"/>
+
                     <Label text="LOW STOCK" styleClass="stat-label"/>
+
                 </VBox>
+
                 <VBox styleClass="stat-card stat-yellow" HBox.hgrow="ALWAYS">
+
                     <Label fx:id="oringIssuedCount" text="0" styleClass="stat-number"/>
+
                     <Label text="Qty" styleClass="stat-qty"/>
+
                     <Label text="ISSUED TODAY" styleClass="stat-label"/>
+
                 </VBox>
+
             </HBox>
+
             <VBox styleClass="panel" VBox.vgrow="ALWAYS">
+
                 <Label text="O-Ring Records" styleClass="panel-title"/>
+
                 <Label text="O-ring monitoring table will appear here." styleClass="placeholder-text"/>
+
             </VBox>
+
         </VBox>
+
+
 
         <!-- Sales Report Section -->
+
         <VBox fx:id="salesSection" styleClass="section-content" VBox.vgrow="ALWAYS" visible="false" managed="false">
+
             <Label text="Pellets L-Sales Report" styleClass="section-title"/>
+
             <HBox styleClass="stat-cards" spacing="14">
+
                 <VBox styleClass="stat-card stat-blue" HBox.hgrow="ALWAYS">
+
                     <Label fx:id="salesTotalCount" text="0" styleClass="stat-number"/>
+
                     <Label text="Qty" styleClass="stat-qty"/>
+
                     <Label text="TOTAL SOLD" styleClass="stat-label"/>
+
                 </VBox>
+
                 <VBox styleClass="stat-card stat-red" HBox.hgrow="ALWAYS">
+
                     <Label fx:id="salesMonthCount" text="0" styleClass="stat-number"/>
+
                     <Label text="Qty" styleClass="stat-qty"/>
+
                     <Label text="THIS MONTH" styleClass="stat-label"/>
+
                 </VBox>
+
                 <VBox styleClass="stat-card stat-yellow" HBox.hgrow="ALWAYS">
+
                     <Label fx:id="salesTodayCount" text="0" styleClass="stat-number"/>
+
                     <Label text="Qty" styleClass="stat-qty"/>
+
                     <Label text="TODAY" styleClass="stat-label"/>
+
                 </VBox>
+
             </HBox>
+
             <VBox styleClass="panel" VBox.vgrow="ALWAYS">
+
                 <Label text="Sales Records" styleClass="panel-title"/>
+
                 <Label text="Pellets L-sales report will appear here." styleClass="placeholder-text"/>
+
             </VBox>
+
         </VBox>
 
+
+
     </VBox>
+
 </HBox>
+

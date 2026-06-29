@@ -12,7 +12,9 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.Cursor;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -22,6 +24,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PelletsLSalesController implements Initializable {
 
@@ -36,6 +39,23 @@ public class PelletsLSalesController implements Initializable {
     @FXML private Button retryButton;
     @FXML private VBox emptyState;
     @FXML private VBox dataState;
+
+    @FXML private Button prevSlotBtn;
+    @FXML private Button nextSlotBtn;
+    @FXML private Label  slotTimeLabel;
+    @FXML private Label  slotDateLabel;
+    @FXML private Label  slotCounterLabel;
+    @FXML private HBox   slotDotsBox;
+    @FXML private Label  slotGoodLabel;
+    @FXML private Label  slotRejLabel;
+    @FXML private Label  slotRateLabel;
+    @FXML private Label  sackTotalGoodLabel;
+    @FXML private BarChart<String,Number> slotBarChart;
+    @FXML private HBox   contextStrip;
+
+    private List<PelletsLRecord> currentSackSlots = new ArrayList<>();
+    private int slotIdx = 0;
+    private XYChart.Series<String,Number> goodSeries, rejSeries;
 
     // View Components Built Once
     private final VBox pageContent = new VBox(14);
@@ -71,6 +91,10 @@ public class PelletsLSalesController implements Initializable {
             sackFilterComboBox.setOnAction(e -> {
                 currentPage = 0;
                 render();
+                String selected = sackFilterComboBox.getValue();
+                if (selected != null && !selected.equals("All sack output — pellets report, L-Sales")) {
+                    loadSackSlots(selected);
+                }
             });
         }
         if (retryButton != null) {
@@ -79,7 +103,14 @@ public class PelletsLSalesController implements Initializable {
         if (refreshButton != null) {
             refreshButton.setOnAction(e -> loadData());
         }
-        
+
+        goodSeries = new XYChart.Series<>();
+        goodSeries.setName("Good");
+        rejSeries = new XYChart.Series<>();
+        rejSeries.setName("Rejected");
+        slotBarChart.getData().addAll(goodSeries, rejSeries);
+        slotBarChart.getStyleClass().add("slot-bar-chart");
+
         loadData();
     }
 
@@ -982,5 +1013,148 @@ public class PelletsLSalesController implements Initializable {
             label.setStyle(style);
         }
         return label;
+    }
+
+    private void loadSackSlots(String sackLabel) {
+        currentSackSlots = allRecords.stream()
+            .filter(r -> r.getSackGroup().equals(sackLabel) && !r.isTotalRow())
+            .collect(Collectors.toList());
+        slotIdx = 0;
+        renderSlot();
+    }
+
+    private void renderSlot() {
+        if (currentSackSlots.isEmpty()) {
+            return;
+        }
+        PelletsLRecord sl = currentSackSlots.get(slotIdx);
+        int total = currentSackSlots.size();
+        int good = sl.getBlastingGood();
+        int rej = sl.getBlastingReject();
+        double rate = (good + rej) == 0 ? 0 : (rej * 100.0) / (good + rej);
+        int sackTotal = currentSackSlots.stream().mapToInt(PelletsLRecord::getBlastingGood).sum();
+
+        Platform.runLater(() -> {
+            slotTimeLabel.setText(sl.getTimeSlot());
+            slotDateLabel.setText(sl.getDate());
+            slotCounterLabel.setText("Time slot " + (slotIdx + 1) + " of " + total);
+            slotGoodLabel.setText(String.format("%,d", good));
+            slotRejLabel.setText(String.format("%,d", rej));
+            slotRateLabel.setText(String.format("%.1f%%", rate));
+
+            String rateColor;
+            if (rate >= 70) {
+                rateColor = "#C0392B";
+            } else if (rate >= 40) {
+                rateColor = "#D97706";
+            } else {
+                rateColor = "#16A34A";
+            }
+            slotRateLabel.setStyle("-fx-text-fill: " + rateColor + "; -fx-font-size: 20px; -fx-font-weight: bold;");
+
+            sackTotalGoodLabel.setText(String.format("%,d total", sackTotal));
+
+            prevSlotBtn.setDisable(slotIdx == 0);
+            nextSlotBtn.setDisable(slotIdx == total - 1);
+
+            updateSlotChart(sl);
+            buildDots(total);
+            buildContextStrip();
+        });
+    }
+
+    private void updateSlotChart(PelletsLRecord sl) {
+        goodSeries.getData().clear();
+        rejSeries.getData().clear();
+        goodSeries.getData().add(new XYChart.Data<>(sl.getTimeSlot(), sl.getBlastingGood()));
+        rejSeries.getData().add(new XYChart.Data<>(sl.getTimeSlot(), sl.getBlastingReject()));
+    }
+
+    private void buildDots(int total) {
+        slotDotsBox.getChildren().clear();
+        if (total > 9) {
+            Label label = new Label("slot " + (slotIdx + 1) + " of " + total);
+            label.setStyle("-fx-font-size: 10px; -fx-text-fill: #9CA3AF;");
+            slotDotsBox.getChildren().add(label);
+            return;
+        }
+        for (int i = 0; i < total; i++) {
+            final int idx = i;
+            Region dot = new Region();
+            if (i == slotIdx) {
+                dot.setStyle("-fx-background-color: #1B2A3B; -fx-background-radius: 3; -fx-pref-width: 16; -fx-pref-height: 6;");
+            } else {
+                dot.setStyle("-fx-background-color: #E5E7EB; -fx-background-radius: 3; -fx-pref-width: 6; -fx-pref-height: 6;");
+            }
+            dot.setCursor(Cursor.HAND);
+            dot.setOnMouseClicked(e -> {
+                slotIdx = idx;
+                renderSlot();
+            });
+            slotDotsBox.getChildren().add(dot);
+        }
+    }
+
+    private void buildContextStrip() {
+        contextStrip.getChildren().clear();
+        int maxG = currentSackSlots.stream().mapToInt(PelletsLRecord::getBlastingGood).max().orElse(1);
+        int maxR = currentSackSlots.stream().mapToInt(PelletsLRecord::getBlastingReject).max().orElse(1);
+
+        for (int i = 0; i < currentSackSlots.size(); i++) {
+            final int idx = i;
+            PelletsLRecord r = currentSackSlots.get(i);
+            boolean active = (i == slotIdx);
+
+            Region gBar = new Region();
+            gBar.setPrefWidth(6);
+            gBar.setPrefHeight(Math.max(2, (r.getBlastingGood() * 20) / maxG));
+            gBar.setStyle("-fx-background-color: #1F5FA6CC; -fx-background-radius: 2 2 0 0;");
+
+            Region rBar = new Region();
+            rBar.setPrefWidth(6);
+            rBar.setPrefHeight(Math.max(2, (r.getBlastingReject() * 20) / maxR));
+            rBar.setStyle("-fx-background-color: #C0392BCC; -fx-background-radius: 2 2 0 0;");
+
+            HBox bars = new HBox(2, gBar, rBar);
+            bars.setAlignment(Pos.BOTTOM_CENTER);
+            bars.setPrefHeight(24);
+
+            Label timeL = new Label(r.getTimeSlot());
+            timeL.setStyle("-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: " + (active ? "#E9B52D" : "#6B7280") + ";");
+
+            VBox card = new VBox(3, bars, timeL);
+            card.setAlignment(Pos.CENTER);
+            card.setPadding(new Insets(4, 8, 4, 8));
+
+            if (active) {
+                card.setStyle("-fx-background-color: #1B2A3B; -fx-border-color: #1B2A3B; -fx-border-radius: 6; -fx-background-radius: 6; -fx-border-width: 1;");
+            } else {
+                card.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-radius: 6; -fx-background-radius: 6; -fx-border-width: 1;");
+            }
+
+            card.setCursor(Cursor.HAND);
+            card.setOnMouseClicked(e -> {
+                slotIdx = idx;
+                renderSlot();
+            });
+
+            contextStrip.getChildren().add(card);
+        }
+    }
+
+    @FXML
+    private void onPrevSlot() {
+        if (slotIdx > 0) {
+            slotIdx--;
+            renderSlot();
+        }
+    }
+
+    @FXML
+    private void onNextSlot() {
+        if (slotIdx < currentSackSlots.size() - 1) {
+            slotIdx++;
+            renderSlot();
+        }
     }
 }

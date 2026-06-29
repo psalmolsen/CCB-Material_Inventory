@@ -1,1350 +1,2700 @@
 package com.ccb.controller.page;
 
+
+
 import com.ccb.GoogleSheetsService;
+
 import com.ccb.InventoryItem;
+
 import com.ccb.MonthSheetProvisioner;
+
 import com.ccb.SheetMapper;
+
 import com.ccb.controller.modal.EditMaterialController;
+
 import com.ccb.controller.modal.MaterialMonthOutController;
+
 import com.ccb.service.SheetsDataService;
+
 import com.ccb.controller.page.PelletsLSalesController;
+
 import javafx.collections.FXCollections;
+
 import javafx.collections.ObservableList;
+
 import javafx.collections.transformation.FilteredList;
+
 import javafx.concurrent.Task;
+
 import javafx.fxml.FXML;
+
 import javafx.fxml.FXMLLoader;
+
 import javafx.fxml.Initializable;
+
 import javafx.scene.Parent;
+
 import javafx.geometry.Pos;
+
 import javafx.scene.Parent;
+
 import javafx.scene.Scene;
+
 import javafx.scene.control.ComboBox;
+
 import javafx.scene.control.ContextMenu;
+
 import javafx.scene.control.Button;
+
 import javafx.scene.control.CustomMenuItem;
+
 import javafx.scene.control.MenuItem;
+
 import javafx.scene.control.Label;
+
 import javafx.scene.control.ListCell;
+
 import javafx.scene.control.ListView;
+
 import javafx.scene.image.Image;
+
 import javafx.scene.image.ImageView;
+
 import javafx.scene.layout.HBox;
+
 import javafx.scene.layout.Priority;
+
 import javafx.scene.layout.Region;
+
 import javafx.scene.layout.StackPane;
+
 import javafx.scene.layout.VBox;
+
 import javafx.scene.control.ScrollPane;
+
 import javafx.stage.Modality;
+
 import javafx.stage.Stage;
+
 import javafx.stage.StageStyle;
+
 import javafx.scene.control.ContentDisplay;
+
 import javafx.scene.control.DatePicker;
+
 import javafx.scene.control.TextField;
+
 import javafx.scene.paint.Color;
 
+
+
 import java.io.File;
+
 import java.net.URL;
+
 import java.time.DayOfWeek;
+
 import java.time.LocalDate;
+
 import java.time.Month;
+
 import java.util.ArrayList;
+
 import java.util.HashMap;
+
 import java.util.List;
+
 import java.util.Map;
+
 import java.util.ResourceBundle;
+
+
 
 public class MainController implements Initializable {
 
+
+
     @FXML
+
     private VBox materialSection;
+
     @FXML
+
     private VBox cnfSection;
+
     @FXML
+
     private VBox oringSection;
+
     @FXML
+
     private VBox salesSection;
 
+
+
     @FXML
+
     private Button btnMaterial;
+
     @FXML
+
     private Button btnCnf;
+
     @FXML
+
     private Button btnOring;
+
     @FXML
+
     private Button btnSales;
+
     @FXML
+
     private Button btnAddMaterial;
 
+
+
     @FXML
+
     private Label pageTitle;
+
     @FXML
+
     private HBox cnfToolbar;
 
+
+
     @FXML
+
     private Label materialTotalCount;
+
     @FXML
+
     private Label materialInitialUnit;
+
     @FXML
+
     private Label materialLowCount;
+
     @FXML
+
     private Label materialReceivedUnit;
+
     @FXML
+
     private Label materialInCount;
+
     @FXML
+
     private Label materialBalanceUnit;
+
     @FXML
+
     private Label materialOutCount;
+
     @FXML
+
     private Label materialIssuedUnit;
 
+
+
     @FXML private Label cnfCollarBalance;
+
     @FXML private Label cnfNameplateBalance;
+
     @FXML private Label cnfFootringBalance;
+
     @FXML private TextField cnfSearchField;
+
     @FXML private ComboBox<String> cnfRangeCombo;
+
     @FXML private ScrollPane cnfScrollPane;
+
     @FXML private VBox cnfGroupBox;
+
     @FXML private Label cnfOverviewInitial;
+
     @FXML private Label cnfOverviewReceived;
+
     @FXML private Label cnfOverviewBalance;
+
     @FXML private Label cnfOverviewIssued;
+
     @FXML private Label cnfOverviewUom;
+
     @FXML private Label cnfOverviewItemName;
+
     @FXML private Label cnfOverviewUnitPrice;
+
     @FXML private Label cnfOverviewTotalPrice;
+
     @FXML private VBox brandPanelHost;
 
+
+
     private BrandPanelController brandPanelController;
+
     private OringMonitoringController oringMonitoringController;
+
     private PelletsMonitoringController pelletsMonitoringController;
+
     private PelletsLSalesController pelletsLSalesController;
+
+
 
     private com.ccb.controller.page.CnfController cnfController;
 
+
+
     @FXML
+
     private Label oringTotalCount;
+
     @FXML
+
     private Label oringLowCount;
+
     @FXML
+
     private Label oringIssuedCount;
 
+
+
     @FXML
+
     private Label salesTotalCount;
+
     @FXML
+
     private Label salesMonthCount;
+
     @FXML
+
     private Label salesTodayCount;
 
+
+
     @FXML
+
     private ListView<InventoryItem> materialsList;
 
-    @FXML
-    private ComboBox<String> reportRangeCombo;
+
 
     @FXML
+
+    private ComboBox<String> reportRangeCombo;
+
+
+
+    @FXML
+
     private TextField materialSearchField;
+
+
 
     private static final String IMAGE_DIR = System.getProperty("user.dir") + "/src/imgs/Material_Icon/";
 
+
+
     // Resolved at startup from actual sheet tab names (may be "MAY", "JUNE", etc.)
+
     private String currentTabName = "MAY";
 
+
+
     // Tab abbreviation → month number mapping
+
     private static final Map<String, Integer> TAB_TO_MONTH = new HashMap<>();
+
     static {
+
         String[] tabs = {"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"};
+
         for (int i = 0; i < tabs.length; i++) TAB_TO_MONTH.put(tabs[i], i + 1);
+
     }
+
     private static final String[] MONTH_TABS = {"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"};
 
+
+
     // Cache of already-fetched tabs: tabName → list of items
+
     private final Map<String, List<InventoryItem>> tabCache = new HashMap<>();
+
     private List<BrandPanelController.BrandData> allCnfBrands = new ArrayList<>();
 
+
+
     // Full unfiltered list — search filters against this
+
     private final ObservableList<InventoryItem> allMaterials = FXCollections.observableArrayList();
 
+
+
     private InventoryItem selectedMaterialItem;
+
     private List<Button> navButtons;
+
     private List<VBox> sections;
 
+
+
     @Override
+
     public void initialize(URL url, ResourceBundle rb) {
+
         navButtons = List.of(btnMaterial, btnCnf, btnOring, btnSales);
+
         sections = List.of(materialSection, cnfSection, oringSection, salesSection);
 
+
+
         btnMaterial.setOnAction(e -> showMaterial());
+
         btnCnf.setOnAction(e -> showCnf());
+
         btnOring.setOnAction(e -> showOring());
+
         btnSales.setOnAction(e -> showSales());
+
         btnAddMaterial.setOnAction(e -> openAddMaterial());
 
+
+
         materialsList.setFocusTraversable(false);
+
         materialsList.setFixedCellSize(126);
+
         materialsList.setCellFactory(list -> new MaterialCardCell());
+
         materialsList.setItems(FXCollections.observableArrayList());
+
         materialsList.getSelectionModel().selectedItemProperty()
+
                 .addListener((obs, oldItem, selectedItem) -> {
+
                     selectedMaterialItem = selectedItem;
+
                     updateMaterialOverview(selectedItem);
+
                 });
+
+
 
         // Search bar — filters the full list live as the user types
+
         FilteredList<InventoryItem> filteredMaterials = new FilteredList<>(allMaterials, p -> true);
+
         materialsList.setItems(filteredMaterials);
+
         materialSearchField.textProperty().addListener((obs, oldVal, query) -> {
+
             String q = query == null ? "" : query.trim().toLowerCase();
+
             filteredMaterials.setPredicate(item -> {
+
                 if (q.isEmpty()) return true;
+
                 String code = item.getCodeNo() == null ? "" : item.getCodeNo().toLowerCase();
+
                 String desc = item.getDescription() == null ? "" : item.getDescription().toLowerCase();
+
                 return code.contains(q) || desc.contains(q);
+
             });
+
         });
 
+
+
         // Report range dropdown
+
         reportRangeCombo.getItems().addAll("Weekly", "Monthly", "Quarterly", "Yearly");
+
         reportRangeCombo.getSelectionModel().select("Monthly");
+
         reportRangeCombo.getSelectionModel().selectedItemProperty()
+
                 .addListener((obs, old, range) -> {
+
                     refreshCardValues();
+
                     updateMaterialOverview(materialsList.getSelectionModel().getSelectedItem());
+
                     prefetchTabsForRange(range);
+
                 });
 
+
+
         showSection(0, "Material Monitoring");
+
         updateMaterialOverview(null);
+
         ensureCurrentMonthTab();
 
+
+
         // Wire CnfController with its injected FXML nodes
+
         cnfController = new com.ccb.controller.page.CnfController();
+
         cnfController.injectNodes(cnfCollarBalance, cnfNameplateBalance, cnfFootringBalance,
+
                 cnfSearchField, cnfRangeCombo, cnfGroupBox,
+
                 cnfOverviewInitial, cnfOverviewReceived, cnfOverviewBalance,
+
                 cnfOverviewIssued, cnfOverviewUom, cnfOverviewItemName,
+
                 cnfOverviewUnitPrice, cnfOverviewTotalPrice);
+
+
 
         cnfSearchField.textProperty().addListener((obs, oldVal, query) -> applyCnfBrandSearch(query));
 
+
+
         loadBrandPanelIntoHost();
+
         loadBrandPanelData();
+
         loadOringPanelIntoHost();
+
         loadPelletsPanelIntoHost();
+
     }
 
+
+
     /**
+
      * Runs on startup in a background thread.
+
      * Creates the current month's sheet tab if it doesn't exist yet,
+
      * pre-filling it with identity columns and carrying forward the previous month's balance.
+
      */
+
     private void ensureCurrentMonthTab() {
+
         Task<String> task = new Task<>() {
+
             @Override
+
             protected String call() throws Exception {
+
                 return MonthSheetProvisioner.provisionCurrentMonth();
+
             }
+
         };
+
         task.setOnSucceeded(e -> {
+
             String created = task.getValue();
+
             if (created != null) {
+
                 System.out.println("New month tab ready: " + created);
+
             }
+
             resolveCurrentTabThenLoad();
+
         });
+
         task.setOnFailed(e ->
+
         {
+
             System.err.println("Month provisioning failed: " + task.getException().getMessage());
+
             resolveCurrentTabThenLoad();
+
         }
+
         );
+
         Thread t = new Thread(task);
+
         t.setDaemon(true);
+
         t.start();
+
     }
 
+
+
     /**
+
      * Fetches the actual tab names from the sheet, finds the one matching
+
      * the current month, then kicks off loadMaterials().
+
      */
+
     private void resolveCurrentTabThenLoad() {
+
         Task<String> task = new Task<>() {
+
             @Override
+
             protected String call() throws Exception {
+
                 java.time.LocalDate today = java.time.LocalDate.now();
+
                 String[] shortNames = {"JAN","FEB","MAR","APR","MAY","JUN",
+
                                        "JUL","AUG","SEP","OCT","NOV","DEC"};
+
                 String currentShort = shortNames[today.getMonthValue() - 1]; // e.g. "JUN"
+
                 String currentFull  = today.getMonth()
+
                         .getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH)
+
                         .toUpperCase(); // e.g. "JUNE"
 
+
+
                 java.util.List<String> tabs = new GoogleSheetsService().getSheetTabNames();
+
                 // Prefer exact match, then starts-with (e.g. "JUNE" matches "JUN")
+
                 for (String tab : tabs) {
+
                     if (tab.equalsIgnoreCase(currentShort) || tab.equalsIgnoreCase(currentFull)) {
+
                         return tab;
+
                     }
+
                 }
+
                 // Fallback: last tab that looks like a month
+
                 if (!tabs.isEmpty()) return tabs.get(tabs.size() - 1);
+
                 return currentShort;
+
             }
+
         };
+
         task.setOnSucceeded(e -> {
+
             currentTabName = task.getValue();
+
             System.out.println("DEBUG: resolved currentTabName=" + currentTabName);
+
             loadMaterials();
+
             loadBrandPanelData();
+
         });
+
         task.setOnFailed(e -> {
+
             System.err.println("Tab resolution failed: " + task.getException().getMessage());
+
             loadMaterials(); // fall back to default "MAY"
+
         });
+
         Thread t = new Thread(task);
+
         t.setDaemon(true);
+
         t.start();
+
     }
+
+
 
     private void loadBrandPanelIntoHost() {
+
         if (brandPanelHost == null) {
+
             return;
+
         }
+
         if (brandPanelController != null) {
+
             return;
+
         }
+
         try {
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/page/BrandPanel.fxml"));
+
             Parent root = loader.load();
+
             brandPanelController = loader.getController();
+
             brandPanelHost.getChildren().setAll(root);
+
         } catch (Exception ex) {
+
             ex.printStackTrace();
+
         }
+
     }
+
+
 
     private void loadBrandPanelData() {
+
         if (brandPanelController == null) {
+
             loadBrandPanelIntoHost();
+
         }
+
         if (brandPanelController == null) {
+
             return;
+
         }
+
+
 
         Task<List<BrandPanelController.BrandData>> task = new Task<>() {
+
             @Override
+
             protected List<BrandPanelController.BrandData> call() throws Exception {
+
                 return SheetsDataService.fetchCNFBrands(getCurrentMonthTabName());
+
             }
+
         };
+
         task.setOnSucceeded(e -> {
+
             if (brandPanelController != null) {
+
                 allCnfBrands = task.getValue() == null ? new ArrayList<>() : new ArrayList<>(task.getValue());
+
                 brandPanelController.setOverviewLabels(
+
                         cnfOverviewItemName, cnfOverviewInitial, cnfOverviewReceived,
+
                         cnfOverviewBalance, cnfOverviewIssued, cnfOverviewUom,
+
                         cnfOverviewUnitPrice, cnfOverviewTotalPrice);
+
                 brandPanelController.setSelectedTabName(getCurrentMonthTabName());
+
                 brandPanelController.setRefreshCallback(this::loadBrandPanelData);
+
                 applyCnfBrandSearch(cnfSearchField == null ? "" : cnfSearchField.getText());
+
             }
+
         });
+
         task.setOnFailed(e -> task.getException().printStackTrace());
+
         Thread loader = new Thread(task);
+
         loader.setDaemon(true);
+
         loader.start();
+
     }
+
+
 
     private void loadOringPanelIntoHost() {
+
         if (oringSection == null || oringMonitoringController != null) {
+
             return;
+
         }
+
         try {
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/page/section/oring_monitoring.fxml"));
+
             Parent root = loader.load();
+
             oringMonitoringController = loader.getController();
+
             oringMonitoringController.setRefreshCallback(this::refreshAllDashboardData);
+
             oringSection.getChildren().setAll(root);
+
             VBox.setVgrow(root, Priority.ALWAYS);
+
         } catch (Exception ex) {
+
             ex.printStackTrace();
+
             Label fallback = new Label("Unable to load O-Ring monitoring page.");
+
             fallback.getStyleClass().add("placeholder-text");
+
             oringSection.getChildren().setAll(fallback);
+
         }
+
     }
+
+
 
     private void loadPelletsPanelIntoHost() {
+
         if (salesSection == null || pelletsLSalesController != null) {
+
             return;
+
         }
+
         try {
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/page/section/pellets_l_sales.fxml"));
+
             Parent root = loader.load();
+
             pelletsLSalesController = loader.getController();
+
             pelletsLSalesController.setRefreshCallback(this::refreshAllDashboardData);
+
             salesSection.getChildren().setAll(root);
+
             VBox.setVgrow(root, Priority.ALWAYS);
+
         } catch (Exception ex) {
+
             ex.printStackTrace();
+
             Label fallback = new Label("Unable to load Pellets L-Sales monitoring page.");
+
             fallback.getStyleClass().add("placeholder-text");
+
             salesSection.getChildren().setAll(fallback);
+
         }
+
     }
+
+
 
     private void applyCnfBrandSearch(String query) {
+
         if (brandPanelController == null || allCnfBrands == null) {
+
             return;
+
         }
+
         String q = query == null ? "" : query.trim().toLowerCase();
+
         if (q.isEmpty()) {
+
             brandPanelController.loadBrands(allCnfBrands);
+
             return;
+
         }
+
+
 
         List<BrandPanelController.BrandData> filteredBrands = new ArrayList<>();
+
         for (BrandPanelController.BrandData brand : allCnfBrands) {
+
             if (brandMatchesQuery(brand, q)) {
+
                 filteredBrands.add(brand);
+
                 continue;
+
             }
+
+
 
             List<BrandPanelController.CategoryData> matchedCategories = new ArrayList<>();
+
             for (BrandPanelController.CategoryData category : brand.categories()) {
+
                 List<BrandPanelController.VariantData> matchedVariants = new ArrayList<>();
+
                 for (BrandPanelController.VariantData variant : category.variants()) {
+
                     if (variantMatchesQuery(category, variant, q)) {
+
                         matchedVariants.add(variant);
+
                     }
+
                 }
+
                 if (!matchedVariants.isEmpty()) {
+
                     matchedCategories.add(new BrandPanelController.CategoryData(
+
                             category.title(),
+
                             matchedVariants,
+
                             category.barColor(),
+
                             category.iconBg(),
+
                             category.iconColor()
+
                     ));
+
                 }
+
             }
+
             if (!matchedCategories.isEmpty()) {
+
                 filteredBrands.add(new BrandPanelController.BrandData(brand.name(), matchedCategories));
+
             }
+
         }
+
         brandPanelController.loadBrands(filteredBrands);
+
     }
+
+
 
     private boolean brandMatchesQuery(BrandPanelController.BrandData brand, String q) {
+
         if (brand == null || q == null || q.isBlank()) return false;
+
         if (brand.name() != null && brand.name().toLowerCase().contains(q)) return true;
+
         for (BrandPanelController.CategoryData category : brand.categories()) {
+
             if (category.title() != null && category.title().toLowerCase().contains(q)) return true;
+
             for (BrandPanelController.VariantData variant : category.variants()) {
+
                 if (variantMatchesQuery(category, variant, q)) return true;
+
             }
+
         }
+
         return false;
+
     }
+
+
 
     private boolean variantMatchesQuery(BrandPanelController.CategoryData category,
+
                                         BrandPanelController.VariantData variant, String q) {
+
         if (variant == null || q == null || q.isBlank()) return false;
+
         return (variant.label() != null && variant.label().toLowerCase().contains(q))
+
                 || (variant.uom() != null && variant.uom().toLowerCase().contains(q))
+
                 || (category != null && category.title() != null && category.title().toLowerCase().contains(q));
+
     }
+
+
 
     private String getCurrentMonthTabName() {
+
         if (currentTabName != null && !currentTabName.isBlank()) {
+
             return currentTabName;
+
         }
+
         LocalDate today = LocalDate.now();
+
         return today.getMonth().getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH).toUpperCase();
+
     }
+
+
 
     public void loadMaterials() {
+
         Task<ObservableList<InventoryItem>> task = new Task<>() {
+
             @Override
+
             protected ObservableList<InventoryItem> call() throws Exception {
+
                 GoogleSheetsService service = new GoogleSheetsService();
+
                 List<List<Object>> rows = service.readSheet(currentTabName);
+
                 System.out.println("DEBUG: Tab=" + currentTabName + "  total rows=" + rows.size() + "  DATA_START_ROW=" + GoogleSheetsService.DATA_START_ROW);
+
                 ObservableList<InventoryItem> items = FXCollections.observableArrayList();
+
                 List<InventoryItem> cacheList = new ArrayList<>();
+
                 for (int i = GoogleSheetsService.DATA_START_ROW; i < rows.size(); i++) {
+
                     List<Object> row = rows.get(i);
+
                     if (row.size() > 1 && !row.get(1).toString().isBlank()) {
+
                         InventoryItem item = SheetMapper.fromRow(row, i + 1);
+
                         item.setSheetTabName(currentTabName);
+
                         items.add(item);
+
                         cacheList.add(item);
+
                     }
+
                 }
+
                 System.out.println("DEBUG: items parsed=" + items.size());
+
                 tabCache.put(currentTabName, cacheList);
+
                 return items;
+
             }
+
         };
+
         task.setOnSucceeded(e -> {
+
             allMaterials.setAll(task.getValue());
+
             materialsList.getSelectionModel().clearSelection();
+
             selectedMaterialItem = null;
+
             updateMaterialOverview(null);
+
             prefetchTabsForRange(reportRangeCombo.getSelectionModel().getSelectedItem());
+
         });
+
         task.setOnFailed(e -> {
+
             Throwable ex = task.getException();
+
             System.err.println("Failed to load materials: " + ex.getMessage());
+
             ex.printStackTrace();
+
         });
+
         Thread loader = new Thread(task);
+
         loader.setDaemon(true);
+
         loader.start();
+
     }
 
+
+
     /**
+
      * Pre-fetch tabs needed for quarterly/yearly ranges so they're ready in cache.
+
      */
+
     private void prefetchTabsForRange(String range) {
+
         List<String> needed = getTabsForRange(range);
+
         List<String> missing = new ArrayList<>();
+
         for (String tab : needed) {
+
             if (!tabCache.containsKey(tab)) missing.add(tab);
+
         }
+
         if (missing.isEmpty()) return;
 
+
+
         Task<Void> task = new Task<>() {
+
             @Override
+
             protected Void call() throws Exception {
+
                 GoogleSheetsService service = new GoogleSheetsService();
+
                 for (String tab : missing) {
+
                     try {
+
                         List<List<Object>> rows = service.readSheet(tab);
+
                         List<InventoryItem> items = new ArrayList<>();
+
                         for (int i = GoogleSheetsService.DATA_START_ROW; i < rows.size(); i++) {
+
                             List<Object> row = rows.get(i);
+
                             if (row.size() > 1 && !row.get(1).toString().isBlank()) {
+
                                 InventoryItem item = SheetMapper.fromRow(row, i + 1);
+
                                 item.setSheetTabName(tab);
+
                                 items.add(item);
+
                             }
+
                         }
+
                         tabCache.put(tab, items);
+
                     } catch (Exception ex) {
+
                         // Tab may not exist yet — skip silently
+
                     }
+
                 }
+
                 return null;
+
             }
+
         };
+
         task.setOnSucceeded(e -> {
+
             refreshCardValues();
+
             updateMaterialOverview(selectedMaterialItem);
+
         });
+
         Thread t = new Thread(task);
+
         t.setDaemon(true);
+
         t.start();
+
     }
 
+
+
     /**
+
      * Returns the list of sheet tabs needed for a given range, based on today's date.
+
      */
+
     private List<String> getTabsForRange(String range) {
+
         List<String> tabs = new ArrayList<>();
+
         if (range == null) { tabs.add(currentTabName); return tabs; }
+
         LocalDate today = LocalDate.now();
+
         int currentMonthIdx = today.getMonthValue() - 1; // 0-based index into MONTH_TABS
 
+
+
         switch (range) {
+
             case "Weekly":
+
             case "Monthly":
+
                 tabs.add(currentTabName);
+
                 break;
+
             case "Quarterly": {
+
                 // Quarter start month (0-based): Q1=0,Q2=3,Q3=6,Q4=9
+
                 int qStart = (currentMonthIdx / 3) * 3;
+
                 for (int i = qStart; i <= currentMonthIdx; i++) {
+
                     tabs.add(MONTH_TABS[i]);
+
                 }
+
                 break;
+
             }
+
             case "Yearly": {
+
                 for (int i = 0; i <= currentMonthIdx; i++) {
+
                     tabs.add(MONTH_TABS[i]);
+
                 }
+
                 break;
+
             }
+
             default:
+
                 tabs.add(currentTabName);
+
         }
+
         return tabs;
+
     }
 
+
+
     /**
+
      * Computes the issued quantity for an item based on the selected range and today's date.
+
      * Always starts from day 1 of the period.
+
      */
+
     double computeRangeIssued(InventoryItem baseItem, String range) {
+
         LocalDate today = LocalDate.now();
+
         int todayDay = today.getDayOfMonth();
 
+
+
         switch (range == null ? "Monthly" : range) {
+
             case "Weekly": {
+
                 // Week starts Monday; find first day of this week, clamped to day 1
+
                 int dow = today.getDayOfWeek().getValue(); // Mon=1 … Sun=7
+
                 int weekStartDay = Math.max(1, todayDay - (dow - 1));
+
                 double sum = 0;
+
                 for (int d = weekStartDay; d <= todayDay; d++) {
+
                     sum += baseItem.getDayValue(d);
+
                 }
+
                 return sum;
+
             }
+
             case "Monthly": {
+
                 // Day 1 up to today's day-of-month
+
                 double sum = 0;
+
                 for (int d = 1; d <= todayDay; d++) {
+
                     sum += baseItem.getDayValue(d);
+
                 }
+
                 return sum;
+
             }
+
             case "Quarterly":
+
             case "Yearly": {
+
                 List<String> tabs = getTabsForRange(range);
+
                 String currentTab = currentTabName;
+
                 double sum = 0;
+
                 for (String tab : tabs) {
+
                     boolean isCurrent = tab.equals(currentTab);
+
                     if (isCurrent) {
+
                         // Only days 1 → today
+
                         for (int d = 1; d <= todayDay; d++) {
+
                             sum += baseItem.getDayValue(d);
+
                         }
+
                     } else {
+
                         // Past complete months — look up matching item from cache
+
                         List<InventoryItem> cached = tabCache.get(tab);
+
                         if (cached != null) {
+
                             for (InventoryItem other : cached) {
+
                                 if (baseItem.getCodeNo() != null &&
+
                                     baseItem.getCodeNo().equalsIgnoreCase(other.getCodeNo())) {
+
                                     sum += other.getTotalIssued();
+
                                     break;
+
                                 }
+
                             }
+
                         }
+
                     }
+
                 }
+
                 return sum;
+
             }
+
             default:
+
                 return baseItem.getTotalIssued();
+
         }
+
     }
+
+
 
     /**
+
      * Forces all visible cards to re-render their value labels.
+
      */
+
     private void refreshCardValues() {
+
         // Trigger a refresh by briefly cycling the cell factory
+
         materialsList.refresh();
+
     }
 
+
+
     @FXML
+
     public void showMaterial() {
+
         showSection(0, "Material Monitoring");
+
     }
 
+
+
     @FXML
+
     public void showCnf() {
+
         showSection(1, "CNF Monitoring");
+
         if (cnfController != null) cnfController.loadItems();
+
     }
 
+
+
     @FXML
+
     public void showOring() {
+
         showSection(2, "O-Ring Monitoring");
+
         if (oringMonitoringController != null) {
+
             oringMonitoringController.refresh();
+
         }
+
     }
 
+
+
     @FXML
+
     public void showSales() {
+
         showSection(3, "Pellets L-Sales");
+
         if (pelletsLSalesController != null) {
+
             pelletsLSalesController.refresh();
+
         }
+
     }
+
+
 
     private void refreshAllDashboardData() {
+
         loadMaterials();
+
         loadBrandPanelData();
+
         if (cnfController != null) {
+
             cnfController.loadItems();
+
         }
+
         if (oringMonitoringController != null) {
+
             oringMonitoringController.refresh();
+
         }
+
         if (pelletsLSalesController != null) {
+
             pelletsLSalesController.refresh();
+
         }
+
     }
+
+
 
     @FXML
+
     public void openAddMaterial() {
+
         try {
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/modal/add_material.fxml"));
+
             Parent root = loader.load();
+
             Stage dialog = new Stage();
+
             dialog.initModality(Modality.APPLICATION_MODAL);
+
             dialog.initStyle(StageStyle.TRANSPARENT);
+
             Scene scene = new Scene(root);
+
             applyDialogStyles(scene);
+
             dialog.setScene(scene);
+
             dialog.showAndWait();
+
             loadMaterials();
+
         } catch (Exception e) {
+
             e.printStackTrace();
+
         }
+
     }
+
+
 
     private void showSection(int index, String title) {
+
         pageTitle.setText(title);
+
         btnAddMaterial.setVisible(index == 0);
+
         btnAddMaterial.setManaged(index == 0);
+
         if (cnfToolbar != null) {
+
             boolean showCnfTools = index == 1;
+
             cnfToolbar.setVisible(showCnfTools);
+
             cnfToolbar.setManaged(showCnfTools);
+
         }
+
         for (int i = 0; i < sections.size(); i++) {
+
             boolean active = i == index;
+
             sections.get(i).setVisible(active);
+
             sections.get(i).setManaged(active);
+
             Button btn = navButtons.get(i);
+
             btn.getStyleClass().removeAll("nav-btn-active");
+
             if (active)
+
                 btn.getStyleClass().add("nav-btn-active");
+
         }
+
     }
+
+
 
     private void updateMaterialOverview(InventoryItem item) {
+
         if (item == null) {
+
             materialTotalCount.setText("00");
+
             materialInitialUnit.setText("");
+
             materialLowCount.setText("00");
+
             materialReceivedUnit.setText("");
+
             materialInCount.setText("00");
+
             materialBalanceUnit.setText("");
+
             materialOutCount.setText("00");
+
             materialIssuedUnit.setText("");
+
             return;
+
         }
+
+
 
         String uom = item.getUom() == null || item.getUom().isBlank() ? "UOM" : item.getUom().trim();
+
         String range = reportRangeCombo.getSelectionModel().getSelectedItem();
+
         double rangeIssued = computeRangeIssued(item, range);
+
         double rangeBalance = Math.max(0, item.getInitialStock() + item.getReceivedQuantity() - rangeIssued);
 
+
+
         materialTotalCount.setText(formatQuantity(item.getInitialStock()));
+
         materialInitialUnit.setText(uom);
+
         materialLowCount.setText(formatQuantity(item.getReceivedQuantity()));
+
         materialReceivedUnit.setText(uom);
+
         materialInCount.setText(formatQuantity(rangeBalance));
+
         materialBalanceUnit.setText(uom);
+
         materialOutCount.setText(formatQuantity(rangeIssued));
+
         materialIssuedUnit.setText(uom);
+
     }
+
+
 
     private void openMonthlyOutDialog(InventoryItem item) {
+
         try {
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/modal/material_month_out.fxml"));
+
             Parent root = loader.load();
+
             MaterialMonthOutController controller = loader.getController();
+
             controller.setMaterial(item);
+
             Stage stage = new Stage();
+
             stage.initModality(Modality.APPLICATION_MODAL);
+
             stage.initStyle(StageStyle.TRANSPARENT);
+
             Scene scene = new Scene(root);
+
             applyDialogStyles(scene);
+
             stage.setScene(scene);
+
             stage.showAndWait();
+
         } catch (Exception e) {
+
             e.printStackTrace();
+
         }
+
     }
+
+
 
     private void openEditMaterialDialog(InventoryItem item) {
+
         try {
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/modal/edit_material.fxml"));
+
             Parent root = loader.load();
+
             EditMaterialController controller = loader.getController();
+
             controller.setMaterial(item);
+
             Stage stage = new Stage();
+
             stage.initModality(Modality.APPLICATION_MODAL);
+
             stage.initStyle(StageStyle.TRANSPARENT);
+
             Scene scene = new Scene(root);
+
             applyDialogStyles(scene);
+
             stage.setScene(scene);
+
             stage.showAndWait();
+
             loadMaterials();
+
         } catch (Exception e) {
+
             e.printStackTrace();
+
         }
+
     }
+
+
 
     private void applyDialogStyles(Scene scene) {
+
         scene.setFill(Color.TRANSPARENT);
+
         scene.getStylesheets().add(getClass().getResource("/com/ccb/css/style.css").toExternalForm());
+
     }
+
+
 
     private String formatQuantity(double value) {
+
         return String.format("%.0f", value);
+
     }
+
+
 
     private File resolveImageFile(String code) {
+
         File png = new File(IMAGE_DIR + code + ".png");
+
         if (png.exists())
+
             return png;
 
+
+
         File jpg = new File(IMAGE_DIR + code + ".jpg");
+
         if (jpg.exists())
+
             return jpg;
 
+
+
         File jpeg = new File(IMAGE_DIR + code + ".jpeg");
+
         if (jpeg.exists())
+
             return jpeg;
 
+
+
         return null;
+
     }
+
+
 
     private String colNumberToName(int col) {
+
         StringBuilder sb = new StringBuilder();
+
         while (col > 0) {
+
             col--; // 1-based to 0-based
+
             sb.insert(0, (char) ('A' + (col % 26)));
+
             col /= 26;
+
         }
+
         return sb.toString();
+
     }
+
+
 
     private void showStockInDialog(InventoryItem item) {
+
         Stage dialog = new Stage();
+
         dialog.initModality(Modality.APPLICATION_MODAL);
+
         dialog.initStyle(StageStyle.TRANSPARENT);
 
+
+
         VBox root = new VBox(0);
+
         root.getStyleClass().add("dialog-shell");
+
         root.setPrefWidth(420);
 
+
+
         // --- HEADER ---
+
         VBox header = new VBox(4);
+
         header.getStyleClass().addAll("dialog-header", "dialog-header-alt");
 
+
+
         HBox headerRow = new HBox(10);
+
         headerRow.setAlignment(Pos.CENTER_LEFT);
 
+
+
         VBox headerTitles = new VBox(4);
+
         HBox.setHgrow(headerTitles, Priority.ALWAYS);
+
         Label eyebrow = new Label("STOCK-IN RECORDING");
+
         eyebrow.getStyleClass().add("dialog-eyebrow");
+
         Label title = new Label("Add Received Quantity");
+
         title.getStyleClass().add("dialog-title");
+
         Label subtitle = new Label("Add item quantity to inventory stock.");
+
         subtitle.getStyleClass().add("dialog-subtitle");
+
         headerTitles.getChildren().addAll(eyebrow, title, subtitle);
 
+
+
         Button closeBtn = new Button("✕");
+
         closeBtn.setStyle(
+
                 "-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 14px; -fx-cursor: hand; -fx-border-width: 0; -fx-padding: 0;");
+
         closeBtn.setOnAction(e -> dialog.close());
 
+
+
         headerRow.getChildren().addAll(headerTitles, closeBtn);
+
         header.getChildren().add(headerRow);
 
+
+
         // --- BODY ---
+
         VBox body = new VBox(14);
+
         body.getStyleClass().add("dialog-body");
 
+
+
         // Context Panel (Hero Panel)
+
         VBox hero = new VBox(6);
+
         hero.getStyleClass().add("hero-panel");
+
         Label heroTag = new Label(item.getCodeNo() != null ? item.getCodeNo().toUpperCase() : "MATERIAL");
+
         heroTag.getStyleClass().add("hero-tag");
+
         Label heroHeadline = new Label(item.getDescription() != null ? item.getDescription() : "No Description");
+
         heroHeadline.getStyleClass().add("hero-headline");
+
         heroHeadline.setWrapText(true);
 
+
+
         String balanceStr = String.format("Current Balance: %.0f %s", item.getCurrentBalance(),
+
                 item.getUom() != null ? item.getUom() : "");
+
         Label heroCopy = new Label(balanceStr);
+
         heroCopy.getStyleClass().add("hero-copy");
+
         hero.getChildren().addAll(heroTag, heroHeadline, heroCopy);
 
+
+
         // Panel Card for Inputs
+
         VBox card = new VBox(12);
+
         card.getStyleClass().add("panel-card");
+
+
 
         Label qtyLabel = new Label("QUANTITY TO ADD");
+
         qtyLabel.getStyleClass().add("field-caption");
 
+
+
         // Stepper Layout
+
         HBox stepper = new HBox(8);
+
         stepper.setAlignment(Pos.CENTER);
 
+
+
         Button minus = new Button("-");
+
         minus.getStyleClass().add("stock-step-button");
+
         minus.setStyle("-fx-font-size: 18px; -fx-background-radius: 8; -fx-min-width: 44; -fx-min-height: 38;");
 
+
+
         TextField qtyField = new TextField("1");
+
         qtyField.getStyleClass().add("stock-qty");
+
         qtyField.setStyle(
+
                 "-fx-background-color: #f8faff; -fx-text-fill: #1A2560; -fx-font-size: 18px; -fx-font-weight: bold; -fx-alignment: center; -fx-background-radius: 8; -fx-min-height: 38; -fx-pref-width: 100; -fx-border-color: #dfe5fb; -fx-border-radius: 8;");
 
+
+
         Button plus = new Button("+");
+
         plus.getStyleClass().add("stock-step-button");
+
         plus.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-min-width: 44; -fx-min-height: 38;");
+
+
 
         stepper.getChildren().addAll(minus, qtyField, plus);
 
+
+
         card.getChildren().addAll(qtyLabel, stepper);
 
+
+
         // --- FOOTER BUTTONS ---
+
         HBox buttons = new HBox(10);
+
         buttons.setAlignment(Pos.CENTER_RIGHT);
+
         Button cancel = new Button("Close");
+
         cancel.getStyleClass().add("btn-secondary");
 
+
+
         Button save = new Button("Save");
+
         save.getStyleClass().add("btn-add-material");
+
+
 
         buttons.getChildren().addAll(cancel, save);
 
+
+
         body.getChildren().addAll(hero, card, buttons);
+
         root.getChildren().addAll(header, body);
 
+
+
         minus.setOnAction(e -> {
+
             try {
+
                 int v = Integer.parseInt(qtyField.getText().trim());
+
                 qtyField.setText(String.valueOf(Math.max(0, v - 1)));
+
             } catch (Exception ex) {
+
                 qtyField.setText("0");
+
             }
+
         });
+
         plus.setOnAction(e -> {
+
             try {
+
                 int v = Integer.parseInt(qtyField.getText().trim());
+
                 qtyField.setText(String.valueOf(v + 1));
+
             } catch (Exception ex) {
+
                 qtyField.setText("1");
+
             }
+
         });
+
+
 
         cancel.setOnAction(e -> dialog.close());
+
         save.setOnAction(e -> {
+
             try {
+
                 String tab = item.getSheetTabName() == null || item.getSheetTabName().isBlank() ? currentTabName
+
                         : item.getSheetTabName();
+
                 String qty = qtyField.getText().trim();
+
                 LocalDate date = LocalDate.now();
+
                 if (qty.isEmpty())
+
                     return;
 
+
+
                 Task<Void> task = new Task<>() {
+
                     @Override
+
                     protected Void call() throws Exception {
+
                         GoogleSheetsService service = new GoogleSheetsService();
+
                         String gRange = tab + "!G" + item.getSheetRowNumber();
+
                         String hRange = tab + "!H" + item.getSheetRowNumber();
+
                         service.writeCell(gRange, Double.parseDouble(qty));
+
                         service.writeCell(hRange, date.toString());
+
                         return null;
+
                     }
+
                 };
+
                 task.setOnSucceeded(ev -> {
+
                     dialog.close();
+
                     loadMaterials();
+
                 });
+
                 task.setOnFailed(ev -> {
+
                     dialog.close();
+
                 });
+
                 new Thread(task).start();
+
             } catch (Exception ex) {
+
                 dialog.close();
+
             }
+
         });
 
+
+
         Scene scene = new Scene(root);
+
         applyDialogStyles(scene);
+
         dialog.setScene(scene);
+
         dialog.showAndWait();
+
     }
+
+
 
     private void showStockOutDialog(InventoryItem item) {
+
         Stage dialog = new Stage();
+
         dialog.initModality(Modality.APPLICATION_MODAL);
+
         dialog.initStyle(StageStyle.TRANSPARENT);
 
+
+
         VBox root = new VBox(0);
+
         root.getStyleClass().add("dialog-shell");
+
         root.setPrefWidth(420);
 
+
+
         // --- HEADER ---
+
         VBox header = new VBox(4);
+
         header.getStyleClass().addAll("dialog-header", "dialog-header-alt");
 
+
+
         HBox headerRow = new HBox(10);
+
         headerRow.setAlignment(Pos.CENTER_LEFT);
 
+
+
         VBox headerTitles = new VBox(4);
+
         HBox.setHgrow(headerTitles, Priority.ALWAYS);
+
         Label eyebrow = new Label("STOCK OUT RECORDING");
+
         eyebrow.getStyleClass().add("dialog-eyebrow");
+
         Label title = new Label("STOCK OUT RECORD");
+
         title.getStyleClass().add("dialog-title");
+
         Label subtitle = new Label("Record daily items issued to production.");
+
         subtitle.getStyleClass().add("dialog-subtitle");
+
         headerTitles.getChildren().addAll(eyebrow, title, subtitle);
 
+
+
         Button closeBtn = new Button("✕");
+
         closeBtn.setStyle(
+
                 "-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 14px; -fx-cursor: hand; -fx-border-width: 0; -fx-padding: 0;");
+
         closeBtn.setOnAction(e -> dialog.close());
 
+
+
         headerRow.getChildren().addAll(headerTitles, closeBtn);
+
         header.getChildren().add(headerRow);
 
+
+
         // --- BODY ---
+
         VBox body = new VBox(14);
+
         body.getStyleClass().add("dialog-body");
 
+
+
         // Context Panel (Hero Panel)
+
         VBox hero = new VBox(6);
+
         hero.getStyleClass().add("hero-panel");
+
         Label heroTag = new Label(item.getCodeNo() != null ? item.getCodeNo().toUpperCase() : "MATERIAL");
+
         heroTag.getStyleClass().add("hero-tag");
+
         Label heroHeadline = new Label(item.getDescription() != null ? item.getDescription() : "No Description");
+
         heroHeadline.getStyleClass().add("hero-headline");
+
         heroHeadline.setWrapText(true);
 
+
+
         String balanceStr = String.format("Current Balance: %.0f %s", item.getCurrentBalance(),
+
                 item.getUom() != null ? item.getUom() : "");
+
         Label heroCopy = new Label(balanceStr);
+
         heroCopy.getStyleClass().add("hero-copy");
+
         hero.getChildren().addAll(heroTag, heroHeadline, heroCopy);
 
+
+
         // Panel Card for Inputs
+
         VBox card = new VBox(12);
+
         card.getStyleClass().add("panel-card");
 
+
+
         Label qtyLabel = new Label("QUANTITY TO DISBURSE");
+
         qtyLabel.getStyleClass().add("field-caption");
 
+
+
         // Stepper Layout
+
         HBox stepper = new HBox(8);
+
         stepper.setAlignment(Pos.CENTER);
 
+
+
         Button minus = new Button("-");
+
         minus.getStyleClass().add("stock-step-button");
+
         minus.setStyle("-fx-font-size: 18px; -fx-background-radius: 8; -fx-min-width: 44; -fx-min-height: 38;");
 
+
+
         TextField qtyField = new TextField("1");
+
         qtyField.getStyleClass().add("stock-qty");
+
         qtyField.setStyle(
+
                 "-fx-background-color: #f8faff; -fx-text-fill: #1A2560; -fx-font-size: 18px; -fx-font-weight: bold; -fx-alignment: center; -fx-background-radius: 8; -fx-min-height: 38; -fx-pref-width: 100; -fx-border-color: #dfe5fb; -fx-border-radius: 8;");
 
+
+
         Button plus = new Button("+");
+
         plus.getStyleClass().add("stock-step-button");
+
         plus.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-min-width: 44; -fx-min-height: 38;");
+
+
 
         stepper.getChildren().addAll(minus, qtyField, plus);
 
+
+
         card.getChildren().addAll(qtyLabel, stepper);
 
+
+
         // --- FOOTER BUTTONS ---
+
         HBox buttons = new HBox(10);
+
         buttons.setAlignment(Pos.CENTER_RIGHT);
+
         Button cancel = new Button("Close");
+
         cancel.getStyleClass().add("btn-secondary");
 
+
+
         Button save = new Button("Save");
+
         save.getStyleClass().add("btn-add-material");
+
+
 
         buttons.getChildren().addAll(cancel, save);
 
+
+
         body.getChildren().addAll(hero, card, buttons);
+
         root.getChildren().addAll(header, body);
 
+
+
         minus.setOnAction(e -> {
+
             try {
+
                 int v = Integer.parseInt(qtyField.getText().trim());
+
                 qtyField.setText(String.valueOf(Math.max(0, v - 1)));
+
             } catch (Exception ex) {
+
                 qtyField.setText("0");
+
             }
+
         });
+
         plus.setOnAction(e -> {
+
             try {
+
                 int v = Integer.parseInt(qtyField.getText().trim());
+
                 qtyField.setText(String.valueOf(v + 1));
+
             } catch (Exception ex) {
+
                 qtyField.setText("1");
+
             }
+
         });
+
+
 
         cancel.setOnAction(e -> dialog.close());
+
         save.setOnAction(e -> {
+
             try {
+
                 String qty = qtyField.getText().trim();
+
                 LocalDate date = LocalDate.now();
+
                 if (qty.isEmpty())
+
                     return;
+
                 int day = date.getDayOfMonth();
+
                 int colNumber = 12 + (day - 1);
+
                 String colLetter = colNumberToName(colNumber);
+
                 String tab = item.getSheetTabName() == null || item.getSheetTabName().isBlank() ? currentTabName
+
                         : item.getSheetTabName();
+
                 String range = tab + "!" + colLetter + item.getSheetRowNumber();
+
                 Task<Void> task = new Task<>() {
+
                     @Override
+
                     protected Void call() throws Exception {
+
                         GoogleSheetsService service = new GoogleSheetsService();
+
                         service.writeCell(range, Double.parseDouble(qty));
+
                         return null;
+
                     }
+
                 };
+
                 task.setOnSucceeded(ev -> {
+
                     dialog.close();
+
                     loadMaterials();
+
                 });
+
                 task.setOnFailed(ev -> {
+
                     dialog.close();
+
                 });
+
                 new Thread(task).start();
+
             } catch (Exception ex) {
+
                 dialog.close();
+
             }
+
         });
+
         Scene scene = new Scene(root);
+
         applyDialogStyles(scene);
+
         dialog.setScene(scene);
+
         dialog.showAndWait();
+
     }
 
+
+
     private final class MaterialCardCell extends ListCell<InventoryItem> {
+
         private final HBox root = new HBox(14);
+
         private final StackPane thumbFrame = new StackPane();
+
         private final ImageView thumb = new ImageView();
+
         private final Label thumbFallback = new Label();
+
         private final VBox center = new VBox(3);
+
         private final VBox textBlock = new VBox(3);
+
         private final Label descLabel = new Label();
+
         private final Label codeLabel = new Label();
+
         private final Button moreButton = new Button("\u22EF");
+
         private final VBox ellipsisWrap = new VBox();
+
         private final Region divider = new Region();
+
         private final HBox actionRow = new HBox(8);
+
         private final VBox pricePanel = new VBox(8);
+
         private final Label unitPriceLabel = new Label();
+
         private final Label unitPriceValue = new Label();
+
         private final Label totalPriceLabel = new Label();
+
         private final Label totalPriceValue = new Label();
+
         private final ContextMenu moreMenu = new ContextMenu();
+
         private InventoryItem currentItem;
 
+
+
         private MaterialCardCell() {
+
             getStyleClass().add("material-list-cell");
 
+
+
             thumbFrame.getStyleClass().add("material-thumb-frame");
+
             thumb.setFitWidth(62);
+
             thumb.setFitHeight(62);
+
             thumb.setPreserveRatio(true);
+
             thumb.setSmooth(true);
+
             thumbFallback.getStyleClass().add("material-thumb-fallback");
+
             thumbFallback.setAlignment(Pos.CENTER);
+
             thumbFallback.setText("M");
+
             thumbFrame.getChildren().addAll(thumbFallback, thumb);
 
+
+
             descLabel.getStyleClass().add("material-desc");
+
             descLabel.setWrapText(true);
+
             descLabel.setMaxWidth(380);
 
+
+
             codeLabel.getStyleClass().add("material-code");
+
             HBox.setHgrow(textBlock, Priority.ALWAYS);
 
+
+
             moreButton.getStyleClass().add("material-more-button");
+
             moreButton.setTextFill(javafx.scene.paint.Color.web("#7b86aa"));
+
             moreButton.setFocusTraversable(false);
+
             moreButton.setOnAction(e -> {
+
                 if (!moreMenu.isShowing()) {
+
                     moreMenu.show(moreButton, javafx.geometry.Side.BOTTOM, 0, 4);
+
                 } else {
+
                     moreMenu.hide();
+
                 }
+
             });
+
+
 
             VBox actionPanel = new VBox(10);
+
             actionPanel.getStyleClass().add("material-action-panel");
 
+
+
             HBox actionHeader = new HBox(10);
+
             actionHeader.setAlignment(Pos.CENTER_LEFT);
+
             Label actionTitle = new Label("Quick Actions");
+
             actionTitle.getStyleClass().add("material-action-title");
+
             Region actionSpacer = new Region();
+
             HBox.setHgrow(actionSpacer, Priority.ALWAYS);
+
             Button closeMenuButton = new Button("X");
+
             closeMenuButton.setFocusTraversable(false);
+
             closeMenuButton.setStyle(
+
                     "-fx-background-color: transparent; -fx-text-fill: #7b86aa; -fx-font-size: 14px; " +
+
                     "-fx-font-weight: bold; -fx-cursor: hand; -fx-border-width: 0; -fx-padding: 0 2 0 2;");
+
             closeMenuButton.setOnAction(e -> moreMenu.hide());
+
             actionHeader.getChildren().addAll(actionTitle, actionSpacer, closeMenuButton);
 
+
+
             Button monthOutButton = buildActionButton("Monthly Daily Out Report",
+
                     "View daily issued quantities per day of the month");
+
             monthOutButton.setOnAction(e -> {
+
                 moreMenu.hide();
+
                 if (currentItem != null) {
+
                     openMonthlyOutDialog(currentItem);
+
                 }
+
             });
+
+
 
             Button editButton = buildActionButton("Edit Material Details",
+
                     "Update code, description, UOM, price and stock figures");
+
             editButton.setOnAction(e -> {
+
                 moreMenu.hide();
+
                 if (currentItem != null) {
+
                     openEditMaterialDialog(currentItem);
+
                 }
+
             });
+
+
 
             actionPanel.getChildren().addAll(actionHeader, monthOutButton, editButton);
+
             CustomMenuItem actionItem = new CustomMenuItem(actionPanel, false);
+
             actionItem.setHideOnClick(false);
+
             moreMenu.getItems().add(actionItem);
 
+
+
             Button stockInBtn = new Button("Stock In +");
+
             stockInBtn.getStyleClass().add("stock-btn");
+
             stockInBtn.setOnAction(e -> {
+
                 if (currentItem != null)
+
                     showStockInDialog(currentItem);
+
             });
+
             Button stockOutBtn = new Button("Stock Out -");
+
             stockOutBtn.getStyleClass().add("stock-btn");
+
             stockOutBtn.setOnAction(e -> {
+
                 if (currentItem != null)
+
                     showStockOutDialog(currentItem);
+
             });
+
+
 
             textBlock.getChildren().addAll(descLabel, codeLabel);
 
+
+
             actionRow.getStyleClass().add("material-action-row-inline");
+
             actionRow.getChildren().addAll(stockInBtn, stockOutBtn);
 
+
+
             ellipsisWrap.getStyleClass().add("material-ellipsis-wrap");
+
             ellipsisWrap.setAlignment(Pos.CENTER);
+
             ellipsisWrap.getChildren().add(moreButton);
 
+
+
             divider.getStyleClass().add("material-divider");
+
             divider.setMinWidth(1);
+
             divider.setPrefWidth(1);
+
             divider.setMaxWidth(1);
+
             divider.setMinHeight(52);
+
             divider.setPrefHeight(52);
+
             divider.setMaxHeight(52);
 
+
+
             center.getStyleClass().add("material-content");
+
             center.getChildren().add(textBlock);
+
             HBox.setHgrow(center, Priority.ALWAYS);
+
+
 
             pricePanel.getStyleClass().add("material-price-panel");
+
             pricePanel.setAlignment(Pos.CENTER_RIGHT);
+
             unitPriceLabel.getStyleClass().add("material-price-label");
+
             unitPriceValue.getStyleClass().add("material-price-value");
+
             totalPriceLabel.getStyleClass().add("material-price-label");
+
             totalPriceValue.getStyleClass().addAll("material-price-value", "material-total-value");
+
             pricePanel.getChildren().addAll(unitPriceLabel, unitPriceValue, totalPriceLabel, totalPriceValue);
 
+
+
             root.getStyleClass().add("material-card");
+
             root.getChildren().addAll(thumbFrame, center, actionRow, ellipsisWrap, divider, pricePanel);
+
             root.setAlignment(Pos.CENTER_LEFT);
+
             HBox.setHgrow(center, Priority.ALWAYS);
+
         }
 
+
+
         @Override
+
         protected void updateItem(InventoryItem item, boolean empty) {
+
             super.updateItem(item, empty);
 
+
+
             if (empty || item == null) {
+
                 setText(null);
+
                 setGraphic(null);
+
                 currentItem = null;
+
                 moreMenu.hide();
+
                 return;
+
             }
+
+
 
             currentItem = item;
 
+
+
             String code = item.getCodeNo() == null ? "" : item.getCodeNo().trim();
+
             String description = item.getDescription() == null ? "" : item.getDescription().trim();
+
             String uom = item.getUom() == null || item.getUom().isBlank() ? "UOM" : item.getUom().trim();
 
+
+
             codeLabel.setText(code.isEmpty() ? "" : code.toUpperCase());
+
             descLabel.setText(description.isEmpty() ? "No description provided" : description);
 
+
+
             unitPriceLabel.setText("UNIT PRICE");
+
             unitPriceValue.setText(item.getUnitPrice() == SheetMapper.PRICE_NA
+
                     ? "N/A" : String.format("\u20B1 %.2f", item.getUnitPrice()));
 
+
+
             String range = reportRangeCombo.getSelectionModel().getSelectedItem();
+
             double rangeIssued = computeRangeIssued(item, range);
+
             double rangeValue = item.getUnitPrice() == SheetMapper.PRICE_NA ? 0 : item.getUnitPrice() * rangeIssued;
 
+
+
             String rangeLabel = switch (range == null ? "Monthly" : range) {
+
                 case "Weekly"    -> "THIS WEEK VALUE";
+
                 case "Monthly"   -> "THIS MONTH VALUE";
+
                 case "Quarterly" -> "THIS QUARTER VALUE";
+
                 case "Yearly"    -> "THIS YEAR VALUE";
+
                 default          -> "VALUE";
+
             };
+
             totalPriceLabel.setText(rangeLabel);
+
             totalPriceValue.setText(item.getUnitPrice() == SheetMapper.PRICE_NA
+
                     ? "N/A" : String.format("\u20B1 %.2f", rangeValue));
 
+
+
             thumbFallback.setText(code.isEmpty() ? "M" : code.substring(0, Math.min(2, code.length())).toUpperCase());
+
             File imageFile = resolveImageFile(code);
+
             if (imageFile != null) {
+
                 thumb.setImage(new Image(imageFile.toURI().toString(), 58, 58, true, true));
+
                 thumb.setVisible(true);
+
                 thumbFallback.setVisible(false);
+
             } else {
+
                 thumb.setImage(null);
+
                 thumb.setVisible(false);
+
                 thumbFallback.setVisible(true);
+
             }
 
+
+
             setText(null);
+
             setGraphic(root);
+
         }
+
+
 
         private Button buildActionButton(String title, String subtitle) {
+
             Label titleLabel = new Label(title);
+
             titleLabel.getStyleClass().add("material-action-button-title");
+
             Label subtitleLabel = new Label(subtitle);
+
             subtitleLabel.getStyleClass().add("material-action-button-subtitle");
 
+
+
             VBox textBlock = new VBox(2, titleLabel, subtitleLabel);
+
             HBox row = new HBox(10);
+
             row.getStyleClass().add("material-action-row");
+
             row.getChildren().add(textBlock);
+
             HBox.setHgrow(textBlock, Priority.ALWAYS);
 
+
+
             Button button = new Button();
+
             button.getStyleClass().add("material-action-button");
+
             button.setGraphic(row);
+
             button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
             button.setMaxWidth(Double.MAX_VALUE);
+
             return button;
+
         }
+
     }
+
 }
+
