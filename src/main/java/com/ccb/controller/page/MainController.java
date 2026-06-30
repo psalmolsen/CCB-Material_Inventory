@@ -130,6 +130,10 @@ public class MainController implements Initializable {
 
     private VBox salesSection;
 
+    @FXML
+
+    private VBox stationSection;
+
 
 
     @FXML
@@ -147,6 +151,10 @@ public class MainController implements Initializable {
     @FXML
 
     private Button btnSales;
+
+    @FXML
+
+    private Button btnStation;
 
     @FXML
 
@@ -239,6 +247,8 @@ public class MainController implements Initializable {
     private PelletsMonitoringController pelletsMonitoringController;
 
     private PelletsLSalesController pelletsLSalesController;
+
+    private StationConsumptionController stationConsumptionController;
 
 
 
@@ -344,9 +354,9 @@ public class MainController implements Initializable {
 
     public void initialize(URL url, ResourceBundle rb) {
 
-        navButtons = List.of(btnMaterial, btnCnf, btnOring, btnSales);
+        navButtons = List.of(btnMaterial, btnCnf, btnOring, btnSales, btnStation);
 
-        sections = List.of(materialSection, cnfSection, oringSection, salesSection);
+        sections = List.of(materialSection, cnfSection, oringSection, salesSection, stationSection);
 
 
 
@@ -357,6 +367,8 @@ public class MainController implements Initializable {
         btnOring.setOnAction(e -> showOring());
 
         btnSales.setOnAction(e -> showSales());
+
+        btnStation.setOnAction(e -> showStation());
 
         btnAddMaterial.setOnAction(e -> openAddMaterial());
 
@@ -463,6 +475,8 @@ public class MainController implements Initializable {
         loadOringPanelIntoHost();
 
         loadPelletsPanelIntoHost();
+
+        loadStationPanelIntoHost();
 
     }
 
@@ -781,6 +795,44 @@ public class MainController implements Initializable {
             fallback.getStyleClass().add("placeholder-text");
 
             salesSection.getChildren().setAll(fallback);
+
+        }
+
+    }
+
+
+
+    private void loadStationPanelIntoHost() {
+
+        if (stationSection == null || stationConsumptionController != null) {
+
+            return;
+
+        }
+
+        try {
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ccb/fxml/page/section/station_consumption.fxml"));
+
+            Parent root = loader.load();
+
+            stationConsumptionController = loader.getController();
+
+            stationConsumptionController.setRefreshCallback(this::refreshAllDashboardData);
+
+            stationSection.getChildren().setAll(root);
+
+            VBox.setVgrow(root, Priority.ALWAYS);
+
+        } catch (Exception ex) {
+
+            ex.printStackTrace();
+
+            Label fallback = new Label("Unable to load Station Consumption page.");
+
+            fallback.getStyleClass().add("placeholder-text");
+
+            stationSection.getChildren().setAll(fallback);
 
         }
 
@@ -1354,6 +1406,22 @@ public class MainController implements Initializable {
 
 
 
+    @FXML
+
+    public void showStation() {
+
+        showSection(4, "Station Consumption");
+
+        if (stationConsumptionController != null) {
+
+            stationConsumptionController.refresh();
+
+        }
+
+    }
+
+
+
     private void refreshAllDashboardData() {
 
         loadMaterials();
@@ -1375,6 +1443,12 @@ public class MainController implements Initializable {
         if (pelletsLSalesController != null) {
 
             pelletsLSalesController.refresh();
+
+        }
+
+        if (stationConsumptionController != null) {
+
+            stationConsumptionController.refresh();
 
         }
 

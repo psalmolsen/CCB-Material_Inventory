@@ -14,8 +14,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,21 +69,14 @@ public class PelletsLSheetService {
 
         List<PelletsLRecord> records = new ArrayList<>();
         String currentSackGroup = "";
-        int consecutiveEmptyRows = 0;
 
         // Skip row 0 (title) and row 1 (header), start from row 2
         for (int i = 2; i < rows.size(); i++) {
             List<Object> row = rows.get(i);
-            
-            // Check if row is completely empty
+
+            // Check if row is completely empty - skip but continue parsing
             if (isRowEmpty(row)) {
-                consecutiveEmptyRows++;
-                if (consecutiveEmptyRows >= 3) {
-                    break; // Stop parsing after 3 consecutive empty rows
-                }
                 continue;
-            } else {
-                consecutiveEmptyRows = 0;
             }
 
             // Read columns A-F
@@ -94,8 +89,11 @@ public class PelletsLSheetService {
             String colG = cell(row, 6);
 
             // SACK SEPARATOR ROW DETECTION
-            // A row is a separator if columns A-F are empty OR column B is empty and column G has text
-            boolean isSeparatorRow = isColumnsAtoFEmpty(row) || (timeSlot.isEmpty() && !colG.isEmpty());
+            // A row is a separator if:
+            // 1. Columns A-F are empty OR
+            // 2. Column B is empty and column G has text OR
+            // 3. Column G contains "sack" and columns C-D (good/reject) are empty (total row separator)
+            boolean isSeparatorRow = isColumnsAtoFEmpty(row) || (timeSlot.isEmpty() && !colG.isEmpty()) || (colG.toLowerCase().contains("sack") && goodStr.isEmpty() && rejectStr.isEmpty());
             if (isSeparatorRow && colG.toLowerCase().contains("sack")) {
                 // Extract sack group label from column G
                 currentSackGroup = colG.trim();

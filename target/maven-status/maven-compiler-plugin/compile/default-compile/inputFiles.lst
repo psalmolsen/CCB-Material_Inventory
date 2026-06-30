@@ -2,6 +2,7 @@ C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\App.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\CnfItem.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\CnfMonthProvisioner.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\CnfSheetService.java
+C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\modal\AddConsumptionController.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\modal\AddMaterialController.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\modal\EditMaterialController.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\modal\MaterialMonthOutController.java
@@ -11,6 +12,7 @@ C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\p
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\page\OringMonitoringController.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\page\PelletsLSalesController.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\page\PelletsMonitoringController.java
+C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\controller\page\StationConsumptionController.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\EditMaterialController.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\GoogleSheetsService.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\InventoryItem.java
@@ -30,4 +32,6 @@ C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\PelletsSumma
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\SackGroupSummary.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\service\SheetsDataService.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\SheetMapper.java
+C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\StationConsumptionRecord.java
+C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\StationConsumptionSheetService.java
 C:\Users\USER\Desktop\CCB System\CCBInventory\src\main\java\com\ccb\StyleConstants.java

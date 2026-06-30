@@ -1,4 +1,5 @@
 com\ccb\controller\page\BrandPanelController$CategoryData.class
+com\ccb\StationConsumptionSheetService.class
 MaterialMonthOutController.class
 com\ccb\controller\page\CnfController$7.class
 com\ccb\controller\page\BrandPanelController$BrandData.class
@@ -8,6 +9,7 @@ com\ccb\controller\page\CnfController$3.class
 com\ccb\controller\page\BrandPanelController.class
 com\ccb\controller\page\MainController$6.class
 com\ccb\controller\page\BrandPanelController$VariantData.class
+com\ccb\controller\page\StationConsumptionController.class
 com\ccb\controller\page\CnfController$RangeMetric.class
 com\ccb\controller\page\OringMonitoringController$SourceSummary.class
 com\ccb\OringRecord.class
@@ -15,6 +17,7 @@ com\ccb\PelletsLSheetService.class
 com\ccb\controller\page\MainController$3.class
 com\ccb\PelletsDataService$SackGroupHelper.class
 com\ccb\controller\modal\MaterialMonthOutController.class
+com\ccb\controller\page\StationConsumptionController$StationConsumptionSummary.class
 com\ccb\controller\page\OringMonitoringController.class
 com\ccb\controller\page\CnfController$4.class
 com\ccb\controller\page\MainController$2.class
@@ -26,6 +29,7 @@ com\ccb\controller\page\PelletsLSalesController$1.class
 com\ccb\PelletsLSummary.class
 com\ccb\InventoryItem.class
 com\ccb\controller\page\CnfController$1.class
+com\ccb\controller\modal\AddConsumptionController.class
 com\ccb\CnfSheetService.class
 com\ccb\controller\modal\AddMaterialController.class
 com\ccb\PelletsSummary.class
@@ -49,6 +53,7 @@ com\ccb\controller\page\CnfController$6.class
 com\ccb\service\SheetsDataService.class
 com\ccb\controller\page\OringMonitoringController$1.class
 com\ccb\CnfItem$CnfType.class
+com\ccb\controller\page\StationConsumptionController$1.class
 com\ccb\controller\page\MainController$7.class
 com\ccb\App.class
 com\ccb\GoogleSheetsService.class
@@ -57,3 +62,4 @@ com\ccb\PelletsDataService.class
 com\ccb\controller\modal\MaterialMonthOutController$2.class
 com\ccb\OringSheetService.class
 com\ccb\PelletsRecord.class
+com\ccb\StationConsumptionRecord.class

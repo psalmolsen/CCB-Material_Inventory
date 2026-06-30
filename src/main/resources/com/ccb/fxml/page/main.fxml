@@ -58,6 +58,8 @@
 
             <Button fx:id="btnSales" text="📊   Pellets L-Sales" styleClass="nav-btn" maxWidth="Infinity"/>
 
+            <Button fx:id="btnStation" text="🏭   Station Consumption" styleClass="nav-btn" maxWidth="Infinity"/>
+
         </VBox>
 
     </VBox>
@@ -401,6 +403,12 @@
                 <Label text="Pellets L-sales report will appear here." styleClass="placeholder-text"/>
 
             </VBox>
+
+        </VBox>
+
+        <!-- Station Consumption Section -->
+
+        <VBox fx:id="stationSection" styleClass="section-content" VBox.vgrow="ALWAYS" visible="false" managed="false">
 
         </VBox>
 

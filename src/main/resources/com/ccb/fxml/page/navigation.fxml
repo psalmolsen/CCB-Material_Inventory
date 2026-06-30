@@ -27,5 +27,6 @@
         <Button fx:id="btnCnf" text="🔩   CNF Monitoring" styleClass="nav-btn" maxWidth="Infinity"/>
         <Button fx:id="btnOring" text="⭕   O-Ring Monitoring" styleClass="nav-btn" maxWidth="Infinity"/>
         <Button fx:id="btnSales" text="📊   Pellets L-Sales" styleClass="nav-btn" maxWidth="Infinity"/>
+        <Button fx:id="btnStation" text="🏭   Station Consumption" styleClass="nav-btn" maxWidth="Infinity"/>
     </VBox>
 </VBox>

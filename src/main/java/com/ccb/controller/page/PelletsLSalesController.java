@@ -22,6 +22,7 @@ import javafx.scene.shape.Circle;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,9 +53,25 @@ public class PelletsLSalesController implements Initializable {
     @FXML private Label  sackTotalGoodLabel;
     @FXML private BarChart<String,Number> slotBarChart;
     @FXML private HBox   contextStrip;
+    @FXML private Button viewToggleBtn;
+    @FXML private Label  viewTitleLabel;
+    @FXML private Label  viewSubtitleLabel;
+    @FXML private Button dayViewBtn;
+    @FXML private HBox   slotNavigatorBar;
+    @FXML private HBox   dayNavigatorBar;
+    @FXML private Button prevDayBtn;
+    @FXML private Button nextDayBtn;
+    @FXML private Label  dayDateLabel;
+    @FXML private Label  dayCounterLabel;
 
     private List<PelletsLRecord> currentSackSlots = new ArrayList<>();
+    private List<PelletsLRecord> currentSackShifts = new ArrayList<>();
+    private List<LocalDate> uniqueDates = new ArrayList<>();
     private int slotIdx = 0;
+    private int shiftIdx = 0;
+    private int dayIdx = 0;
+    private boolean isShiftView = false;
+    private boolean isDayView = false;
     private XYChart.Series<String,Number> goodSeries, rejSeries;
 
     // View Components Built Once
@@ -80,7 +97,16 @@ public class PelletsLSalesController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         buildPageShell();
-        
+
+        System.out.println("DEBUG: FXML injection check:");
+        System.out.println("DEBUG: dayViewBtn = " + (dayViewBtn != null ? "LOADED" : "NULL"));
+        System.out.println("DEBUG: dayNavigatorBar = " + (dayNavigatorBar != null ? "LOADED" : "NULL"));
+        System.out.println("DEBUG: prevDayBtn = " + (prevDayBtn != null ? "LOADED" : "NULL"));
+        System.out.println("DEBUG: nextDayBtn = " + (nextDayBtn != null ? "LOADED" : "NULL"));
+        System.out.println("DEBUG: dayDateLabel = " + (dayDateLabel != null ? "LOADED" : "NULL"));
+        System.out.println("DEBUG: dayCounterLabel = " + (dayCounterLabel != null ? "LOADED" : "NULL"));
+        System.out.println("DEBUG: slotNavigatorBar = " + (slotNavigatorBar != null ? "LOADED" : "NULL"));
+
         if (searchField != null) {
             searchField.textProperty().addListener((obs, oldValue, newValue) -> {
                 currentPage = 0;
@@ -1020,7 +1046,36 @@ public class PelletsLSalesController implements Initializable {
             .filter(r -> r.getSackGroup().equals(sackLabel) && !r.isTotalRow())
             .collect(Collectors.toList());
         slotIdx = 0;
-        renderSlot();
+
+        currentSackShifts = new ArrayList<>();
+        Map<String, List<PelletsLRecord>> shiftMap = currentSackSlots.stream()
+            .collect(Collectors.groupingBy(PelletsLRecord::getShiftLabel));
+        for (Map.Entry<String, List<PelletsLRecord>> entry : shiftMap.entrySet()) {
+            if (!entry.getKey().isEmpty()) {
+                List<PelletsLRecord> shiftRecords = entry.getValue();
+                int totalGood = shiftRecords.stream().mapToInt(PelletsLRecord::getBlastingGood).sum();
+                int totalRej = shiftRecords.stream().mapToInt(PelletsLRecord::getBlastingReject).sum();
+                String firstDate = shiftRecords.get(0).getDate();
+                currentSackShifts.add(new PelletsLRecord(firstDate, entry.getKey(), totalGood, totalRej, "", "", false, entry.getKey(), sackLabel, null));
+            }
+        }
+        shiftIdx = 0;
+
+        uniqueDates = currentSackSlots.stream()
+            .map(PelletsLRecord::getParsedDate)
+            .filter(d -> d != null)
+            .distinct()
+            .sorted()
+            .collect(Collectors.toList());
+        dayIdx = uniqueDates.size() - 1;
+
+        if (isDayView) {
+            renderDay();
+        } else if (isShiftView) {
+            renderShift();
+        } else {
+            renderSlot();
+        }
     }
 
     private void renderSlot() {
@@ -1063,17 +1118,116 @@ public class PelletsLSalesController implements Initializable {
         });
     }
 
+    private void renderShift() {
+        if (currentSackShifts.isEmpty()) {
+            return;
+        }
+        PelletsLRecord sl = currentSackShifts.get(shiftIdx);
+        int total = currentSackShifts.size();
+        int good = sl.getBlastingGood();
+        int rej = sl.getBlastingReject();
+        double rate = (good + rej) == 0 ? 0 : (rej * 100.0) / (good + rej);
+        int sackTotal = currentSackShifts.stream().mapToInt(PelletsLRecord::getBlastingGood).sum();
+
+        Platform.runLater(() -> {
+            slotTimeLabel.setText(sl.getShiftLabel());
+            slotDateLabel.setText(sl.getDate());
+            slotCounterLabel.setText("Shift " + (shiftIdx + 1) + " of " + total);
+            slotGoodLabel.setText(String.format("%,d", good));
+            slotRejLabel.setText(String.format("%,d", rej));
+            slotRateLabel.setText(String.format("%.1f%%", rate));
+
+            String rateColor;
+            if (rate >= 70) {
+                rateColor = "#C0392B";
+            } else if (rate >= 40) {
+                rateColor = "#D97706";
+            } else {
+                rateColor = "#16A34A";
+            }
+            slotRateLabel.setStyle("-fx-text-fill: " + rateColor + "; -fx-font-size: 20px; -fx-font-weight: bold;");
+
+            sackTotalGoodLabel.setText(String.format("%,d total", sackTotal));
+
+            prevSlotBtn.setDisable(shiftIdx == 0);
+            nextSlotBtn.setDisable(shiftIdx == total - 1);
+
+            updateSlotChart(sl);
+            buildDots(total);
+            buildContextStrip();
+        });
+    }
+
+    private void renderDay() {
+        if (uniqueDates.isEmpty()) {
+            return;
+        }
+        LocalDate currentDate = uniqueDates.get(dayIdx);
+        List<PelletsLRecord> dayRecords = currentSackSlots.stream()
+            .filter(r -> r.getParsedDate() != null && r.getParsedDate().equals(currentDate))
+            .collect(Collectors.toList());
+
+        int totalDays = uniqueDates.size();
+        int dayGood = dayRecords.stream().mapToInt(PelletsLRecord::getBlastingGood).sum();
+        int dayRej = dayRecords.stream().mapToInt(PelletsLRecord::getBlastingReject).sum();
+        double rate = (dayGood + dayRej) == 0 ? 0 : (dayRej * 100.0) / (dayGood + dayRej);
+
+        Platform.runLater(() -> {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
+            dayDateLabel.setText(currentDate.format(formatter));
+            dayCounterLabel.setText("Day " + (dayIdx + 1) + " of " + totalDays + " · " + dayRecords.size() + " shifts");
+            slotGoodLabel.setText(String.format("%,d", dayGood));
+            slotRejLabel.setText(String.format("%,d", dayRej));
+            slotRateLabel.setText(String.format("%.1f%%", rate));
+
+            String rateColor;
+            if (rate >= 70) {
+                rateColor = "#C0392B";
+            } else if (rate >= 40) {
+                rateColor = "#D97706";
+            } else {
+                rateColor = "#16A34A";
+            }
+            slotRateLabel.setStyle("-fx-text-fill: " + rateColor + "; -fx-font-size: 20px; -fx-font-weight: bold;");
+
+            sackTotalGoodLabel.setText(String.format("%,d total", dayGood));
+
+            prevDayBtn.setDisable(dayIdx == 0);
+            nextDayBtn.setDisable(dayIdx == totalDays - 1);
+
+            updateDayChart(dayRecords);
+        });
+    }
+
+    private void updateDayChart(List<PelletsLRecord> dayRecords) {
+        goodSeries.getData().clear();
+        rejSeries.getData().clear();
+
+        Map<String, List<PelletsLRecord>> shiftMap = dayRecords.stream()
+            .collect(Collectors.groupingBy(PelletsLRecord::getShiftLabel));
+
+        for (Map.Entry<String, List<PelletsLRecord>> entry : shiftMap.entrySet()) {
+            if (!entry.getKey().isEmpty()) {
+                int shiftGood = entry.getValue().stream().mapToInt(PelletsLRecord::getBlastingGood).sum();
+                int shiftRej = entry.getValue().stream().mapToInt(PelletsLRecord::getBlastingReject).sum();
+                goodSeries.getData().add(new XYChart.Data<>(entry.getKey(), shiftGood));
+                rejSeries.getData().add(new XYChart.Data<>(entry.getKey(), shiftRej));
+            }
+        }
+    }
+
     private void updateSlotChart(PelletsLRecord sl) {
         goodSeries.getData().clear();
         rejSeries.getData().clear();
-        goodSeries.getData().add(new XYChart.Data<>(sl.getTimeSlot(), sl.getBlastingGood()));
-        rejSeries.getData().add(new XYChart.Data<>(sl.getTimeSlot(), sl.getBlastingReject()));
+        String label = isShiftView ? sl.getShiftLabel() : sl.getTimeSlot();
+        goodSeries.getData().add(new XYChart.Data<>(label, sl.getBlastingGood()));
+        rejSeries.getData().add(new XYChart.Data<>(label, sl.getBlastingReject()));
     }
 
     private void buildDots(int total) {
         slotDotsBox.getChildren().clear();
         if (total > 9) {
-            Label label = new Label("slot " + (slotIdx + 1) + " of " + total);
+            Label label = new Label((isShiftView ? "shift" : "slot") + " " + ((isShiftView ? shiftIdx : slotIdx) + 1) + " of " + total);
             label.setStyle("-fx-font-size: 10px; -fx-text-fill: #9CA3AF;");
             slotDotsBox.getChildren().add(label);
             return;
@@ -1081,15 +1235,21 @@ public class PelletsLSalesController implements Initializable {
         for (int i = 0; i < total; i++) {
             final int idx = i;
             Region dot = new Region();
-            if (i == slotIdx) {
+            int currentIdx = isShiftView ? shiftIdx : slotIdx;
+            if (i == currentIdx) {
                 dot.setStyle("-fx-background-color: #1B2A3B; -fx-background-radius: 3; -fx-pref-width: 16; -fx-pref-height: 6;");
             } else {
                 dot.setStyle("-fx-background-color: #E5E7EB; -fx-background-radius: 3; -fx-pref-width: 6; -fx-pref-height: 6;");
             }
             dot.setCursor(Cursor.HAND);
             dot.setOnMouseClicked(e -> {
-                slotIdx = idx;
-                renderSlot();
+                if (isShiftView) {
+                    shiftIdx = idx;
+                    renderShift();
+                } else {
+                    slotIdx = idx;
+                    renderSlot();
+                }
             });
             slotDotsBox.getChildren().add(dot);
         }
@@ -1097,13 +1257,15 @@ public class PelletsLSalesController implements Initializable {
 
     private void buildContextStrip() {
         contextStrip.getChildren().clear();
-        int maxG = currentSackSlots.stream().mapToInt(PelletsLRecord::getBlastingGood).max().orElse(1);
-        int maxR = currentSackSlots.stream().mapToInt(PelletsLRecord::getBlastingReject).max().orElse(1);
+        List<PelletsLRecord> data = isShiftView ? currentSackShifts : currentSackSlots;
+        int maxG = data.stream().mapToInt(PelletsLRecord::getBlastingGood).max().orElse(1);
+        int maxR = data.stream().mapToInt(PelletsLRecord::getBlastingReject).max().orElse(1);
+        int currentIdx = isShiftView ? shiftIdx : slotIdx;
 
-        for (int i = 0; i < currentSackSlots.size(); i++) {
+        for (int i = 0; i < data.size(); i++) {
             final int idx = i;
-            PelletsLRecord r = currentSackSlots.get(i);
-            boolean active = (i == slotIdx);
+            PelletsLRecord r = data.get(i);
+            boolean active = (i == currentIdx);
 
             Region gBar = new Region();
             gBar.setPrefWidth(6);
@@ -1119,7 +1281,7 @@ public class PelletsLSalesController implements Initializable {
             bars.setAlignment(Pos.BOTTOM_CENTER);
             bars.setPrefHeight(24);
 
-            Label timeL = new Label(r.getTimeSlot());
+            Label timeL = new Label(isShiftView ? r.getShiftLabel() : r.getTimeSlot());
             timeL.setStyle("-fx-font-size: 9px; -fx-font-weight: bold; -fx-text-fill: " + (active ? "#E9B52D" : "#6B7280") + ";");
 
             VBox card = new VBox(3, bars, timeL);
@@ -1134,8 +1296,13 @@ public class PelletsLSalesController implements Initializable {
 
             card.setCursor(Cursor.HAND);
             card.setOnMouseClicked(e -> {
-                slotIdx = idx;
-                renderSlot();
+                if (isShiftView) {
+                    shiftIdx = idx;
+                    renderShift();
+                } else {
+                    slotIdx = idx;
+                    renderSlot();
+                }
             });
 
             contextStrip.getChildren().add(card);
@@ -1144,17 +1311,100 @@ public class PelletsLSalesController implements Initializable {
 
     @FXML
     private void onPrevSlot() {
-        if (slotIdx > 0) {
-            slotIdx--;
-            renderSlot();
+        if (isShiftView) {
+            if (shiftIdx > 0) {
+                shiftIdx--;
+                renderShift();
+            }
+        } else {
+            if (slotIdx > 0) {
+                slotIdx--;
+                renderSlot();
+            }
         }
     }
 
     @FXML
     private void onNextSlot() {
-        if (slotIdx < currentSackSlots.size() - 1) {
-            slotIdx++;
-            renderSlot();
+        if (isShiftView) {
+            if (shiftIdx < currentSackShifts.size() - 1) {
+                shiftIdx++;
+                renderShift();
+            }
+        } else {
+            if (slotIdx < currentSackSlots.size() - 1) {
+                slotIdx++;
+                renderSlot();
+            }
+        }
+    }
+
+    @FXML
+    private void onViewToggle() {
+        isShiftView = !isShiftView;
+        isDayView = false;
+        if (isShiftView) {
+            viewTitleLabel.setText("Good vs Rejected — shift view");
+            viewSubtitleLabel.setText("Use ‹ › to browse each shift within the selected sack");
+            viewToggleBtn.setText("Switch to Time Slot View");
+            dayViewBtn.setVisible(true);
+            dayViewBtn.setManaged(true);
+            slotNavigatorBar.setVisible(true);
+            slotNavigatorBar.setManaged(true);
+            dayNavigatorBar.setVisible(false);
+            dayNavigatorBar.setManaged(false);
+            shiftIdx = 0;
+            if (!currentSackShifts.isEmpty()) {
+                renderShift();
+            }
+        } else {
+            viewTitleLabel.setText("Good vs Rejected — time slot view");
+            viewSubtitleLabel.setText("Use ‹ › to browse each time slot within the selected sack");
+            viewToggleBtn.setText("Switch to Shift View");
+            dayViewBtn.setVisible(true);
+            dayViewBtn.setManaged(true);
+            slotNavigatorBar.setVisible(true);
+            slotNavigatorBar.setManaged(true);
+            dayNavigatorBar.setVisible(false);
+            dayNavigatorBar.setManaged(false);
+            slotIdx = 0;
+            if (!currentSackSlots.isEmpty()) {
+                renderSlot();
+            }
+        }
+    }
+
+    @FXML
+    private void onDayView() {
+        isDayView = true;
+        isShiftView = false;
+        viewTitleLabel.setText("Good vs Rejected — day view");
+        viewSubtitleLabel.setText("Use ‹ › to browse each day within the selected sack");
+        viewToggleBtn.setVisible(false);
+        viewToggleBtn.setManaged(false);
+        dayViewBtn.setText("Exit Day View");
+        slotNavigatorBar.setVisible(false);
+        slotNavigatorBar.setManaged(false);
+        dayNavigatorBar.setVisible(true);
+        dayNavigatorBar.setManaged(true);
+        if (!uniqueDates.isEmpty()) {
+            renderDay();
+        }
+    }
+
+    @FXML
+    private void onPrevDay() {
+        if (dayIdx > 0) {
+            dayIdx--;
+            renderDay();
+        }
+    }
+
+    @FXML
+    private void onNextDay() {
+        if (dayIdx < uniqueDates.size() - 1) {
+            dayIdx++;
+            renderDay();
         }
     }
 }

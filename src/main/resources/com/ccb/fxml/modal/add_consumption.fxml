@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.ccb.controller.modal.AddConsumptionController"
+      style="-fx-background-color: white; -fx-background-radius: 16;"
+      prefWidth="450" spacing="0">
+
+    <!-- Header -->
+    <HBox style="-fx-background-color: #8B5CF6; -fx-background-radius: 16 16 0 0; -fx-padding: 20 24;" alignment="CENTER_LEFT" maxWidth="Infinity">
+        <Label text="Add Consumption Record" style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+        <Button text="✕" onAction="#closeDialog"
+                style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 14px; -fx-cursor: hand; -fx-border-width: 0; -fx-padding: 0;"/>
+    </HBox>
+
+    <!-- Form -->
+    <VBox style="-fx-padding: 28 24; -fx-spacing: 18;">
+
+        <!-- Date -->
+        <VBox spacing="6">
+            <Label text="Date" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #8892b0; -fx-letter-spacing: 0.8px;"/>
+            <DatePicker fx:id="dateField" maxWidth="Infinity"
+                       style="-fx-background-color: #f4f6fb; -fx-background-radius: 8; -fx-border-color: #eaedf5; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 8 14; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Station -->
+        <VBox spacing="6">
+            <Label text="Station" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #8892b0; -fx-letter-spacing: 0.8px;"/>
+            <ComboBox fx:id="stationComboBox" promptText="Select Station" maxWidth="Infinity"
+                      style="-fx-background-color: #f4f6fb; -fx-background-radius: 8; -fx-border-color: #eaedf5; -fx-border-radius: 8; -fx-border-width: 1; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Material Name -->
+        <VBox spacing="6">
+            <Label text="Material Name" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #8892b0; -fx-letter-spacing: 0.8px;"/>
+            <TextField fx:id="materialField" promptText="e.g. Paint, Welding Rod, etc."
+                       style="-fx-background-color: #f4f6fb; -fx-background-radius: 8; -fx-border-color: #eaedf5; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 10 14; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Quantity & UOM -->
+        <HBox spacing="12">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="Quantity" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #8892b0; -fx-letter-spacing: 0.8px;"/>
+                <TextField fx:id="quantityField" promptText="0.00"
+                           style="-fx-background-color: #f4f6fb; -fx-background-radius: 8; -fx-border-color: #eaedf5; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 10 14; -fx-font-size: 13px;"/>
+            </VBox>
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="UOM" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #8892b0; -fx-letter-spacing: 0.8px;"/>
+                <TextField fx:id="uomField" promptText="e.g. pcs, kg, L"
+                           style="-fx-background-color: #f4f6fb; -fx-background-radius: 8; -fx-border-color: #eaedf5; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 10 14; -fx-font-size: 13px;"/>
+            </VBox>
+        </HBox>
+
+        <!-- Unit Price -->
+        <VBox spacing="6">
+            <Label text="Unit Price (₱)" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #8892b0; -fx-letter-spacing: 0.8px;"/>
+            <TextField fx:id="unitPriceField" promptText="0.00"
+                       style="-fx-background-color: #f4f6fb; -fx-background-radius: 8; -fx-border-color: #eaedf5; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 10 14; -fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Error label -->
+        <Label fx:id="errorLabel" text="" style="-fx-text-fill: #B71C1C; -fx-font-size: 11px;" visible="false" managed="false"/>
+
+        <!-- Buttons -->
+        <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 8 0 0 0;">
+            <Button text="Cancel" onAction="#closeDialog"
+                    style="-fx-background-color: #f4f6fb; -fx-text-fill: #8892b0; -fx-font-size: 13px; -fx-padding: 10 22; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-width: 0;"/>
+            <Button text="Save Record" onAction="#saveConsumption"
+                    style="-fx-background-color: #8B5CF6; -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 10 22; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-width: 0; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.30), 10, 0, 0, 3);"/>
+        </HBox>
+
+    </VBox>
+</VBox>
