@@ -8,21 +8,30 @@ import java.util.List;
 public class StationConsumptionRecord {
     private final LocalDate date;
     private final String station;
-    private final String materialName;
+    private final String materialCode;
+    private final String description;
     private final double quantity;
     private final String uom;
-    private final double unitPrice;
+    private final double unitCost;
     private final double totalCost;
+    private final String signature;
 
-    public StationConsumptionRecord(LocalDate date, String station, String materialName, 
-                                    double quantity, String uom, double unitPrice, double totalCost) {
+    public StationConsumptionRecord(LocalDate date, String station, String description, 
+                                    double quantity, String uom, String signature) {
+        this(date, station, "", description, quantity, uom, 0.0, quantity * 0.0, signature);
+    }
+
+    public StationConsumptionRecord(LocalDate date, String station, String materialCode, String description,
+                                    double quantity, String uom, double unitCost, double totalCost, String signature) {
         this.date = date;
         this.station = station == null ? "" : station.trim();
-        this.materialName = materialName == null ? "" : materialName.trim();
+        this.materialCode = materialCode == null ? "" : materialCode.trim();
+        this.description = description == null ? "" : description.trim();
         this.quantity = quantity;
         this.uom = uom == null ? "" : uom.trim();
-        this.unitPrice = unitPrice;
+        this.unitCost = unitCost;
         this.totalCost = totalCost;
+        this.signature = signature == null ? "" : signature.trim();
     }
 
     public LocalDate getDate() {
@@ -33,8 +42,12 @@ public class StationConsumptionRecord {
         return station;
     }
 
-    public String getMaterialName() {
-        return materialName;
+    public String getMaterialCode() {
+        return materialCode;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public double getQuantity() {
@@ -45,12 +58,16 @@ public class StationConsumptionRecord {
         return uom;
     }
 
-    public double getUnitPrice() {
-        return unitPrice;
+    public double getUnitCost() {
+        return unitCost;
     }
 
     public double getTotalCost() {
         return totalCost;
+    }
+
+    public String getSignature() {
+        return signature;
     }
 
     public String getDateString() {

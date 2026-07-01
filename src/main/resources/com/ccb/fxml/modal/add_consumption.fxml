@@ -1,76 +1,146 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.ccb.controller.modal.AddConsumptionController"
-      style="-fx-background-color: white; -fx-background-radius: 16;"
-      prefWidth="450" spacing="0">
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.ccb.controller.modal.AddConsumptionController"
+           prefWidth="1200" prefHeight="780"
+           style="-fx-background-color: transparent;">
 
-    <!-- Header -->
-    <HBox style="-fx-background-color: #8B5CF6; -fx-background-radius: 16 16 0 0; -fx-padding: 20 24;" alignment="CENTER_LEFT" maxWidth="Infinity">
-        <Label text="Add Consumption Record" style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-        <Button text="✕" onAction="#closeDialog"
-                style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 14px; -fx-cursor: hand; -fx-border-width: 0; -fx-padding: 0;"/>
-    </HBox>
+    <VBox maxWidth="1180" prefWidth="1180" spacing="0" styleClass="consumption-dialog-shell">
 
-    <!-- Form -->
-    <VBox style="-fx-padding: 28 24; -fx-spacing: 18;">
-
-        <!-- Date -->
-        <VBox spacing="6">
-            <Label text="Date" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #8892b0; -fx-letter-spacing: 0.8px;"/>
-            <DatePicker fx:id="dateField" maxWidth="Infinity"
-                       style="-fx-background-color: #f4f6fb; -fx-background-radius: 8; -fx-border-color: #eaedf5; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 8 14; -fx-font-size: 13px;"/>
-        </VBox>
-
-        <!-- Station -->
-        <VBox spacing="6">
-            <Label text="Station" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #8892b0; -fx-letter-spacing: 0.8px;"/>
-            <ComboBox fx:id="stationComboBox" promptText="Select Station" maxWidth="Infinity"
-                      style="-fx-background-color: #f4f6fb; -fx-background-radius: 8; -fx-border-color: #eaedf5; -fx-border-radius: 8; -fx-border-width: 1; -fx-font-size: 13px;"/>
-        </VBox>
-
-        <!-- Material Name -->
-        <VBox spacing="6">
-            <Label text="Material Name" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #8892b0; -fx-letter-spacing: 0.8px;"/>
-            <TextField fx:id="materialField" promptText="e.g. Paint, Welding Rod, etc."
-                       style="-fx-background-color: #f4f6fb; -fx-background-radius: 8; -fx-border-color: #eaedf5; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 10 14; -fx-font-size: 13px;"/>
-        </VBox>
-
-        <!-- Quantity & UOM -->
-        <HBox spacing="12">
-            <VBox spacing="6" HBox.hgrow="ALWAYS">
-                <Label text="Quantity" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #8892b0; -fx-letter-spacing: 0.8px;"/>
-                <TextField fx:id="quantityField" promptText="0.00"
-                           style="-fx-background-color: #f4f6fb; -fx-background-radius: 8; -fx-border-color: #eaedf5; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 10 14; -fx-font-size: 13px;"/>
+        <HBox styleClass="consumption-dialog-header" alignment="CENTER_LEFT" spacing="14">
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Station Consumption" styleClass="consumption-dialog-eyebrow"/>
+                <Label text="Record what each station used and automatically update the live inventory balance."
+                       wrapText="true" styleClass="consumption-dialog-title"/>
+                <Label text="One tap for the station, one tap for the material, then type the receiver."
+                       wrapText="true" styleClass="consumption-dialog-subtitle"/>
             </VBox>
-            <VBox spacing="6" HBox.hgrow="ALWAYS">
-                <Label text="UOM" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #8892b0; -fx-letter-spacing: 0.8px;"/>
-                <TextField fx:id="uomField" promptText="e.g. pcs, kg, L"
-                           style="-fx-background-color: #f4f6fb; -fx-background-radius: 8; -fx-border-color: #eaedf5; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 10 14; -fx-font-size: 13px;"/>
+
+            <VBox alignment="CENTER_RIGHT" spacing="6">
+                <Label fx:id="dateLabel" text="Today" styleClass="consumption-date-pill"/>
+                <Button text="Close" onAction="#closeDialog" styleClass="consumption-close-button"/>
             </VBox>
         </HBox>
 
-        <!-- Unit Price -->
-        <VBox spacing="6">
-            <Label text="Unit Price (₱)" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #8892b0; -fx-letter-spacing: 0.8px;"/>
-            <TextField fx:id="unitPriceField" promptText="0.00"
-                       style="-fx-background-color: #f4f6fb; -fx-background-radius: 8; -fx-border-color: #eaedf5; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 10 14; -fx-font-size: 13px;"/>
-        </VBox>
+        <HBox spacing="16" styleClass="consumption-body">
 
-        <!-- Error label -->
-        <Label fx:id="errorLabel" text="" style="-fx-text-fill: #B71C1C; -fx-font-size: 11px;" visible="false" managed="false"/>
+            <VBox spacing="14" HBox.hgrow="ALWAYS" styleClass="consumption-left-column">
 
-        <!-- Buttons -->
-        <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 8 0 0 0;">
-            <Button text="Cancel" onAction="#closeDialog"
-                    style="-fx-background-color: #f4f6fb; -fx-text-fill: #8892b0; -fx-font-size: 13px; -fx-padding: 10 22; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-width: 0;"/>
-            <Button text="Save Record" onAction="#saveConsumption"
-                    style="-fx-background-color: #8B5CF6; -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 10 22; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-width: 0; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.30), 10, 0, 0, 3);"/>
+                <VBox spacing="10" styleClass="consumption-panel">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Region styleClass="consumption-panel-accent"/>
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="Choose Station" styleClass="consumption-panel-title"/>
+                            <Label text="Pick the station card that received the material." styleClass="consumption-panel-subtitle"/>
+                        </VBox>
+                    </HBox>
+                    <FlowPane fx:id="stationCardsHost" hgap="10" vgap="10" prefWrapLength="760" styleClass="consumption-station-grid"/>
+                </VBox>
+
+                <VBox spacing="10" VBox.vgrow="ALWAYS" styleClass="consumption-panel">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Region styleClass="consumption-panel-accent consumption-panel-accent-blue"/>
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="Choose Material" styleClass="consumption-panel-title"/>
+                            <Label text="Search the inventory list, then click a card to select it." styleClass="consumption-panel-subtitle"/>
+                        </VBox>
+                        <TextField fx:id="searchField" promptText="Search code, description, or UOM" prefWidth="300"
+                                   styleClass="consumption-search-field"/>
+                    </HBox>
+
+                    <StackPane VBox.vgrow="ALWAYS" styleClass="consumption-material-shell">
+                        <ListView fx:id="materialsList" styleClass="consumption-material-list" StackPane.alignment="CENTER"/>
+                        <VBox fx:id="materialsEmptyState" alignment="CENTER" spacing="8" styleClass="consumption-empty-overlay" visible="false" managed="false">
+                            <Label text="No materials loaded yet" styleClass="consumption-empty-title"/>
+                            <Label text="If the list is empty, the current month sheet may still be loading."
+                                   wrapText="true" styleClass="consumption-empty-subtitle"/>
+                        </VBox>
+                    </StackPane>
+                </VBox>
+            </VBox>
+
+            <VBox spacing="14" prefWidth="360" maxWidth="360" styleClass="consumption-right-column">
+
+                <VBox spacing="12" styleClass="consumption-panel consumption-summary-panel">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Region styleClass="consumption-panel-accent consumption-panel-accent-red"/>
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="Review" styleClass="consumption-panel-title"/>
+                            <Label text="The record below updates automatically as you pick values." styleClass="consumption-panel-subtitle"/>
+                        </VBox>
+                    </HBox>
+
+                    <VBox spacing="4" styleClass="consumption-summary-block">
+                        <Label text="Station" styleClass="consumption-summary-label"/>
+                        <Label fx:id="selectedStationLabel" text="Choose a station" wrapText="true" styleClass="consumption-summary-value"/>
+                    </VBox>
+
+                    <VBox spacing="4" styleClass="consumption-summary-block">
+                        <Label text="Material" styleClass="consumption-summary-label"/>
+                        <Label fx:id="selectedMaterialLabel" text="Choose a material" wrapText="true" styleClass="consumption-summary-value"/>
+                        <Label fx:id="selectedMaterialCodeLabel" text="No material selected" styleClass="consumption-summary-meta"/>
+                    </VBox>
+
+                    <HBox spacing="10">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="consumption-summary-block">
+                            <Label text="UOM" styleClass="consumption-summary-label"/>
+                            <Label fx:id="selectedMaterialUnitLabel" text="UOM: --" styleClass="consumption-summary-meta"/>
+                        </VBox>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="consumption-summary-block">
+                            <Label text="Balance" styleClass="consumption-summary-label"/>
+                            <Label fx:id="selectedMaterialBalanceLabel" text="Balance: --" styleClass="consumption-summary-meta"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="10">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="consumption-summary-block">
+                            <Label text="Unit Cost" styleClass="consumption-summary-label"/>
+                            <Label fx:id="selectedMaterialUnitCostLabel" text="Unit cost: --" styleClass="consumption-summary-meta"/>
+                        </VBox>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS" styleClass="consumption-summary-block consumption-summary-highlight">
+                            <Label text="Total Cost" styleClass="consumption-summary-label"/>
+                            <Label fx:id="selectedMaterialTotalCostLabel" text="Total cost: --" styleClass="consumption-summary-total"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <VBox spacing="12" styleClass="consumption-panel">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Region styleClass="consumption-panel-accent consumption-panel-accent-yellow"/>
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="Receiver + Quantity" styleClass="consumption-panel-title"/>
+                            <Label text="Receiver can be typed. Quantity stays numeric and live-calculates cost." styleClass="consumption-panel-subtitle"/>
+                        </VBox>
+                    </HBox>
+
+                    <VBox spacing="6">
+                        <Label text="Received By" styleClass="consumption-field-label"/>
+                        <TextField fx:id="receiverField" promptText="Name of the person who received the material"
+                                   styleClass="consumption-text-field"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <Label text="Quantity" styleClass="consumption-field-label"/>
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Button fx:id="minusButton" text="-" styleClass="consumption-step-button"/>
+                            <TextField fx:id="quantityField" text="1" prefWidth="110" styleClass="consumption-qty-field"/>
+                            <Button fx:id="plusButton" text="+" styleClass="consumption-step-button"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+
+                    <Label fx:id="errorLabel" text="" visible="false" managed="false" styleClass="consumption-error-text"/>
+
+                    <HBox alignment="CENTER_RIGHT" spacing="10">
+                        <Button text="Cancel" onAction="#closeDialog" styleClass="consumption-secondary-button"/>
+                        <Button fx:id="saveButton" text="Record Consumption" styleClass="consumption-primary-button"/>
+                    </HBox>
+                </VBox>
+            </VBox>
         </HBox>
-
     </VBox>
-</VBox>
+</StackPane>

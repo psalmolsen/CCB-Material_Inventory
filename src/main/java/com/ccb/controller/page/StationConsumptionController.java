@@ -29,6 +29,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class StationConsumptionController implements Initializable {
@@ -117,7 +118,11 @@ public class StationConsumptionController implements Initializable {
             Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.initStyle(StageStyle.TRANSPARENT);
-            dialog.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+            scene.getStylesheets().add(Objects.requireNonNull(
+                    getClass().getResource("/com/ccb/css/style.css")).toExternalForm());
+            dialog.setScene(scene);
             dialog.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -262,11 +267,11 @@ public class StationConsumptionController implements Initializable {
             // Search filter
             if (!query.isEmpty()) {
                 String dateStr = r.getDateString().toLowerCase();
-                String materialStr = r.getMaterialName().toLowerCase();
+                String descriptionStr = r.getDescription().toLowerCase();
                 String stationStr = r.getStation().toLowerCase();
                 String uomStr = r.getUom().toLowerCase();
 
-                if (!dateStr.contains(query) && !materialStr.contains(query) && 
+                if (!dateStr.contains(query) && !descriptionStr.contains(query) && 
                     !stationStr.contains(query) && !uomStr.contains(query)) {
                     continue;
                 }
@@ -288,18 +293,30 @@ public class StationConsumptionController implements Initializable {
     }
 
     private StationConsumptionSummary computeSummary(List<StationConsumptionRecord> records) {
-        double totalCost = records.stream().mapToDouble(StationConsumptionRecord::getTotalCost).sum();
         double totalQuantity = records.stream().mapToDouble(StationConsumptionRecord::getQuantity).sum();
+        double totalCost = records.stream().mapToDouble(StationConsumptionRecord::getTotalCost).sum();
         
+        Map<String, Double> quantityByStation = records.stream()
+            .collect(Collectors.groupingBy(
+                StationConsumptionRecord::getStation,
+                Collectors.summingDouble(StationConsumptionRecord::getQuantity)
+            ));
+
         Map<String, Double> costByStation = records.stream()
             .collect(Collectors.groupingBy(
                 StationConsumptionRecord::getStation,
                 Collectors.summingDouble(StationConsumptionRecord::getTotalCost)
             ));
         
+        Map<String, Double> quantityByMaterial = records.stream()
+            .collect(Collectors.groupingBy(
+                StationConsumptionRecord::getDescription,
+                Collectors.summingDouble(StationConsumptionRecord::getQuantity)
+            ));
+
         Map<String, Double> costByMaterial = records.stream()
             .collect(Collectors.groupingBy(
-                StationConsumptionRecord::getMaterialName,
+                StationConsumptionRecord::getDescription,
                 Collectors.summingDouble(StationConsumptionRecord::getTotalCost)
             ));
 
@@ -313,7 +330,7 @@ public class StationConsumptionController implements Initializable {
             .map(Map.Entry::getKey)
             .orElse("");
 
-        return new StationConsumptionSummary(totalCost, totalQuantity, costByStation, costByMaterial, topStation, topMaterial, records.size());
+        return new StationConsumptionSummary(totalQuantity, totalCost, quantityByStation, quantityByMaterial, topStation, topMaterial, records.size());
     }
 
     private void buildPageShell() {
@@ -393,8 +410,8 @@ public class StationConsumptionController implements Initializable {
         Label cellStation = buildCell("—", "");
         cellStation.setPrefWidth(80); cellStation.setMinWidth(80);
         
-        Label cellMaterial = buildCell("—", "");
-        cellMaterial.setPrefWidth(150); cellMaterial.setMinWidth(150);
+        Label cellDescription = buildCell("—", "");
+        cellDescription.setPrefWidth(200); cellDescription.setMinWidth(200);
         
         Label cellQty = buildCell("—", "");
         cellQty.setPrefWidth(70); cellQty.setMinWidth(70);
@@ -402,13 +419,10 @@ public class StationConsumptionController implements Initializable {
         Label cellUom = buildCell("—", "");
         cellUom.setPrefWidth(60); cellUom.setMinWidth(60);
         
-        Label cellPrice = buildCell("—", "");
-        cellPrice.setPrefWidth(80); cellPrice.setMinWidth(80);
-        
-        Label cellCost = buildCell("—", "");
-        cellCost.setPrefWidth(90); cellCost.setMinWidth(90);
+        Label cellSignature = buildCell("—", "");
+        cellSignature.setPrefWidth(100); cellSignature.setMinWidth(100);
 
-        row.getChildren().addAll(cellDate, cellStation, cellMaterial, cellQty, cellUom, cellPrice, cellCost);
+        row.getChildren().addAll(cellDate, cellStation, cellDescription, cellQty, cellUom, cellSignature);
 
         for (Node child : row.getChildren()) {
             HBox.setHgrow(child, Priority.ALWAYS);
@@ -427,11 +441,10 @@ public class StationConsumptionController implements Initializable {
         header.getChildren().addAll(
                 headerCell("DATE", 90),
                 headerCell("STATION", 80),
-                headerCell("MATERIAL", 150),
+                headerCell("DESCRIPTION", 200),
                 headerCell("QTY", 70),
                 headerCell("UOM", 60),
-                headerCell("UNIT PRICE", 80),
-                headerCell("TOTAL COST", 90)
+                headerCell("SIGNATURE", 100)
         );
         for (Node node : header.getChildren()) {
             HBox.setHgrow(node, Priority.ALWAYS);
@@ -493,41 +506,32 @@ public class StationConsumptionController implements Initializable {
 
         VBox card1 = buildStatCard(
                 "TOTAL COST",
-                String.format("₱%,.2f", summary.getTotalCost()),
+                String.format("₱ %.2f", summary.getTotalCost()),
                 StyleConstants.BLUE,
-                "total material cost",
+                "overall consumption value",
                 "green",
                 "All stations"
         );
         
         VBox card2 = buildStatCard(
-                "TOTAL QUANTITY",
-                String.format("%.2f", summary.getTotalQuantity()),
-                Color.web("#D97706"),
-                "units consumed",
-                "green",
-                "All materials"
-        );
-
-        VBox card3 = buildStatCard(
                 "TOP STATION",
                 summary.getTopStation().isEmpty() ? "—" : summary.getTopStation(),
                 StyleConstants.GREEN,
-                "highest cost station",
+                "highest consumption",
                 "green",
-                "Most expensive"
+                "Most active"
+        );
+
+        VBox card3 = buildStatCard(
+                "TOP MATERIAL",
+                summary.getTopMaterial().isEmpty() ? "—" : summary.getTopMaterial(),
+                Color.web("#D97706"),
+                "most used material",
+                "green",
+                "Highest usage"
         );
 
         VBox card4 = buildStatCard(
-                "TOP MATERIAL",
-                summary.getTopMaterial().isEmpty() ? "—" : summary.getTopMaterial(),
-                StyleConstants.PURPLE,
-                "highest cost material",
-                "green",
-                "Most consumed"
-        );
-
-        VBox card5 = buildStatCard(
                 "TOTAL RECORDS",
                 String.format("%,d", summary.getRecordCount()),
                 Color.web("#6B7280"),
@@ -536,7 +540,7 @@ public class StationConsumptionController implements Initializable {
                 "All time"
         );
 
-        statCardsHost.getChildren().addAll(card1, card2, card3, card4, card5);
+        statCardsHost.getChildren().addAll(card1, card2, card3, card4);
         for (Node node : statCardsHost.getChildren()) {
             HBox.setHgrow(node, Priority.ALWAYS);
         }
@@ -594,7 +598,7 @@ public class StationConsumptionController implements Initializable {
     private void renderChartCards(StationConsumptionSummary summary) {
         chartCardsHost.getChildren().clear();
 
-        // Card 1: Bar Chart - Cost by Station
+        // Card 1: Bar Chart - Quantity by Station
         VBox barChartCard = new VBox(10);
         barChartCard.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #E5E7EB; -fx-border-width: 0.5; -fx-border-radius: 12px; -fx-background-radius: 12px; -fx-padding: 13 14;");
         
@@ -604,9 +608,9 @@ public class StationConsumptionController implements Initializable {
         barStripe.setStyle("-fx-background-color: #1F5FA6; -fx-pref-width: 3; -fx-min-width: 3; -fx-max-width: 3; -fx-pref-height: 24;");
         
         VBox barTitleBox = new VBox(2);
-        Label barTitle = new Label("Cost by Station");
+        Label barTitle = new Label("Quantity by Station");
         barTitle.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #1A2535;");
-        Label barDesc = new Label("Total material cost per station");
+        Label barDesc = new Label("Total material quantity per station");
         barDesc.setStyle("-fx-font-size: 10px; -fx-text-fill: #9CA3AF;");
         barTitleBox.getChildren().addAll(barTitle, barDesc);
         barHeader.getChildren().addAll(barStripe, barTitleBox);
@@ -623,14 +627,14 @@ public class StationConsumptionController implements Initializable {
         yAxis.setStyle("-fx-tick-label-fill: #6B7280; -fx-tick-label-font-size: 9px;");
 
         BarChart.Series<String, Number> series = new BarChart.Series<>();
-        for (Map.Entry<String, Double> entry : summary.getCostByStation().entrySet()) {
+        for (Map.Entry<String, Double> entry : summary.getQuantityByStation().entrySet()) {
             series.getData().add(new BarChart.Data<>(entry.getKey(), entry.getValue()));
         }
         barChart.getData().add(series);
 
         barChartCard.getChildren().addAll(barHeader, barChart);
 
-        // Card 2: Pie Chart - Cost by Material (Top 5)
+        // Card 2: Pie Chart - Quantity by Material (Top 5)
         VBox pieChartCard = new VBox(10);
         pieChartCard.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #E5E7EB; -fx-border-width: 0.5; -fx-border-radius: 12px; -fx-background-radius: 12px; -fx-padding: 13 14;");
         
@@ -640,9 +644,9 @@ public class StationConsumptionController implements Initializable {
         pieStripe.setStyle("-fx-background-color: #C0392B; -fx-pref-width: 3; -fx-min-width: 3; -fx-max-width: 3; -fx-pref-height: 24;");
         
         VBox pieTitleBox = new VBox(2);
-        Label pieTitle = new Label("Top Materials by Cost");
+        Label pieTitle = new Label("Top Materials by Quantity");
         pieTitle.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #1A2535;");
-        Label pieDesc = new Label("Top 5 most expensive materials");
+        Label pieDesc = new Label("Top 5 most used materials");
         pieDesc.setStyle("-fx-font-size: 10px; -fx-text-fill: #9CA3AF;");
         pieTitleBox.getChildren().addAll(pieTitle, pieDesc);
         pieHeader.getChildren().addAll(pieStripe, pieTitleBox);
@@ -650,7 +654,7 @@ public class StationConsumptionController implements Initializable {
         PieChart pieChart = new PieChart();
         pieChart.setLegendVisible(false);
         
-        List<Map.Entry<String, Double>> topMaterials = summary.getCostByMaterial().entrySet().stream()
+        List<Map.Entry<String, Double>> topMaterials = summary.getQuantityByMaterial().entrySet().stream()
             .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
             .limit(5)
             .collect(Collectors.toList());
@@ -698,19 +702,17 @@ public class StationConsumptionController implements Initializable {
     private void updateTableRow(HBox row, StationConsumptionRecord record) {
         Label cellDate = (Label) row.getChildren().get(0);
         Label cellStation = (Label) row.getChildren().get(1);
-        Label cellMaterial = (Label) row.getChildren().get(2);
+        Label cellDescription = (Label) row.getChildren().get(2);
         Label cellQty = (Label) row.getChildren().get(3);
         Label cellUom = (Label) row.getChildren().get(4);
-        Label cellPrice = (Label) row.getChildren().get(5);
-        Label cellCost = (Label) row.getChildren().get(6);
+        Label cellSignature = (Label) row.getChildren().get(5);
 
         cellDate.setText(record.getDateString());
         cellStation.setText(record.getStation());
-        cellMaterial.setText(record.getMaterialName());
+        cellDescription.setText(record.getDescription());
         cellQty.setText(String.format("%.2f", record.getQuantity()));
         cellUom.setText(record.getUom());
-        cellPrice.setText(String.format("₱%.2f", record.getUnitPrice()));
-        cellCost.setText(String.format("₱%,.2f", record.getTotalCost()));
+        cellSignature.setText(record.getSignature());
     }
 
     private Label buildCell(String text, String style) {
@@ -728,30 +730,31 @@ public class StationConsumptionController implements Initializable {
     }
 
     static class StationConsumptionSummary {
-        private final double totalCost;
         private final double totalQuantity;
-        private final Map<String, Double> costByStation;
-        private final Map<String, Double> costByMaterial;
+        private final double totalCost;
+        private final Map<String, Double> quantityByStation;
+        private final Map<String, Double> quantityByMaterial;
         private final String topStation;
         private final String topMaterial;
         private final int recordCount;
 
-        public StationConsumptionSummary(double totalCost, double totalQuantity, 
-                                         Map<String, Double> costByStation, Map<String, Double> costByMaterial,
+        public StationConsumptionSummary(double totalQuantity,
+                                         double totalCost,
+                                         Map<String, Double> quantityByStation, Map<String, Double> quantityByMaterial,
                                          String topStation, String topMaterial, int recordCount) {
-            this.totalCost = totalCost;
             this.totalQuantity = totalQuantity;
-            this.costByStation = costByStation;
-            this.costByMaterial = costByMaterial;
+            this.totalCost = totalCost;
+            this.quantityByStation = quantityByStation;
+            this.quantityByMaterial = quantityByMaterial;
             this.topStation = topStation;
             this.topMaterial = topMaterial;
             this.recordCount = recordCount;
         }
 
-        public double getTotalCost() { return totalCost; }
         public double getTotalQuantity() { return totalQuantity; }
-        public Map<String, Double> getCostByStation() { return costByStation; }
-        public Map<String, Double> getCostByMaterial() { return costByMaterial; }
+        public double getTotalCost() { return totalCost; }
+        public Map<String, Double> getQuantityByStation() { return quantityByStation; }
+        public Map<String, Double> getQuantityByMaterial() { return quantityByMaterial; }
         public String getTopStation() { return topStation; }
         public String getTopMaterial() { return topMaterial; }
         public int getRecordCount() { return recordCount; }
